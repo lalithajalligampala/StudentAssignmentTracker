@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Filter Assignments by Priority</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background-color: white;
+        }
+
+        select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #217dbb;
+        }
+
+        .home-btn {
+            display: block;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .home-btn:hover {
+            background-color: #1f2d3a;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Student Assignment &amp; Deadline Tracker</h1>
+    </div>
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>Filter Assignments by Priority</h2>
+
+            <form action="PriorityAssignment" method="get">
+
+                <div class="form-group">
+
+                    <label for="priority">
+                        Select Priority:
+                    </label>
+
+                    <select
+                        id="priority"
+                        name="priority"
+                        required>
+
+                        <option value="">
+                            -- Select Priority --
+                        </option>
+
+                        <option value="High">
+                            High
+                        </option>
+
+                        <option value="Medium">
+                            Medium
+                        </option>
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <input
+                    type="submit"
+                    value="Filter">
+
+            </form>
+
+
+            <a
+                class="home-btn"
+                href="index.html">
+                Back to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

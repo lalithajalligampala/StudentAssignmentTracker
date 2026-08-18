@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <!-- ==================== HelloServlet ==================== -->
+    <servlet>
+        <servlet-name>HelloServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.HelloServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <url-pattern>/HelloServlet</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== TestDB ==================== -->
+    <servlet>
+        <servlet-name>TestDB</servlet-name>
+        <servlet-class>com.tracker.servlet.TestDB</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>TestDB</servlet-name>
+        <url-pattern>/testdb</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== RegisterServlet ==================== -->
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.RegisterServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/RegisterServlet</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== LoginServlet ==================== -->
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.LoginServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/LoginServlet</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== ViewAssignmentsServlet ==================== -->
+    <servlet>
+        <servlet-name>ViewAssignmentsServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.ViewAssignmentsServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ViewAssignmentsServlet</servlet-name>
+        <url-pattern>/ViewAssignments</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== DeleteAssignmentServlet ==================== -->
+    <servlet>
+        <servlet-name>DeleteAssignmentServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.DeleteAssignmentServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DeleteAssignmentServlet</servlet-name>
+        <url-pattern>/DeleteAssignment</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== EditAssignmentServlet ==================== -->
+    <servlet>
+        <servlet-name>EditAssignmentServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.EditAssignmentServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>EditAssignmentServlet</servlet-name>
+        <url-pattern>/EditAssignment</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== UpdateAssignmentServlet ==================== -->
+    <servlet>
+        <servlet-name>UpdateAssignmentServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.UpdateAssignmentServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>UpdateAssignmentServlet</servlet-name>
+        <url-pattern>/UpdateAssignment</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== SearchAssignmentServlet ==================== -->
+    <servlet>
+        <servlet-name>SearchAssignmentServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.SearchAssignmentServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SearchAssignmentServlet</servlet-name>
+        <url-pattern>/SearchAssignment</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== PriorityAssignmentServlet ==================== -->
+    <servlet>
+        <servlet-name>PriorityAssignmentServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.PriorityAssignmentServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>PriorityAssignmentServlet</servlet-name>
+        <url-pattern>/PriorityAssignment</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== DeadlineSortServlet ==================== -->
+    <servlet>
+        <servlet-name>DeadlineSortServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.DeadlineSortServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DeadlineSortServlet</servlet-name>
+        <url-pattern>/DeadlineSort</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- ==================== DashboardServlet ==================== -->
+    <servlet>
+        <servlet-name>DashboardServlet</servlet-name>
+        <servlet-class>com.tracker.servlet.DashboardServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/Dashboard</url-pattern>
+    </servlet-mapping>
+
+</web-app>

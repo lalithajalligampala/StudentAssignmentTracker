@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Student Assignment &amp; Deadline Tracker</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .header p {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        /* ==================== AUTH BUTTONS ==================== */
+
+        .auth-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .auth-buttons a {
+            display: inline-block;
+            padding: 11px 28px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .login-button {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .login-button:hover {
+            background-color: #217dbb;
+        }
+
+        .register-button {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .register-button:hover {
+            background-color: #219150;
+        }
+
+        /* ==================== CONTAINER ==================== */
+
+        .container {
+            width: 85%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        /* ==================== CARD ==================== */
+
+        .card {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        /* ==================== MENU ==================== */
+
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .menu a {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .menu a:hover {
+            background-color: #217dbb;
+        }
+
+        .dashboard-button {
+            background-color: #27ae60 !important;
+        }
+
+        .dashboard-button:hover {
+            background-color: #219150 !important;
+        }
+
+        /* ==================== STATUS ==================== */
+
+        .status-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #3498db;
+        }
+
+        .status h3 {
+            margin-top: 0;
+        }
+
+        .status p {
+            margin-bottom: 0;
+        }
+
+        .status-upcoming {
+            border-left-color: #27ae60;
+        }
+
+        .status-due {
+            border-left-color: #e67e22;
+        }
+
+        .status-overdue {
+            border-left-color: #e74c3c;
+        }
+
+        /* ==================== FOOTER ==================== */
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ==================== HEADER ==================== -->
+
+    <div class="header">
+
+        <h1>
+            Student Assignment &amp; Deadline Tracker
+        </h1>
+
+        <p>
+            Manage your assignments and keep track of important deadlines.
+        </p>
+
+
+        <!-- Login / Register -->
+
+        <div class="auth-buttons">
+
+            <a class="login-button"
+               href="login.html">
+                Login
+            </a>
+
+            <a class="register-button"
+               href="register.html">
+                Register
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="container">
+
+
+        <!-- ==================== WELCOME ==================== -->
+
+        <div class="card">
+
+            <h2>Welcome</h2>
+
+            <p>
+                Welcome to the Student Assignment Tracker.
+            </p>
+
+            <p>
+                Use this application to add, view, edit, delete and
+                search your assignments while keeping track of deadlines
+                and priorities.
+            </p>
+
+        </div>
+
+
+
+        <!-- ==================== MENU ==================== -->
+
+        <div class="card">
+
+            <h2>Menu</h2>
+
+            <div class="menu">
+
+
+                <!-- Dashboard -->
+
+                <a class="dashboard-button"
+                   href="Dashboard">
+
+                    Dashboard
+
+                </a>
+
+
+                <!-- Add Assignment -->
+
+                <a href="add.html">
+
+                    Add Assignment
+
+                </a>
+
+
+                <!-- View Assignments -->
+
+                <a href="ViewAssignments">
+
+                    View Assignments
+
+                </a>
+
+
+                <!-- Search -->
+
+                <a href="SearchAssignment">
+
+                    Search Assignments
+
+                </a>
+
+
+                <!-- Priority -->
+
+                <a href="PriorityAssignment">
+
+                    Filter by Priority
+
+                </a>
+
+
+                <!-- Deadline -->
+
+                <a href="DeadlineSort">
+
+                    Sort by Deadline
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================== ASSIGNMENT STATUS ==================== -->
+
+        <div class="card">
+
+            <h2>Assignment Status</h2>
+
+            <div class="status-container">
+
+
+                <div class="status status-upcoming">
+
+                    <h3>Upcoming</h3>
+
+                    <p>
+                        Deadline is more than 3 days away.
+                    </p>
+
+                </div>
+
+
+
+                <div class="status status-due">
+
+                    <h3>Due Soon</h3>
+
+                    <p>
+                        Deadline is today or within 3 days.
+                    </p>
+
+                </div>
+
+
+
+                <div class="status status-overdue">
+
+                    <h3>Overdue</h3>
+
+                    <p>
+                        Deadline has already passed.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================== DASHBOARD ==================== -->
+
+        <div class="card">
+
+            <h2>View Your Dashboard</h2>
+
+            <p>
+                Check your total assignments, high-priority assignments,
+                assignments due soon, and overdue assignments.
+            </p>
+
+            <div class="menu">
+
+                <a class="dashboard-button"
+                   href="Dashboard">
+
+                    Open Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <!-- ==================== FOOTER ==================== -->
+
+    <div class="footer">
+
+        <p>
+            Student Assignment &amp; Deadline Tracker
+        </p>
+
+        <p>
+            Java Servlet &bull; MySQL &bull; Apache Tomcat
+        </p>
+
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Student Assignment & Deadline Tracker - Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f8;
+            color: #222;
+        }
+
+        .header {
+            background-color: #2c4054;
+            color: white;
+            text-align: center;
+            padding: 28px 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 42px;
+        }
+
+        .header p {
+            margin: 12px 0 0;
+            font-size: 20px;
+        }
+
+        .container {
+            width: 500px;
+            max-width: 90%;
+            margin: 75px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        h2 {
+            text-align: center;
+            color: #294766;
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 22px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .register-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            background-color: #2c4054;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .register-btn:hover {
+            background-color: #1f3040;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            color: #555;
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Student Assignment & Deadline Tracker</h1>
+        <p>Manage your assignments and keep track of important deadlines.</p>
+    </div>
+
+    <div class="container">
+
+        <h2>Login</h2>
+
+        <form action="LoginServlet" method="post">
+
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+            >
+
+            <label for="password">Password:</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+            <button type="submit" class="login-btn">
+                Login
+            </button>
+
+        </form>
+
+        <div class="message">
+            Don't have an account?
+        </div>
+
+        <a href="register.html" class="register-btn">
+            Create Account
+        </a>
+
+    </div>
+
+</body>
+</html>
