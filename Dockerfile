@@ -1,7 +1,7 @@
-# Build stage
-FROM eclipse-temurin:17-jdk AS build
+FROM tomcat:9.0-jdk17-temurin
 
-WORKDIR /app
+# Remove default Tomcat applications
+RUN rm -rf /usr/local/tomcat/webapps/*
 
 # Copy project files
 COPY src /app/src
@@ -11,20 +11,14 @@ COPY lib /app/lib
 # Create classes directory
 RUN mkdir -p /app/web/WEB-INF/classes
 
-# Compile Java Servlet files
+# Compile Java Servlet source files
 RUN javac \
-    -cp "/app/lib/*" \
-    -d /app/web/WEB-INF/classes \
+    -cp "/usr/local/tomcat/lib/*:/app/lib/*" \
+    -d "/app/web/WEB-INF/classes" \
     $(find /app/src -name "*.java")
 
-# Runtime stage
-FROM tomcat:9.0-jdk17-temurin
-
-# Remove default Tomcat applications
-RUN rm -rf /usr/local/tomcat/webapps/*
-
-# Copy application
-COPY --from=build /app/web /usr/local/tomcat/webapps/StudentAssignmentTracker
+# Deploy application as ROOT
+RUN cp -r /app/web/* /usr/local/tomcat/webapps/ROOT/
 
 # Render provides the PORT environment variable
 CMD ["sh", "-c", "sed -i \"s/port=\\\"8080\\\"/port=\\\"${PORT}\\\"/\" /usr/local/tomcat/conf/server.xml && catalina.sh run"]
