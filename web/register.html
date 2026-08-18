@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Registration Successful - Student Assignment Tracker</title>
+    <title>Register - Student Assignment Tracker</title>
 
     <style>
         * {
@@ -18,7 +18,6 @@
             color: #1f2933;
         }
 
-        /* Header */
         .header {
             background-color: #2c3e50;
             color: white;
@@ -29,7 +28,6 @@
         .header h1 {
             margin: 0;
             font-size: 36px;
-            font-weight: bold;
         }
 
         .header p {
@@ -37,93 +35,86 @@
             font-size: 18px;
         }
 
-        /* Main container */
         .container {
-            max-width: 700px;
+            max-width: 550px;
             margin: 60px auto;
             padding: 0 20px;
         }
 
-        /* Success card */
-        .success-card {
+        .register-card {
             background-color: white;
-            padding: 45px;
+            padding: 40px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        .register-card h2 {
             text-align: center;
-        }
-
-        .success-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 20px;
-            background-color: #27ae60;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 38px;
-            font-weight: bold;
-        }
-
-        .success-card h2 {
             color: #2c3e50;
             font-size: 30px;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .success-card p {
-            font-size: 18px;
-            margin: 12px 0;
-            color: #333;
-        }
-
-        .welcome {
-            font-size: 21px !important;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
-            color: #2c3e50 !important;
+            color: #2c3e50;
         }
 
-        /* Button */
-        .login-button {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 14px 35px;
+        .form-group input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 14px;
             background-color: #3498db;
             color: white;
-            text-decoration: none;
+            border: none;
             border-radius: 6px;
             font-size: 18px;
             font-weight: bold;
-            transition: background-color 0.2s;
+            cursor: pointer;
+            margin-top: 10px;
         }
 
-        .login-button:hover {
+        .register-button:hover {
             background-color: #2980b9;
         }
 
-        /* Mobile */
-        @media (max-width: 600px) {
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
 
+        .login-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
             .header h1 {
                 font-size: 28px;
             }
 
-            .header p {
-                font-size: 16px;
-            }
-
-            .container {
-                margin: 35px auto;
-            }
-
-            .success-card {
+            .register-card {
                 padding: 30px 20px;
-            }
-
-            .success-card h2 {
-                font-size: 25px;
             }
         }
     </style>
@@ -131,36 +122,68 @@
 
 <body>
 
-    <header class="header">
-        <h1>Student Assignment &amp; Deadline Tracker</h1>
-        <p>Manage your assignments and keep track of important deadlines.</p>
-    </header>
+<header class="header">
+    <h1>Student Assignment &amp; Deadline Tracker</h1>
+    <p>Manage your assignments and keep track of important deadlines.</p>
+</header>
 
-    <main class="container">
+<main class="container">
 
-        <div class="success-card">
+    <div class="register-card">
 
-            <div class="success-icon">
-                ✓
+        <h2>Create Account</h2>
+
+        <!-- IMPORTANT:
+             This sends the data to RegisterServlet -->
+        <form action="register" method="post">
+
+            <div class="form-group">
+                <label for="name">Name</label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your name"
+                    required>
             </div>
 
-            <h2>Registration Successful!</h2>
+            <div class="form-group">
+                <label for="email">Email</label>
 
-            <p class="welcome">
-                Welcome, krishna!
-            </p>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required>
+            </div>
 
-            <p>
-                Your account has been created successfully.
-            </p>
+            <div class="form-group">
+                <label for="password">Password</label>
 
-            <a href="login.html" class="login-button">
-                Go to Login
-            </a>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required>
+            </div>
 
+            <button type="submit" class="register-button">
+                Register
+            </button>
+
+        </form>
+
+        <div class="login-link">
+            Already have an account?
+            <a href="login.html">Login</a>
         </div>
 
-    </main>
+    </div>
+
+</main>
 
 </body>
 </html>
