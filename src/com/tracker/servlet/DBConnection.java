@@ -32,16 +32,14 @@ public class DBConnection {
 
             System.out.println("=================================");
             System.out.println("Connecting to MySQL database...");
-            System.out.println("Database Host URL: " + url);
             System.out.println("Database User: " + user);
             System.out.println("=================================");
 
-            Connection connection =
-                    DriverManager.getConnection(
-                            url,
-                            user,
-                            password
-                    );
+            Connection connection = DriverManager.getConnection(
+                    url,
+                    user,
+                    password
+            );
 
             System.out.println("Database connected successfully!");
 
