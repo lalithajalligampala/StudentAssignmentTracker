@@ -23,11 +23,16 @@ public class DashboardServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
+        // IMPORTANT: This was missing in your code.
+        // All out.println(...) statements require this variable.
+        PrintWriter out = response.getWriter();
+
         String contextPath = request.getContextPath();
 
-        /*
-         * Check login session
-         */
+        // ---------------------------------------------------------
+        // CHECK LOGIN SESSION
+        // ---------------------------------------------------------
+
         HttpSession session = request.getSession(false);
 
         if (session == null ||
@@ -40,9 +45,10 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
-        /*
-         * Get logged-in user's ID
-         */
+        // ---------------------------------------------------------
+        // GET LOGGED-IN USER ID
+        // ---------------------------------------------------------
+
         int userId;
 
         try {
@@ -77,17 +83,19 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
+        // ---------------------------------------------------------
+        // DASHBOARD COUNTERS
+        // ---------------------------------------------------------
+
         int totalAssignments = 0;
         int highPriority = 0;
         int dueSoon = 0;
         int overdue = 0;
 
-        /*
-         * Load assignments ONLY for the logged-in user.
-         *
-         * IMPORTANT:
-         * Do not remove the WHERE user_id = ? condition.
-         */
+        // ---------------------------------------------------------
+        // LOAD ONLY THE LOGGED-IN USER'S ASSIGNMENTS
+        // ---------------------------------------------------------
+
         try {
 
             Connection con =
@@ -162,7 +170,14 @@ public class DashboardServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Dashboard Error</title>");
+
+            out.println(
+                "<meta charset='UTF-8'>"
+            );
+
+            out.println(
+                "<title>Dashboard Error</title>"
+            );
 
             out.println("<style>");
 
@@ -205,7 +220,6 @@ public class DashboardServlet extends HttpServlet {
 
             out.println("</style>");
             out.println("</head>");
-
             out.println("<body>");
 
             out.println("<div class='error'>");
@@ -229,7 +243,6 @@ public class DashboardServlet extends HttpServlet {
             );
 
             out.println("</div>");
-
             out.println("</body>");
             out.println("</html>");
 
@@ -238,9 +251,9 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
-        /*
-         * HTML PAGE
-         */
+        // ---------------------------------------------------------
+        // HTML PAGE
+        // ---------------------------------------------------------
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -373,14 +386,13 @@ public class DashboardServlet extends HttpServlet {
         );
 
         out.println("</style>");
-
         out.println("</head>");
 
         out.println("<body>");
 
-        /*
-         * Header
-         */
+        // ---------------------------------------------------------
+        // HEADER
+        // ---------------------------------------------------------
 
         out.println("<div class='header'>");
 
@@ -392,15 +404,15 @@ public class DashboardServlet extends HttpServlet {
 
         out.println("</div>");
 
-        /*
-         * Main container
-         */
+        // ---------------------------------------------------------
+        // MAIN CONTAINER
+        // ---------------------------------------------------------
 
         out.println("<div class='container'>");
 
-        /*
-         * Dashboard statistics
-         */
+        // ---------------------------------------------------------
+        // DASHBOARD STATISTICS
+        // ---------------------------------------------------------
 
         out.println("<div class='card'>");
 
@@ -410,9 +422,7 @@ public class DashboardServlet extends HttpServlet {
 
         out.println("<div class='stats'>");
 
-        /*
-         * Total Assignments
-         */
+        // TOTAL ASSIGNMENTS
 
         out.println("<div class='stat'>");
 
@@ -428,9 +438,7 @@ public class DashboardServlet extends HttpServlet {
 
         out.println("</div>");
 
-        /*
-         * High Priority
-         */
+        // HIGH PRIORITY
 
         out.println("<div class='stat'>");
 
@@ -446,9 +454,7 @@ public class DashboardServlet extends HttpServlet {
 
         out.println("</div>");
 
-        /*
-         * Due Soon
-         */
+        // DUE SOON
 
         out.println("<div class='stat'>");
 
@@ -464,9 +470,7 @@ public class DashboardServlet extends HttpServlet {
 
         out.println("</div>");
 
-        /*
-         * Overdue
-         */
+        // OVERDUE
 
         out.println("<div class='stat'>");
 
@@ -485,9 +489,9 @@ public class DashboardServlet extends HttpServlet {
         out.println("</div>");
         out.println("</div>");
 
-        /*
-         * Quick Actions
-         */
+        // ---------------------------------------------------------
+        // QUICK ACTIONS
+        // ---------------------------------------------------------
 
         out.println("<div class='card'>");
 
@@ -535,9 +539,9 @@ public class DashboardServlet extends HttpServlet {
         out.println("</div>");
         out.println("</div>");
 
-        /*
-         * Back to Home
-         */
+        // ---------------------------------------------------------
+        // BACK TO HOME
+        // ---------------------------------------------------------
 
         out.println(
             "<a class='button home-button' href='" +
