@@ -21,6 +21,9 @@ public class EditAssignmentServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
+        // Automatically works locally and on Render
+        String contextPath = request.getContextPath();
+
         String id = request.getParameter("id");
 
         out.println("<!DOCTYPE html>");
@@ -161,6 +164,12 @@ public class EditAssignmentServlet extends HttpServlet {
 
                 Connection con = DBConnection.getConnection();
 
+                if (con == null) {
+                    throw new Exception(
+                        "Database connection failed."
+                    );
+                }
+
                 String sql =
                         "SELECT * FROM assignments WHERE id = ?";
 
@@ -173,8 +182,12 @@ public class EditAssignmentServlet extends HttpServlet {
 
                 if (rs.next()) {
 
+                    // FIXED:
+                    // Do not hard-code /StudentAssignmentTracker
                     out.println(
-                        "<form action='/StudentAssignmentTracker/UpdateAssignment' method='post'>"
+                        "<form action='" +
+                        contextPath +
+                        "/UpdateAssignment' method='post'>"
                     );
 
                     out.println(
@@ -253,33 +266,42 @@ public class EditAssignmentServlet extends HttpServlet {
                             rs.getString("priority");
 
                     if ("High".equals(priority)) {
+
                         out.println(
                             "<option value='High' selected>" +
                             "High</option>"
                         );
+
                     } else {
+
                         out.println(
                             "<option value='High'>High</option>"
                         );
                     }
 
                     if ("Medium".equals(priority)) {
+
                         out.println(
                             "<option value='Medium' selected>" +
                             "Medium</option>"
                         );
+
                     } else {
+
                         out.println(
                             "<option value='Medium'>Medium</option>"
                         );
                     }
 
                     if ("Low".equals(priority)) {
+
                         out.println(
                             "<option value='Low' selected>" +
                             "Low</option>"
                         );
+
                     } else {
+
                         out.println(
                             "<option value='Low'>Low</option>"
                         );
@@ -309,6 +331,14 @@ public class EditAssignmentServlet extends HttpServlet {
                 ps.close();
                 con.close();
 
+            } catch (NumberFormatException e) {
+
+                out.println(
+                    "<h3 class='error'>" +
+                    "Invalid Assignment ID" +
+                    "</h3>"
+                );
+
             } catch (Exception e) {
 
                 out.println(
@@ -320,9 +350,13 @@ public class EditAssignmentServlet extends HttpServlet {
             }
         }
 
+        // FIXED:
+        // Automatically works locally and on Render
         out.println(
             "<a class='back-btn' " +
-            "href='/StudentAssignmentTracker/ViewAssignments'>" +
+            "href='" +
+            contextPath +
+            "/ViewAssignments'>" +
             "Back to Assignments" +
             "</a>"
         );
