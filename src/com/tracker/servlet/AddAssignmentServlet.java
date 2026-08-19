@@ -21,25 +21,31 @@ public class AddAssignmentServlet extends HttpServlet {
         response.setContentType("text/html");
         response.setCharacterEncoding("UTF-8");
 
-        PrintWriter out = response.getWriter();
+        String contextPath = request.getContextPath();
 
-        // Get logged-in user's session
+        /*
+         * IMPORTANT:
+         * Get the currently logged-in user's session.
+         */
         HttpSession session = request.getSession(false);
 
-        if (session == null ||
-            session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute("userId") == null) {
 
-            out.println("<html><body>");
-            out.println("<h2>Login Required</h2>");
-            out.println("<p>Please login before adding an assignment.</p>");
-            out.println("<a href='login.html'>Go to Login</a>");
-            out.println("</body></html>");
-
+            response.sendRedirect(contextPath + "/login.html");
             return;
         }
 
-        int userId =
-                (Integer) session.getAttribute("userId");
+        int userId;
+
+        try {
+
+            userId = (Integer) session.getAttribute("userId");
+
+        } catch (Exception e) {
+
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
 
         String assignmentName =
                 request.getParameter("assignment_name");
@@ -53,7 +59,11 @@ public class AddAssignmentServlet extends HttpServlet {
         String priority =
                 request.getParameter("priority");
 
-        // Validate input
+        PrintWriter out = response.getWriter();
+
+        /*
+         * Validate input.
+         */
         if (assignmentName == null ||
             assignmentName.trim().isEmpty() ||
 
@@ -73,7 +83,10 @@ public class AddAssignmentServlet extends HttpServlet {
             out.println("<p>All fields are required.</p>");
 
             out.println(
-                "<a href='add-assignment.html'>Go Back</a>"
+                "<a href='" +
+                contextPath +
+                "/add-assignment.html'>" +
+                "Go Back</a>"
             );
 
             out.println("</body></html>");
@@ -81,6 +94,13 @@ public class AddAssignmentServlet extends HttpServlet {
             return;
         }
 
+        /*
+         * IMPORTANT CHANGE:
+         *
+         * user_id is now included in the INSERT.
+         *
+         * The assignment belongs to the currently logged-in user.
+         */
         String sql =
                 "INSERT INTO assignments " +
                 "(assignment_name, subject, deadline, priority, user_id) " +
@@ -106,7 +126,10 @@ public class AddAssignmentServlet extends HttpServlet {
                 );
 
                 out.println(
-                    "<a href='add-assignment.html'>Try Again</a>"
+                    "<a href='" +
+                    contextPath +
+                    "/add-assignment.html'>" +
+                    "Try Again</a>"
                 );
 
                 out.println("</body></html>");
@@ -137,7 +160,10 @@ public class AddAssignmentServlet extends HttpServlet {
                     priority.trim()
             );
 
-            // Logged-in user's ID
+            /*
+             * IMPORTANT:
+             * Save the logged-in user's ID.
+             */
             statement.setInt(
                     5,
                     userId
@@ -152,41 +178,88 @@ public class AddAssignmentServlet extends HttpServlet {
 
                 out.println("<head>");
                 out.println("<title>Assignment Added</title>");
+
+                out.println(
+                    "<style>" +
+
+                    "body {" +
+                    "font-family: Arial, sans-serif;" +
+                    "background-color: #f4f6f8;" +
+                    "text-align: center;" +
+                    "padding-top: 80px;" +
+                    "}" +
+
+                    ".box {" +
+                    "background: white;" +
+                    "width: 600px;" +
+                    "max-width: 90%;" +
+                    "margin: auto;" +
+                    "padding: 35px;" +
+                    "border-radius: 12px;" +
+                    "box-shadow: 0 3px 12px rgba(0,0,0,0.12);" +
+                    "}" +
+
+                    "h2 {" +
+                    "color: #27ae60;" +
+                    "}" +
+
+                    ".button {" +
+                    "display: inline-block;" +
+                    "margin-top: 20px;" +
+                    "padding: 12px 20px;" +
+                    "background-color: #2c3e50;" +
+                    "color: white;" +
+                    "text-decoration: none;" +
+                    "border-radius: 6px;" +
+                    "font-weight: bold;" +
+                    "}" +
+
+                    "</style>"
+                );
+
                 out.println("</head>");
 
                 out.println("<body>");
+
+                out.println("<div class='box'>");
 
                 out.println(
                     "<h2>Assignment Added Successfully!</h2>"
                 );
 
                 out.println(
-                    "<p>Assignment: " +
-                    assignmentName.trim() +
+                    "<p><strong>Assignment:</strong> " +
+                    escapeHtml(assignmentName.trim()) +
                     "</p>"
                 );
 
                 out.println(
-                    "<p>Subject: " +
-                    subject.trim() +
+                    "<p><strong>Subject:</strong> " +
+                    escapeHtml(subject.trim()) +
                     "</p>"
                 );
 
                 out.println(
-                    "<p>Deadline: " +
-                    deadline +
+                    "<p><strong>Deadline:</strong> " +
+                    escapeHtml(deadline) +
                     "</p>"
                 );
 
                 out.println(
-                    "<p>Priority: " +
-                    priority.trim() +
+                    "<p><strong>Priority:</strong> " +
+                    escapeHtml(priority.trim()) +
                     "</p>"
                 );
 
                 out.println(
-                    "<a href='" +
-                    request.getContextPath() +
+                    "<p><strong>User ID:</strong> " +
+                    userId +
+                    "</p>"
+                );
+
+                out.println(
+                    "<a class='button' href='" +
+                    contextPath +
                     "/ViewAssignments'>" +
                     "View My Assignments</a>"
                 );
@@ -194,11 +267,13 @@ public class AddAssignmentServlet extends HttpServlet {
                 out.println("<br><br>");
 
                 out.println(
-                    "<a href='" +
-                    request.getContextPath() +
+                    "<a class='button' href='" +
+                    contextPath +
                     "/add-assignment.html'>" +
                     "Add Another Assignment</a>"
                 );
+
+                out.println("</div>");
 
                 out.println("</body>");
                 out.println("</html>");
@@ -213,7 +288,7 @@ public class AddAssignmentServlet extends HttpServlet {
 
                 out.println(
                     "<a href='" +
-                    request.getContextPath() +
+                    contextPath +
                     "/add-assignment.html'>" +
                     "Try Again</a>"
                 );
@@ -225,26 +300,37 @@ public class AddAssignmentServlet extends HttpServlet {
 
             e.printStackTrace();
 
-            out.println("<html><body>");
+            out.println("<html>");
+
+            out.println("<head>");
+            out.println("<title>Assignment Error</title>");
+            out.println("</head>");
+
+            out.println("<body>");
 
             out.println(
-                "<h2>Failed to Add Assignment</h2>"
+                "<h2>Error Saving Assignment</h2>"
             );
 
             out.println(
-                "<p>" +
-                e.getMessage() +
+                "<p>Something went wrong while saving the assignment.</p>"
+            );
+
+            out.println(
+                "<p><strong>Error:</strong> " +
+                escapeHtml(e.getMessage()) +
                 "</p>"
             );
 
             out.println(
                 "<a href='" +
-                request.getContextPath() +
+                contextPath +
                 "/add-assignment.html'>" +
-                "Try Again</a>"
+                "Back to Add Assignment</a>"
             );
 
-            out.println("</body></html>");
+            out.println("</body>");
+            out.println("</html>");
 
         } finally {
 
@@ -268,5 +354,23 @@ public class AddAssignmentServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
+    }
+
+    /*
+     * Prevent HTML characters from being written directly
+     * into the response.
+     */
+    private String escapeHtml(String value) {
+
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }
