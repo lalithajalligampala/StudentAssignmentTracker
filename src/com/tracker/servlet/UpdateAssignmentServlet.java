@@ -1,3 +1,4 @@
+```java
 package com.tracker.servlet;
 
 import java.io.IOException;
@@ -20,11 +21,18 @@ public class UpdateAssignmentServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
+        // Automatically works locally and on Render
+        String contextPath = request.getContextPath();
+
         String id = request.getParameter("id");
-        String assignmentName = request.getParameter("assignment_name");
-        String subject = request.getParameter("subject");
-        String deadline = request.getParameter("deadline");
-        String priority = request.getParameter("priority");
+        String assignmentName =
+                request.getParameter("assignment_name");
+        String subject =
+                request.getParameter("subject");
+        String deadline =
+                request.getParameter("deadline");
+        String priority =
+                request.getParameter("priority");
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -102,7 +110,9 @@ public class UpdateAssignmentServlet extends HttpServlet {
         out.println("<body>");
 
         out.println("<div class='header'>");
-        out.println("<h1>Student Assignment &amp; Deadline Tracker</h1>");
+        out.println(
+            "<h1>Student Assignment &amp; Deadline Tracker</h1>"
+        );
         out.println("</div>");
 
         out.println("<div class='container'>");
@@ -111,13 +121,26 @@ public class UpdateAssignmentServlet extends HttpServlet {
 
         try {
 
+            // Check database connection
             Connection con = DBConnection.getConnection();
 
-            String sql = "UPDATE assignments SET assignment_name = ?, "
-                       + "subject = ?, deadline = ?, priority = ? "
-                       + "WHERE id = ?";
+            if (con == null) {
+                throw new Exception(
+                    "Database connection failed."
+                );
+            }
 
-            PreparedStatement ps = con.prepareStatement(sql);
+            // Update assignment
+            String sql =
+                    "UPDATE assignments SET " +
+                    "assignment_name = ?, " +
+                    "subject = ?, " +
+                    "deadline = ?, " +
+                    "priority = ? " +
+                    "WHERE id = ?";
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql);
 
             ps.setString(1, assignmentName);
             ps.setString(2, subject);
@@ -125,7 +148,8 @@ public class UpdateAssignmentServlet extends HttpServlet {
             ps.setString(4, priority);
             ps.setInt(5, Integer.parseInt(id));
 
-            int rowsUpdated = ps.executeUpdate();
+            int rowsUpdated =
+                    ps.executeUpdate();
 
             if (rowsUpdated > 0) {
 
@@ -137,7 +161,8 @@ public class UpdateAssignmentServlet extends HttpServlet {
 
                 out.println(
                     "<p class='info'>" +
-                    "Your assignment details have been updated successfully." +
+                    "Your assignment details have been " +
+                    "updated successfully." +
                     "</p>"
                 );
 
@@ -151,13 +176,28 @@ public class UpdateAssignmentServlet extends HttpServlet {
 
                 out.println(
                     "<p class='info'>" +
-                    "No assignment was found with the specified ID." +
+                    "No assignment was found with " +
+                    "the specified ID." +
                     "</p>"
                 );
             }
 
             ps.close();
             con.close();
+
+        } catch (NumberFormatException e) {
+
+            out.println(
+                "<h2 class='error'>" +
+                "Invalid Assignment ID" +
+                "</h2>"
+            );
+
+            out.println(
+                "<p class='info'>" +
+                "The assignment ID must be a number." +
+                "</p>"
+            );
 
         } catch (Exception e) {
 
@@ -174,9 +214,12 @@ public class UpdateAssignmentServlet extends HttpServlet {
             );
         }
 
+        // Automatically works locally and on Render
         out.println(
             "<a class='button' " +
-            "href='/StudentAssignmentTracker/ViewAssignments'>" +
+            "href='" +
+            contextPath +
+            "/ViewAssignments'>" +
             "Back to Assignments" +
             "</a>"
         );
@@ -188,3 +231,4 @@ public class UpdateAssignmentServlet extends HttpServlet {
         out.println("</html>");
     }
 }
+```
