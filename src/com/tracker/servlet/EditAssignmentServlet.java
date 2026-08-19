@@ -1,4 +1,3 @@
-```java
 package com.tracker.servlet;
 
 import java.io.IOException;
@@ -23,7 +22,6 @@ public class EditAssignmentServlet extends HttpServlet {
         response.setContentType("text/html");
         response.setCharacterEncoding("UTF-8");
 
-        // Automatically works locally and on Render
         String contextPath = request.getContextPath();
 
         // Check login session
@@ -34,7 +32,14 @@ public class EditAssignmentServlet extends HttpServlet {
             return;
         }
 
-        int userId = (Integer) session.getAttribute("userId");
+        int userId;
+
+        try {
+            userId = (Integer) session.getAttribute("userId");
+        } catch (Exception e) {
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
 
         String id = request.getParameter("id");
 
@@ -44,111 +49,112 @@ public class EditAssignmentServlet extends HttpServlet {
         out.println("<html>");
 
         out.println("<head>");
+        out.println("<meta charset='UTF-8'>");
         out.println("<title>Edit Assignment</title>");
 
         out.println("<style>");
 
         out.println("body {");
-        out.println("    font-family: Arial, sans-serif;");
-        out.println("    margin: 0;");
-        out.println("    background-color: #f4f6f8;");
-        out.println("    color: #333;");
+        out.println("font-family: Arial, sans-serif;");
+        out.println("margin: 0;");
+        out.println("background-color: #f4f6f8;");
+        out.println("color: #333;");
         out.println("}");
 
         out.println(".header {");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    padding: 25px;");
-        out.println("    text-align: center;");
+        out.println("background-color: #2c3e50;");
+        out.println("color: white;");
+        out.println("padding: 25px;");
+        out.println("text-align: center;");
         out.println("}");
 
         out.println(".header h1 {");
-        out.println("    margin: 0;");
-        out.println("    font-size: 30px;");
+        out.println("margin: 0;");
+        out.println("font-size: 30px;");
         out.println("}");
 
         out.println(".container {");
-        out.println("    width: 90%;");
-        out.println("    max-width: 600px;");
-        out.println("    margin: 40px auto;");
+        out.println("width: 90%;");
+        out.println("max-width: 600px;");
+        out.println("margin: 40px auto;");
         out.println("}");
 
         out.println(".card {");
-        out.println("    background-color: white;");
-        out.println("    padding: 30px;");
-        out.println("    border-radius: 10px;");
-        out.println("    box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
+        out.println("background-color: white;");
+        out.println("padding: 30px;");
+        out.println("border-radius: 10px;");
+        out.println("box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
         out.println("}");
 
         out.println(".card h2 {");
-        out.println("    margin-top: 0;");
-        out.println("    color: #2c3e50;");
-        out.println("    text-align: center;");
+        out.println("margin-top: 0;");
+        out.println("color: #2c3e50;");
+        out.println("text-align: center;");
         out.println("}");
 
         out.println(".form-group {");
-        out.println("    margin-bottom: 20px;");
+        out.println("margin-bottom: 20px;");
         out.println("}");
 
         out.println("label {");
-        out.println("    display: block;");
-        out.println("    margin-bottom: 8px;");
-        out.println("    font-weight: bold;");
+        out.println("display: block;");
+        out.println("margin-bottom: 8px;");
+        out.println("font-weight: bold;");
         out.println("}");
 
         out.println("input[type='text'],");
         out.println("input[type='date'],");
         out.println("select {");
-        out.println("    width: 100%;");
-        out.println("    padding: 11px;");
-        out.println("    border: 1px solid #ccc;");
-        out.println("    border-radius: 6px;");
-        out.println("    box-sizing: border-box;");
-        out.println("    font-size: 15px;");
+        out.println("width: 100%;");
+        out.println("padding: 11px;");
+        out.println("border: 1px solid #ccc;");
+        out.println("border-radius: 6px;");
+        out.println("box-sizing: border-box;");
+        out.println("font-size: 15px;");
         out.println("}");
 
         out.println("input[type='text']:focus,");
         out.println("input[type='date']:focus,");
         out.println("select:focus {");
-        out.println("    border-color: #3498db;");
-        out.println("    outline: none;");
+        out.println("border-color: #3498db;");
+        out.println("outline: none;");
         out.println("}");
 
         out.println("input[type='submit'] {");
-        out.println("    width: 100%;");
-        out.println("    padding: 12px;");
-        out.println("    background-color: #3498db;");
-        out.println("    color: white;");
-        out.println("    border: none;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-size: 16px;");
-        out.println("    font-weight: bold;");
-        out.println("    cursor: pointer;");
+        out.println("width: 100%;");
+        out.println("padding: 12px;");
+        out.println("background-color: #3498db;");
+        out.println("color: white;");
+        out.println("border: none;");
+        out.println("border-radius: 6px;");
+        out.println("font-size: 16px;");
+        out.println("font-weight: bold;");
+        out.println("cursor: pointer;");
         out.println("}");
 
         out.println("input[type='submit']:hover {");
-        out.println("    background-color: #217dbb;");
+        out.println("background-color: #217dbb;");
         out.println("}");
 
         out.println(".back-btn {");
-        out.println("    display: block;");
-        out.println("    margin-top: 20px;");
-        out.println("    padding: 12px;");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    text-decoration: none;");
-        out.println("    text-align: center;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-weight: bold;");
+        out.println("display: block;");
+        out.println("margin-top: 20px;");
+        out.println("padding: 12px;");
+        out.println("background-color: #2c3e50;");
+        out.println("color: white;");
+        out.println("text-decoration: none;");
+        out.println("text-align: center;");
+        out.println("border-radius: 6px;");
+        out.println("font-weight: bold;");
         out.println("}");
 
         out.println(".back-btn:hover {");
-        out.println("    background-color: #1f2d3a;");
+        out.println("background-color: #1f2d3a;");
         out.println("}");
 
         out.println(".error {");
-        out.println("    text-align: center;");
-        out.println("    color: #c0392b;");
+        out.println("text-align: center;");
+        out.println("color: #c0392b;");
         out.println("}");
 
         out.println("</style>");
@@ -161,16 +167,13 @@ public class EditAssignmentServlet extends HttpServlet {
         out.println("</div>");
 
         out.println("<div class='container'>");
-
         out.println("<div class='card'>");
 
         out.println("<h2>Edit Assignment</h2>");
 
         if (id == null || id.trim().isEmpty()) {
 
-            out.println(
-                "<h3 class='error'>Invalid Assignment ID</h3>"
-            );
+            out.println("<h3 class='error'>Invalid Assignment ID</h3>");
 
         } else {
 
@@ -180,26 +183,32 @@ public class EditAssignmentServlet extends HttpServlet {
 
             try {
 
+                int assignmentId = Integer.parseInt(id.trim());
+
                 con = DBConnection.getConnection();
 
                 if (con == null) {
-                    throw new Exception(
-                        "Database connection failed."
-                    );
+                    throw new Exception("Database connection failed.");
                 }
 
                 /*
                  * IMPORTANT:
-                 * Only retrieve the assignment if it belongs
-                 * to the currently logged-in user.
+                 *
+                 * Only retrieve the assignment if:
+                 *
+                 * 1. The assignment ID matches
+                 * 2. The assignment belongs to the logged-in user
+                 *
+                 * This prevents User B from editing User A's assignment.
                  */
                 String sql =
-                    "SELECT * FROM assignments " +
-                    "WHERE id = ? AND user_id = ?";
+                        "SELECT id, assignment_name, subject, deadline, priority " +
+                        "FROM assignments " +
+                        "WHERE id = ? AND user_id = ?";
 
                 ps = con.prepareStatement(sql);
 
-                ps.setInt(1, Integer.parseInt(id));
+                ps.setInt(1, assignmentId);
                 ps.setInt(2, userId);
 
                 rs = ps.executeQuery();
@@ -231,7 +240,7 @@ public class EditAssignmentServlet extends HttpServlet {
                         "<input type='text' " +
                         "id='assignment_name' " +
                         "name='assignment_name' value='" +
-                        rs.getString("assignment_name") +
+                        escapeHtml(rs.getString("assignment_name")) +
                         "' required>"
                     );
 
@@ -249,7 +258,7 @@ public class EditAssignmentServlet extends HttpServlet {
                         "<input type='text' " +
                         "id='subject' " +
                         "name='subject' value='" +
-                        rs.getString("subject") +
+                        escapeHtml(rs.getString("subject")) +
                         "' required>"
                     );
 
@@ -263,11 +272,17 @@ public class EditAssignmentServlet extends HttpServlet {
                         "</label>"
                     );
 
+                    String deadline = "";
+
+                    if (rs.getDate("deadline") != null) {
+                        deadline = rs.getDate("deadline").toString();
+                    }
+
                     out.println(
                         "<input type='date' " +
                         "id='deadline' " +
                         "name='deadline' value='" +
-                        rs.getDate("deadline") +
+                        deadline +
                         "' required>"
                     );
 
@@ -286,50 +301,25 @@ public class EditAssignmentServlet extends HttpServlet {
                         "name='priority' required>"
                     );
 
-                    String priority =
-                        rs.getString("priority");
+                    String priority = rs.getString("priority");
 
-                    if ("High".equals(priority)) {
+                    out.println(
+                        "<option value='High' " +
+                        ("High".equals(priority) ? "selected" : "") +
+                        ">High</option>"
+                    );
 
-                        out.println(
-                            "<option value='High' selected>" +
-                            "High</option>"
-                        );
+                    out.println(
+                        "<option value='Medium' " +
+                        ("Medium".equals(priority) ? "selected" : "") +
+                        ">Medium</option>"
+                    );
 
-                    } else {
-
-                        out.println(
-                            "<option value='High'>High</option>"
-                        );
-                    }
-
-                    if ("Medium".equals(priority)) {
-
-                        out.println(
-                            "<option value='Medium' selected>" +
-                            "Medium</option>"
-                        );
-
-                    } else {
-
-                        out.println(
-                            "<option value='Medium'>Medium</option>"
-                        );
-                    }
-
-                    if ("Low".equals(priority)) {
-
-                        out.println(
-                            "<option value='Low' selected>" +
-                            "Low</option>"
-                        );
-
-                    } else {
-
-                        out.println(
-                            "<option value='Low'>Low</option>"
-                        );
-                    }
+                    out.println(
+                        "<option value='Low' " +
+                        ("Low".equals(priority) ? "selected" : "") +
+                        ">Low</option>"
+                    );
 
                     out.println("</select>");
 
@@ -345,14 +335,23 @@ public class EditAssignmentServlet extends HttpServlet {
                 } else {
 
                     /*
-                     * This also covers the case where the assignment
-                     * exists but belongs to another user.
+                     * This also occurs when:
+                     *
+                     * - assignment does not exist, OR
+                     * - assignment belongs to another user
+                     *
+                     * We deliberately don't reveal which case it is.
                      */
                     out.println(
                         "<h3 class='error'>" +
                         "Assignment Not Found</h3>"
                     );
 
+                    out.println(
+                        "<p style='text-align:center;'>" +
+                        "This assignment does not belong to your account." +
+                        "</p>"
+                    );
                 }
 
             } catch (NumberFormatException e) {
@@ -364,11 +363,11 @@ public class EditAssignmentServlet extends HttpServlet {
 
             } catch (Exception e) {
 
+                e.printStackTrace();
+
                 out.println(
                     "<h3 class='error'>" +
-                    "Error: " +
-                    e.getMessage() +
-                    "</h3>"
+                    "Error loading assignment.</h3>"
                 );
 
             } finally {
@@ -414,5 +413,18 @@ public class EditAssignmentServlet extends HttpServlet {
         out.println("</body>");
         out.println("</html>");
     }
+
+    private String escapeHtml(String value) {
+
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
 }
-```
