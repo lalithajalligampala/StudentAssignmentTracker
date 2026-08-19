@@ -16,7 +16,7 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
+                           HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
@@ -48,7 +48,8 @@ public class LoginServlet extends HttpServlet {
         }
 
         String sql =
-                "SELECT id, name, email FROM users WHERE email = ? AND password = ?";
+                "SELECT id, name, email FROM users " +
+                "WHERE email = ? AND password = ?";
 
         Connection connection = null;
         PreparedStatement statement = null;
@@ -83,14 +84,50 @@ public class LoginServlet extends HttpServlet {
 
             if (resultSet.next()) {
 
-                // Create session
-                HttpSession session = request.getSession();
+                /*
+                 * Login successful.
+                 *
+                 * Get the database ID of the logged-in user.
+                 * This ID will be used throughout the application
+                 * to identify which assignments belong to this user.
+                 */
+                int userId = resultSet.getInt("id");
 
-                session.setAttribute("userId", resultSet.getInt("id"));
-                session.setAttribute("userName", resultSet.getString("name"));
-                session.setAttribute("userEmail", resultSet.getString("email"));
+                /*
+                 * Invalidate any previous session.
+                 * This prevents old user information from remaining
+                 * in the session when another user logs in.
+                 */
+                HttpSession oldSession = request.getSession(false);
 
-                // Redirect to dashboard
+                if (oldSession != null) {
+                    oldSession.invalidate();
+                }
+
+                /*
+                 * Create a new session for the logged-in user.
+                 */
+                HttpSession session = request.getSession(true);
+
+                /*
+                 * Store the logged-in user's information.
+                 *
+                 * userId is the most important value.
+                 * Other servlets will use it to filter assignments.
+                 */
+                session.setAttribute("userId", userId);
+                session.setAttribute(
+                        "userName",
+                        resultSet.getString("name")
+                );
+                session.setAttribute(
+                        "userEmail",
+                        resultSet.getString("email")
+                );
+
+                /*
+                 * Redirect to dashboard after successful login.
+                 */
                 response.sendRedirect("Dashboard");
 
             } else {

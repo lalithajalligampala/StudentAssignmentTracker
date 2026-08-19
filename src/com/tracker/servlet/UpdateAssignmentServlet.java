@@ -9,29 +9,47 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class UpdateAssignmentServlet extends HttpServlet {
 
+    @Override
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
-
-        PrintWriter out = response.getWriter();
+        response.setCharacterEncoding("UTF-8");
 
         // Automatically works locally and on Render
         String contextPath = request.getContextPath();
 
+        // Check logged-in session
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("userId") == null) {
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        // Get logged-in user's ID
+        int userId = (Integer) session.getAttribute("userId");
+
         String id = request.getParameter("id");
+
         String assignmentName =
                 request.getParameter("assignment_name");
+
         String subject =
                 request.getParameter("subject");
+
         String deadline =
                 request.getParameter("deadline");
+
         String priority =
                 request.getParameter("priority");
+
+        PrintWriter out = response.getWriter();
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -115,13 +133,35 @@ public class UpdateAssignmentServlet extends HttpServlet {
         out.println("</div>");
 
         out.println("<div class='container'>");
-
         out.println("<div class='card'>");
+
+        Connection con = null;
+        PreparedStatement ps = null;
 
         try {
 
-            // Check database connection
-            Connection con = DBConnection.getConnection();
+            // Validate assignment ID
+            if (id == null || id.trim().isEmpty()) {
+                throw new Exception("Assignment ID is missing.");
+            }
+
+            // Validate form fields
+            if (assignmentName == null ||
+                assignmentName.trim().isEmpty() ||
+                subject == null ||
+                subject.trim().isEmpty() ||
+                deadline == null ||
+                deadline.trim().isEmpty() ||
+                priority == null ||
+                priority.trim().isEmpty()) {
+
+                throw new Exception("All assignment fields are required.");
+            }
+
+            int assignmentId = Integer.parseInt(id);
+
+            // Get database connection
+            con = DBConnection.getConnection();
 
             if (con == null) {
                 throw new Exception(
@@ -129,23 +169,31 @@ public class UpdateAssignmentServlet extends HttpServlet {
                 );
             }
 
-            // Update assignment
+            /*
+             * IMPORTANT:
+             *
+             * Update ONLY the assignment that:
+             *
+             * 1. Has the requested assignment ID
+             * 2. Belongs to the currently logged-in user
+             */
             String sql =
                     "UPDATE assignments SET " +
                     "assignment_name = ?, " +
                     "subject = ?, " +
                     "deadline = ?, " +
                     "priority = ? " +
-                    "WHERE id = ?";
+                    "WHERE id = ? AND user_id = ?";
 
-            PreparedStatement ps =
-                    con.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
 
-            ps.setString(1, assignmentName);
-            ps.setString(2, subject);
-            ps.setString(3, deadline);
-            ps.setString(4, priority);
-            ps.setInt(5, Integer.parseInt(id));
+            ps.setString(1, assignmentName.trim());
+            ps.setString(2, subject.trim());
+            ps.setString(3, deadline.trim());
+            ps.setString(4, priority.trim());
+
+            ps.setInt(5, assignmentId);
+            ps.setInt(6, userId);
 
             int rowsUpdated =
                     ps.executeUpdate();
@@ -167,6 +215,13 @@ public class UpdateAssignmentServlet extends HttpServlet {
 
             } else {
 
+                /*
+                 * This means either:
+                 *
+                 * - assignment does not exist
+                 * OR
+                 * - assignment belongs to another user
+                 */
                 out.println(
                     "<h2 class='error'>" +
                     "Assignment Not Found" +
@@ -175,14 +230,11 @@ public class UpdateAssignmentServlet extends HttpServlet {
 
                 out.println(
                     "<p class='info'>" +
-                    "No assignment was found with " +
-                    "the specified ID." +
+                    "The assignment does not exist or " +
+                    "does not belong to your account." +
                     "</p>"
                 );
             }
-
-            ps.close();
-            con.close();
 
         } catch (NumberFormatException e) {
 
@@ -211,6 +263,24 @@ public class UpdateAssignmentServlet extends HttpServlet {
                 e.getMessage() +
                 "</p>"
             );
+
+        } finally {
+
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         // Automatically works locally and on Render

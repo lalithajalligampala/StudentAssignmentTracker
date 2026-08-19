@@ -12,20 +12,55 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class ViewAssignmentsServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+                          HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
+        response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
 
-        // Automatically detects the application context path.
-        // Local: /StudentAssignmentTracker
-        // Render: usually empty string
+        /*
+         * Get the current logged-in user's session.
+         */
+        HttpSession session = request.getSession(false);
+
+        /*
+         * User must be logged in.
+         */
+        if (session == null || session.getAttribute("userId") == null) {
+
+            response.sendRedirect(
+                    request.getContextPath() + "/login.html"
+            );
+
+            return;
+        }
+
+        /*
+         * Get the logged-in user's ID.
+         *
+         * LoginServlet stores this value:
+         *
+         * session.setAttribute("userId", userId);
+         */
+        int userId = (Integer) session.getAttribute("userId");
+
+        /*
+         * Automatically detects the application context path.
+         *
+         * Local:
+         * /StudentAssignmentTracker
+         *
+         * Render:
+         * usually empty string
+         */
         String contextPath = request.getContextPath();
 
         out.println("<!DOCTYPE html>");
@@ -167,7 +202,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         out.println("<div class='card'>");
 
-        out.println("<h2>All Assignments</h2>");
+        out.println("<h2>My Assignments</h2>");
 
         out.println("<table>");
 
@@ -181,19 +216,39 @@ public class ViewAssignmentsServlet extends HttpServlet {
         out.println("<th>Action</th>");
         out.println("</tr>");
 
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
         try {
 
-            Connection con = DBConnection.getConnection();
+            con = DBConnection.getConnection();
 
             if (con == null) {
                 throw new Exception("Database connection failed.");
             }
 
-            String sql = "SELECT * FROM assignments";
+            /*
+             * IMPORTANT:
+             *
+             * Only retrieve assignments belonging
+             * to the currently logged-in user.
+             */
+            String sql =
+                    "SELECT id, assignment_name, subject, " +
+                    "deadline, priority " +
+                    "FROM assignments " +
+                    "WHERE user_id = ? " +
+                    "ORDER BY deadline ASC";
 
-            PreparedStatement ps = con.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
 
-            ResultSet rs = ps.executeQuery();
+            /*
+             * Set the logged-in user's ID.
+             */
+            ps.setInt(1, userId);
+
+            rs = ps.executeQuery();
 
             int serialNumber = 1;
 
@@ -243,55 +298,80 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 out.println("<tr>");
 
-                // Serial number
-                out.println("<td>" +
+                out.println(
+                        "<td>" +
                         serialNumber +
-                        "</td>");
+                        "</td>"
+                );
 
-                out.println("<td>" +
+                out.println(
+                        "<td>" +
                         assignmentName +
-                        "</td>");
+                        "</td>"
+                );
 
-                out.println("<td>" +
+                out.println(
+                        "<td>" +
                         subject +
-                        "</td>");
+                        "</td>"
+                );
 
-                out.println("<td>" +
+                out.println(
+                        "<td>" +
                         deadline +
-                        "</td>");
+                        "</td>"
+                );
 
-                out.println("<td>" +
+                out.println(
+                        "<td>" +
                         priority +
-                        "</td>");
+                        "</td>"
+                );
 
-                out.println("<td class='status " +
+                out.println(
+                        "<td class='status " +
                         statusClass +
                         "'>" +
                         deadlineStatus +
-                        "</td>");
+                        "</td>"
+                );
 
                 out.println("<td>");
 
-                // FIXED EDIT LINK
+                /*
+                 * Edit link.
+                 *
+                 * Context path works both locally
+                 * and on Render.
+                 */
                 out.println(
-                    "<a class='edit-btn' " +
-                    "href='" +
-                    contextPath +
-                    "/EditAssignment?id=" +
-                    id +
-                    "'>Edit</a>"
+                        "<a class='edit-btn' " +
+                        "href='" +
+                        contextPath +
+                        "/EditAssignment?id=" +
+                        id +
+                        "'>" +
+                        "Edit" +
+                        "</a>"
                 );
 
                 out.println("&nbsp;");
 
-                // FIXED DELETE LINK
+                /*
+                 * Delete link.
+                 *
+                 * Context path works both locally
+                 * and on Render.
+                 */
                 out.println(
-                    "<a class='delete-btn' " +
-                    "href='" +
-                    contextPath +
-                    "/DeleteAssignment?id=" +
-                    id +
-                    "'>Delete</a>"
+                        "<a class='delete-btn' " +
+                        "href='" +
+                        contextPath +
+                        "/DeleteAssignment?id=" +
+                        id +
+                        "'>" +
+                        "Delete" +
+                        "</a>"
                 );
 
                 out.println("</td>");
@@ -301,34 +381,86 @@ public class ViewAssignmentsServlet extends HttpServlet {
                 serialNumber++;
             }
 
-            rs.close();
-            ps.close();
-            con.close();
+            /*
+             * If the user has no assignments.
+             */
+            if (serialNumber == 1) {
+
+                out.println("<tr>");
+
+                out.println(
+                        "<td colspan='7'>" +
+                        "No assignments found." +
+                        "</td>"
+                );
+
+                out.println("</tr>");
+            }
 
         } catch (Exception e) {
+
+            e.printStackTrace();
 
             out.println("<tr>");
 
             out.println("<td colspan='7'>");
 
-            out.println("Error: " +
-                    e.getMessage());
+            out.println(
+                    "Error: " +
+                    e.getMessage()
+            );
 
             out.println("</td>");
 
             out.println("</tr>");
+
+        } finally {
+
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+
+                if (ps != null) {
+                    ps.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+
+                if (con != null) {
+                    con.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         out.println("</table>");
 
-        // FIXED HOME LINK
+        /*
+         * Back to Home.
+         *
+         * Context path works locally and on Render.
+         */
         out.println(
-            "<a class='home-btn' " +
-            "href='" +
-            contextPath +
-            "/index.html'>" +
-            "Back to Home" +
-            "</a>"
+                "<a class='home-btn' " +
+                "href='" +
+                contextPath +
+                "/index.html'>" +
+                "Back to Home" +
+                "</a>"
         );
 
         out.println("</div>");

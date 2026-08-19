@@ -1,3 +1,4 @@
+```java
 package com.tracker.servlet;
 
 import java.io.IOException;
@@ -10,21 +11,34 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class EditAssignmentServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
-
-        PrintWriter out = response.getWriter();
+        response.setCharacterEncoding("UTF-8");
 
         // Automatically works locally and on Render
         String contextPath = request.getContextPath();
 
+        // Check login session
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("userId") == null) {
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        int userId = (Integer) session.getAttribute("userId");
+
         String id = request.getParameter("id");
+
+        PrintWriter out = response.getWriter();
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -160,9 +174,13 @@ public class EditAssignmentServlet extends HttpServlet {
 
         } else {
 
+            Connection con = null;
+            PreparedStatement ps = null;
+            ResultSet rs = null;
+
             try {
 
-                Connection con = DBConnection.getConnection();
+                con = DBConnection.getConnection();
 
                 if (con == null) {
                     throw new Exception(
@@ -170,20 +188,24 @@ public class EditAssignmentServlet extends HttpServlet {
                     );
                 }
 
+                /*
+                 * IMPORTANT:
+                 * Only retrieve the assignment if it belongs
+                 * to the currently logged-in user.
+                 */
                 String sql =
-                        "SELECT * FROM assignments WHERE id = ?";
+                    "SELECT * FROM assignments " +
+                    "WHERE id = ? AND user_id = ?";
 
-                PreparedStatement ps =
-                        con.prepareStatement(sql);
+                ps = con.prepareStatement(sql);
 
                 ps.setInt(1, Integer.parseInt(id));
+                ps.setInt(2, userId);
 
-                ResultSet rs = ps.executeQuery();
+                rs = ps.executeQuery();
 
                 if (rs.next()) {
 
-                    // FIXED:
-                    // Do not hard-code /StudentAssignmentTracker
                     out.println(
                         "<form action='" +
                         contextPath +
@@ -191,7 +213,8 @@ public class EditAssignmentServlet extends HttpServlet {
                     );
 
                     out.println(
-                        "<input type='hidden' name='id' value='" +
+                        "<input type='hidden' " +
+                        "name='id' value='" +
                         rs.getInt("id") +
                         "'>"
                     );
@@ -259,11 +282,12 @@ public class EditAssignmentServlet extends HttpServlet {
                     );
 
                     out.println(
-                        "<select id='priority' name='priority' required>"
+                        "<select id='priority' " +
+                        "name='priority' required>"
                     );
 
                     String priority =
-                            rs.getString("priority");
+                        rs.getString("priority");
 
                     if ("High".equals(priority)) {
 
@@ -320,23 +344,22 @@ public class EditAssignmentServlet extends HttpServlet {
 
                 } else {
 
+                    /*
+                     * This also covers the case where the assignment
+                     * exists but belongs to another user.
+                     */
                     out.println(
                         "<h3 class='error'>" +
-                        "Assignment Not Found" +
-                        "</h3>"
+                        "Assignment Not Found</h3>"
                     );
-                }
 
-                rs.close();
-                ps.close();
-                con.close();
+                }
 
             } catch (NumberFormatException e) {
 
                 out.println(
                     "<h3 class='error'>" +
-                    "Invalid Assignment ID" +
-                    "</h3>"
+                    "Invalid Assignment ID</h3>"
                 );
 
             } catch (Exception e) {
@@ -347,11 +370,35 @@ public class EditAssignmentServlet extends HttpServlet {
                     e.getMessage() +
                     "</h3>"
                 );
+
+            } finally {
+
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    if (ps != null) {
+                        ps.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    if (con != null) {
+                        con.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        // FIXED:
-        // Automatically works locally and on Render
         out.println(
             "<a class='back-btn' " +
             "href='" +
@@ -368,3 +415,4 @@ public class EditAssignmentServlet extends HttpServlet {
         out.println("</html>");
     }
 }
+```

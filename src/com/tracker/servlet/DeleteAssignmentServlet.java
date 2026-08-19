@@ -9,21 +9,36 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class DeleteAssignmentServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
-
-        PrintWriter out = response.getWriter();
+        response.setCharacterEncoding("UTF-8");
 
         // Automatically works locally and on Render
         String contextPath = request.getContextPath();
 
+        // Check whether user is logged in
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("userId") == null) {
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        // Get logged-in user's ID
+        int userId = (Integer) session.getAttribute("userId");
+
+        // Get assignment ID
         String id = request.getParameter("id");
+
+        PrintWriter out = response.getWriter();
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -121,11 +136,14 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
         } else {
 
+            Connection con = null;
+            PreparedStatement ps = null;
+
             try {
 
                 int assignmentId = Integer.parseInt(id);
 
-                Connection con = DBConnection.getConnection();
+                con = DBConnection.getConnection();
 
                 if (con == null) {
                     throw new Exception(
@@ -133,16 +151,22 @@ public class DeleteAssignmentServlet extends HttpServlet {
                     );
                 }
 
+                /*
+                 * IMPORTANT:
+                 *
+                 * Delete ONLY if the assignment belongs
+                 * to the currently logged-in user.
+                 */
                 String sql =
-                        "DELETE FROM assignments WHERE id = ?";
+                    "DELETE FROM assignments " +
+                    "WHERE id = ? AND user_id = ?";
 
-                PreparedStatement ps =
-                        con.prepareStatement(sql);
+                ps = con.prepareStatement(sql);
 
                 ps.setInt(1, assignmentId);
+                ps.setInt(2, userId);
 
-                int rowsDeleted =
-                        ps.executeUpdate();
+                int rowsDeleted = ps.executeUpdate();
 
                 if (rowsDeleted > 0) {
 
@@ -161,6 +185,11 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
                 } else {
 
+                    /*
+                     * This happens if:
+                     * 1. Assignment does not exist, OR
+                     * 2. Assignment belongs to another user.
+                     */
                     out.println(
                         "<h2 class='error'>" +
                         "Assignment Not Found" +
@@ -169,14 +198,11 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
                     out.println(
                         "<p class='info'>" +
-                        "No assignment was found with " +
-                        "the specified ID." +
+                        "The assignment does not exist " +
+                        "or does not belong to your account." +
                         "</p>"
                     );
                 }
-
-                ps.close();
-                con.close();
 
             } catch (NumberFormatException e) {
 
@@ -205,11 +231,28 @@ public class DeleteAssignmentServlet extends HttpServlet {
                     e.getMessage() +
                     "</p>"
                 );
+
+            } finally {
+
+                try {
+                    if (ps != null) {
+                        ps.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    if (con != null) {
+                        con.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        // IMPORTANT:
-        // Do not hard-code /StudentAssignmentTracker
+        // Automatically works locally and on Render
         out.println(
             "<a class='button' " +
             "href='" +

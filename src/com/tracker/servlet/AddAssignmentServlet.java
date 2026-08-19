@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class AddAssignmentServlet extends HttpServlet {
 
@@ -20,22 +21,61 @@ public class AddAssignmentServlet extends HttpServlet {
         response.setContentType("text/html");
         response.setCharacterEncoding("UTF-8");
 
-        String assignmentName = request.getParameter("assignment_name");
-        String subject = request.getParameter("subject");
-        String deadline = request.getParameter("deadline");
-        String priority = request.getParameter("priority");
-
         PrintWriter out = response.getWriter();
 
-        if (assignmentName == null || assignmentName.trim().isEmpty()
-                || subject == null || subject.trim().isEmpty()
-                || deadline == null || deadline.trim().isEmpty()
-                || priority == null || priority.trim().isEmpty()) {
+        // Get logged-in user's session
+        HttpSession session = request.getSession(false);
+
+        if (session == null ||
+            session.getAttribute("userId") == null) {
 
             out.println("<html><body>");
+            out.println("<h2>Login Required</h2>");
+            out.println("<p>Please login before adding an assignment.</p>");
+            out.println("<a href='login.html'>Go to Login</a>");
+            out.println("</body></html>");
+
+            return;
+        }
+
+        int userId =
+                (Integer) session.getAttribute("userId");
+
+        String assignmentName =
+                request.getParameter("assignment_name");
+
+        String subject =
+                request.getParameter("subject");
+
+        String deadline =
+                request.getParameter("deadline");
+
+        String priority =
+                request.getParameter("priority");
+
+        // Validate input
+        if (assignmentName == null ||
+            assignmentName.trim().isEmpty() ||
+
+            subject == null ||
+            subject.trim().isEmpty() ||
+
+            deadline == null ||
+            deadline.trim().isEmpty() ||
+
+            priority == null ||
+            priority.trim().isEmpty()) {
+
+            out.println("<html><body>");
+
             out.println("<h2>Assignment could not be added</h2>");
+
             out.println("<p>All fields are required.</p>");
-            out.println("<a href='add-assignment.html'>Go Back</a>");
+
+            out.println(
+                "<a href='add-assignment.html'>Go Back</a>"
+            );
+
             out.println("</body></html>");
 
             return;
@@ -43,8 +83,8 @@ public class AddAssignmentServlet extends HttpServlet {
 
         String sql =
                 "INSERT INTO assignments " +
-                "(assignment_name, subject, deadline, priority) " +
-                "VALUES (?, ?, ?, ?)";
+                "(assignment_name, subject, deadline, priority, user_id) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         Connection connection = null;
         PreparedStatement statement = null;
@@ -56,52 +96,109 @@ public class AddAssignmentServlet extends HttpServlet {
             if (connection == null) {
 
                 out.println("<html><body>");
-                out.println("<h2>Database Connection Failed</h2>");
-                out.println("<p>Unable to connect to the database.</p>");
-                out.println("<a href='add-assignment.html'>Try Again</a>");
+
+                out.println(
+                    "<h2>Database Connection Failed</h2>"
+                );
+
+                out.println(
+                    "<p>Unable to connect to the database.</p>"
+                );
+
+                out.println(
+                    "<a href='add-assignment.html'>Try Again</a>"
+                );
+
                 out.println("</body></html>");
 
                 return;
             }
 
-            statement = connection.prepareStatement(sql);
+            statement =
+                    connection.prepareStatement(sql);
 
-            statement.setString(1, assignmentName.trim());
-            statement.setString(2, subject.trim());
-            statement.setString(3, deadline);
-            statement.setString(4, priority.trim());
+            statement.setString(
+                    1,
+                    assignmentName.trim()
+            );
 
-            int result = statement.executeUpdate();
+            statement.setString(
+                    2,
+                    subject.trim()
+            );
+
+            statement.setString(
+                    3,
+                    deadline
+            );
+
+            statement.setString(
+                    4,
+                    priority.trim()
+            );
+
+            // Logged-in user's ID
+            statement.setInt(
+                    5,
+                    userId
+            );
+
+            int result =
+                    statement.executeUpdate();
 
             if (result > 0) {
 
                 out.println("<html>");
+
                 out.println("<head>");
                 out.println("<title>Assignment Added</title>");
                 out.println("</head>");
 
                 out.println("<body>");
 
-                out.println("<h2>Assignment Added Successfully!</h2>");
-                out.println("<p>Assignment: "
-                        + assignmentName.trim()
-                        + "</p>");
+                out.println(
+                    "<h2>Assignment Added Successfully!</h2>"
+                );
 
-                out.println("<p>Subject: "
-                        + subject.trim()
-                        + "</p>");
+                out.println(
+                    "<p>Assignment: " +
+                    assignmentName.trim() +
+                    "</p>"
+                );
 
-                out.println("<p>Deadline: "
-                        + deadline
-                        + "</p>");
+                out.println(
+                    "<p>Subject: " +
+                    subject.trim() +
+                    "</p>"
+                );
 
-                out.println("<p>Priority: "
-                        + priority.trim()
-                        + "</p>");
+                out.println(
+                    "<p>Deadline: " +
+                    deadline +
+                    "</p>"
+                );
 
-                out.println("<a href='ViewAssignments'>View Assignments</a>");
+                out.println(
+                    "<p>Priority: " +
+                    priority.trim() +
+                    "</p>"
+                );
+
+                out.println(
+                    "<a href='" +
+                    request.getContextPath() +
+                    "/ViewAssignments'>" +
+                    "View My Assignments</a>"
+                );
+
                 out.println("<br><br>");
-                out.println("<a href='add-assignment.html'>Add Another Assignment</a>");
+
+                out.println(
+                    "<a href='" +
+                    request.getContextPath() +
+                    "/add-assignment.html'>" +
+                    "Add Another Assignment</a>"
+                );
 
                 out.println("</body>");
                 out.println("</html>");
@@ -109,8 +206,18 @@ public class AddAssignmentServlet extends HttpServlet {
             } else {
 
                 out.println("<html><body>");
-                out.println("<h2>Assignment was not added.</h2>");
-                out.println("<a href='add-assignment.html'>Try Again</a>");
+
+                out.println(
+                    "<h2>Assignment was not added.</h2>"
+                );
+
+                out.println(
+                    "<a href='" +
+                    request.getContextPath() +
+                    "/add-assignment.html'>" +
+                    "Try Again</a>"
+                );
+
                 out.println("</body></html>");
             }
 
@@ -119,25 +226,44 @@ public class AddAssignmentServlet extends HttpServlet {
             e.printStackTrace();
 
             out.println("<html><body>");
-            out.println("<h2>Failed to Add Assignment</h2>");
-            out.println("<p>" + e.getMessage() + "</p>");
-            out.println("<a href='add-assignment.html'>Try Again</a>");
+
+            out.println(
+                "<h2>Failed to Add Assignment</h2>"
+            );
+
+            out.println(
+                "<p>" +
+                e.getMessage() +
+                "</p>"
+            );
+
+            out.println(
+                "<a href='" +
+                request.getContextPath() +
+                "/add-assignment.html'>" +
+                "Try Again</a>"
+            );
+
             out.println("</body></html>");
 
         } finally {
 
             try {
+
                 if (statement != null) {
                     statement.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
+
                 if (connection != null) {
                     connection.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
