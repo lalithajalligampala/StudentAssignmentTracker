@@ -20,6 +20,9 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
+        // Automatically works locally and on Render
+        String contextPath = request.getContextPath();
+
         String id = request.getParameter("id");
 
         out.println("<!DOCTYPE html>");
@@ -105,7 +108,9 @@ public class DeleteAssignmentServlet extends HttpServlet {
         if (id == null || id.trim().isEmpty()) {
 
             out.println(
-                "<h2 class='error'>Invalid Assignment ID</h2>"
+                "<h2 class='error'>" +
+                "Invalid Assignment ID" +
+                "</h2>"
             );
 
             out.println(
@@ -118,7 +123,15 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
             try {
 
+                int assignmentId = Integer.parseInt(id);
+
                 Connection con = DBConnection.getConnection();
+
+                if (con == null) {
+                    throw new Exception(
+                        "Database connection failed."
+                    );
+                }
 
                 String sql =
                         "DELETE FROM assignments WHERE id = ?";
@@ -126,9 +139,10 @@ public class DeleteAssignmentServlet extends HttpServlet {
                 PreparedStatement ps =
                         con.prepareStatement(sql);
 
-                ps.setInt(1, Integer.parseInt(id));
+                ps.setInt(1, assignmentId);
 
-                int rowsDeleted = ps.executeUpdate();
+                int rowsDeleted =
+                        ps.executeUpdate();
 
                 if (rowsDeleted > 0) {
 
@@ -140,7 +154,8 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
                     out.println(
                         "<p class='info'>" +
-                        "The assignment has been removed from your tracker." +
+                        "The assignment has been removed " +
+                        "from your tracker." +
                         "</p>"
                     );
 
@@ -154,13 +169,28 @@ public class DeleteAssignmentServlet extends HttpServlet {
 
                     out.println(
                         "<p class='info'>" +
-                        "No assignment was found with the specified ID." +
+                        "No assignment was found with " +
+                        "the specified ID." +
                         "</p>"
                     );
                 }
 
                 ps.close();
                 con.close();
+
+            } catch (NumberFormatException e) {
+
+                out.println(
+                    "<h2 class='error'>" +
+                    "Invalid Assignment ID" +
+                    "</h2>"
+                );
+
+                out.println(
+                    "<p class='info'>" +
+                    "The assignment ID must be a number." +
+                    "</p>"
+                );
 
             } catch (Exception e) {
 
@@ -178,9 +208,13 @@ public class DeleteAssignmentServlet extends HttpServlet {
             }
         }
 
+        // IMPORTANT:
+        // Do not hard-code /StudentAssignmentTracker
         out.println(
             "<a class='button' " +
-            "href='/StudentAssignmentTracker/ViewAssignments'>" +
+            "href='" +
+            contextPath +
+            "/ViewAssignments'>" +
             "Back to Assignments" +
             "</a>"
         );
