@@ -23,6 +23,11 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
+        // Automatically detects the application context path.
+        // Local: /StudentAssignmentTracker
+        // Render: usually empty string
+        String contextPath = request.getContextPath();
+
         out.println("<!DOCTYPE html>");
         out.println("<html>");
 
@@ -180,10 +185,13 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
             Connection con = DBConnection.getConnection();
 
+            if (con == null) {
+                throw new Exception("Database connection failed.");
+            }
+
             String sql = "SELECT * FROM assignments";
 
-            PreparedStatement ps =
-                    con.prepareStatement(sql);
+            PreparedStatement ps = con.prepareStatement(sql);
 
             ResultSet rs = ps.executeQuery();
 
@@ -235,7 +243,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 out.println("<tr>");
 
-                // Display S.No. instead of database ID
+                // Serial number
                 out.println("<td>" +
                         serialNumber +
                         "</td>");
@@ -264,20 +272,24 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 out.println("<td>");
 
-                // Database ID is still used internally
+                // FIXED EDIT LINK
                 out.println(
                     "<a class='edit-btn' " +
-                    "href='/StudentAssignmentTracker/EditAssignment?id=" +
+                    "href='" +
+                    contextPath +
+                    "/EditAssignment?id=" +
                     id +
                     "'>Edit</a>"
                 );
 
                 out.println("&nbsp;");
 
-                // Database ID is still used internally
+                // FIXED DELETE LINK
                 out.println(
                     "<a class='delete-btn' " +
-                    "href='/StudentAssignmentTracker/DeleteAssignment?id=" +
+                    "href='" +
+                    contextPath +
+                    "/DeleteAssignment?id=" +
                     id +
                     "'>Delete</a>"
                 );
@@ -309,9 +321,12 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         out.println("</table>");
 
+        // FIXED HOME LINK
         out.println(
             "<a class='home-btn' " +
-            "href='/StudentAssignmentTracker/index.html'>" +
+            "href='" +
+            contextPath +
+            "/index.html'>" +
             "Back to Home" +
             "</a>"
         );
