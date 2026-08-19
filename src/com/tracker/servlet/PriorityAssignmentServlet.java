@@ -10,23 +10,60 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class PriorityAssignmentServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html");
+        response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
 
+        String contextPath = request.getContextPath();
+
+        // ==========================================
+        // CHECK LOGIN SESSION
+        // ==========================================
+
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("userId") == null) {
+
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        int userId;
+
+        try {
+
+            userId = (Integer) session.getAttribute("userId");
+
+        } catch (Exception e) {
+
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        // ==========================================
+        // GET PRIORITY
+        // ==========================================
+
         String priority = request.getParameter("priority");
+
+        // ==========================================
+        // HTML PAGE
+        // ==========================================
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
 
         out.println("<head>");
+        out.println("<meta charset='UTF-8'>");
         out.println("<title>Priority Assignments</title>");
 
         out.println("<style>");
@@ -105,6 +142,10 @@ public class PriorityAssignmentServlet extends HttpServlet {
         out.println("    background-color: #1f2d3a;");
         out.println("}");
 
+        out.println(".error {");
+        out.println("    color: #c0392b;");
+        out.println("}");
+
         out.println("</style>");
         out.println("</head>");
 
@@ -119,13 +160,25 @@ public class PriorityAssignmentServlet extends HttpServlet {
 
         out.println("<h2>Priority Search Results</h2>");
 
+        // ==========================================
+        // VALIDATE PRIORITY
+        // ==========================================
+
         if (priority == null || priority.trim().isEmpty()) {
 
-            out.println("<p>Please select a priority.</p>");
+            out.println(
+                "<p class='error'>Please select a priority.</p>"
+            );
 
             out.println(
                 "<a class='button' href='priority.html'>" +
                 "Back to Priority Filter" +
+                "</a>"
+            );
+
+            out.println(
+                "<a class='button' href='index.html'>" +
+                "Back to Home" +
                 "</a>"
             );
 
@@ -137,28 +190,43 @@ public class PriorityAssignmentServlet extends HttpServlet {
             return;
         }
 
+        priority = priority.trim();
+
+        // ==========================================
+        // SEARCH ONLY LOGGED-IN USER'S ASSIGNMENTS
+        // ==========================================
+
         try {
 
             Connection con = DBConnection.getConnection();
 
             String sql =
-                "SELECT * FROM assignments WHERE priority = ?";
+                "SELECT id, assignment_name, subject, deadline, priority " +
+                "FROM assignments " +
+                "WHERE user_id = ? AND priority = ? " +
+                "ORDER BY deadline ASC";
 
             PreparedStatement ps =
                 con.prepareStatement(sql);
 
-            ps.setString(1, priority.trim());
+            // First parameter = logged-in user
+            ps.setInt(1, userId);
+
+            // Second parameter = selected priority
+            ps.setString(2, priority);
 
             ResultSet rs = ps.executeQuery();
 
             out.println("<table>");
 
             out.println("<tr>");
+
             out.println("<th>S.No.</th>");
             out.println("<th>Assignment Name</th>");
             out.println("<th>Subject</th>");
             out.println("<th>Deadline</th>");
             out.println("<th>Priority</th>");
+
             out.println("</tr>");
 
             boolean found = false;
@@ -171,25 +239,35 @@ public class PriorityAssignmentServlet extends HttpServlet {
 
                 out.println("<tr>");
 
-                out.println("<td>" +
-                        serialNumber +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    serialNumber +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("assignment_name") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("assignment_name") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("subject") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("subject") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getDate("deadline") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getDate("deadline") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("priority") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("priority") +
+                    "</td>"
+                );
 
                 out.println("</tr>");
 
@@ -201,9 +279,9 @@ public class PriorityAssignmentServlet extends HttpServlet {
             if (!found) {
 
                 out.println(
-                    "<p>No assignments found with priority: " +
+                    "<p>No assignments found with priority: <b>" +
                     priority +
-                    "</p>"
+                    "</b></p>"
                 );
             }
 
@@ -214,15 +292,28 @@ public class PriorityAssignmentServlet extends HttpServlet {
         } catch (Exception e) {
 
             out.println(
-                "<p>Error: " +
+                "<p class='error'>" +
+                "<b>Error loading assignments:</b> " +
                 e.getMessage() +
                 "</p>"
             );
+
+            e.printStackTrace();
         }
+
+        // ==========================================
+        // BUTTONS
+        // ==========================================
 
         out.println(
             "<a class='button' href='priority.html'>" +
             "Filter Again" +
+            "</a>"
+        );
+
+        out.println(
+            "<a class='button' href='ViewAssignments'>" +
+            "View My Assignments" +
             "</a>"
         );
 

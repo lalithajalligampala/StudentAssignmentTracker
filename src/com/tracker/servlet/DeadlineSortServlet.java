@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class DeadlineSortServlet extends HttpServlet {
 
@@ -17,126 +18,255 @@ public class DeadlineSortServlet extends HttpServlet {
                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html");
+        response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
+
+        String contextPath = request.getContextPath();
+
+        /*
+         * Check login session
+         */
+        HttpSession session = request.getSession(false);
+
+        if (session == null ||
+            session.getAttribute("userId") == null) {
+
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
+            return;
+        }
+
+        /*
+         * Get logged-in user's ID
+         */
+        int userId;
+
+        try {
+
+            Object userIdObject =
+                    session.getAttribute("userId");
+
+            if (userIdObject instanceof Integer) {
+
+                userId = (Integer) userIdObject;
+
+            } else if (userIdObject instanceof Number) {
+
+                userId =
+                    ((Number) userIdObject).intValue();
+
+            } else {
+
+                response.sendRedirect(
+                    contextPath + "/login.html"
+                );
+
+                return;
+            }
+
+        } catch (Exception e) {
+
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
+            return;
+        }
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
 
         out.println("<head>");
-        out.println("<title>Assignments by Deadline</title>");
+
+        out.println("<meta charset='UTF-8'>");
+
+        out.println(
+            "<title>Assignments by Deadline</title>"
+        );
 
         out.println("<style>");
 
-        out.println("body {");
-        out.println("    font-family: Arial, sans-serif;");
-        out.println("    margin: 0;");
-        out.println("    background-color: #f4f6f8;");
-        out.println("    color: #333;");
-        out.println("}");
+        out.println(
+            "body {" +
+            "font-family: Arial, sans-serif;" +
+            "margin: 0;" +
+            "background-color: #f4f6f8;" +
+            "color: #333;" +
+            "}"
+        );
 
-        out.println(".header {");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    padding: 25px;");
-        out.println("    text-align: center;");
-        out.println("}");
+        out.println(
+            ".header {" +
+            "background-color: #2c3e50;" +
+            "color: white;" +
+            "padding: 25px;" +
+            "text-align: center;" +
+            "}"
+        );
 
-        out.println(".header h1 {");
-        out.println("    margin: 0;");
-        out.println("}");
+        out.println(
+            ".header h1 {" +
+            "margin: 0;" +
+            "}"
+        );
 
-        out.println(".container {");
-        out.println("    width: 92%;");
-        out.println("    max-width: 1100px;");
-        out.println("    margin: 30px auto;");
-        out.println("}");
+        out.println(
+            ".container {" +
+            "width: 92%;" +
+            "max-width: 1100px;" +
+            "margin: 30px auto;" +
+            "}"
+        );
 
-        out.println(".card {");
-        out.println("    background-color: white;");
-        out.println("    padding: 25px;");
-        out.println("    border-radius: 10px;");
-        out.println("    box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
-        out.println("    overflow-x: auto;");
-        out.println("}");
+        out.println(
+            ".card {" +
+            "background-color: white;" +
+            "padding: 25px;" +
+            "border-radius: 10px;" +
+            "box-shadow: 0 2px 8px rgba(0,0,0,0.12);" +
+            "overflow-x: auto;" +
+            "}"
+        );
 
-        out.println(".card h2 {");
-        out.println("    color: #2c3e50;");
-        out.println("}");
+        out.println(
+            ".card h2 {" +
+            "color: #2c3e50;" +
+            "}"
+        );
 
-        out.println("table {");
-        out.println("    width: 100%;");
-        out.println("    border-collapse: collapse;");
-        out.println("    margin-top: 20px;");
-        out.println("}");
+        out.println(
+            "table {" +
+            "width: 100%;" +
+            "border-collapse: collapse;" +
+            "margin-top: 20px;" +
+            "}"
+        );
 
-        out.println("th {");
-        out.println("    background-color: #3498db;");
-        out.println("    color: white;");
-        out.println("    padding: 14px;");
-        out.println("}");
+        out.println(
+            "th {" +
+            "background-color: #3498db;" +
+            "color: white;" +
+            "padding: 14px;" +
+            "}"
+        );
 
-        out.println("td {");
-        out.println("    padding: 12px;");
-        out.println("    text-align: center;");
-        out.println("    border-bottom: 1px solid #ddd;");
-        out.println("}");
+        out.println(
+            "td {" +
+            "padding: 12px;" +
+            "text-align: center;" +
+            "border-bottom: 1px solid #ddd;" +
+            "}"
+        );
 
-        out.println("tr:hover {");
-        out.println("    background-color: #f5f5f5;");
-        out.println("}");
+        out.println(
+            "tr:hover {" +
+            "background-color: #f5f5f5;" +
+            "}"
+        );
 
-        out.println(".button {");
-        out.println("    display: inline-block;");
-        out.println("    margin-top: 20px;");
-        out.println("    margin-right: 10px;");
-        out.println("    padding: 12px 20px;");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    text-decoration: none;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-weight: bold;");
-        out.println("}");
+        out.println(
+            ".button {" +
+            "display: inline-block;" +
+            "margin-top: 20px;" +
+            "margin-right: 10px;" +
+            "padding: 12px 20px;" +
+            "background-color: #2c3e50;" +
+            "color: white;" +
+            "text-decoration: none;" +
+            "border-radius: 6px;" +
+            "font-weight: bold;" +
+            "}"
+        );
 
-        out.println(".button:hover {");
-        out.println("    background-color: #1f2d3a;");
-        out.println("}");
+        out.println(
+            ".button:hover {" +
+            "background-color: #1f2d3a;" +
+            "}"
+        );
+
+        out.println(
+            ".error {" +
+            "color: #c0392b;" +
+            "}"
+        );
 
         out.println("</style>");
+
         out.println("</head>");
 
         out.println("<body>");
 
         out.println("<div class='header'>");
-        out.println("<h1>Student Assignment Tracker</h1>");
+
+        out.println(
+            "<h1>Student Assignment Tracker</h1>"
+        );
+
         out.println("</div>");
 
         out.println("<div class='container'>");
+
         out.println("<div class='card'>");
 
-        out.println("<h2>Assignments Sorted by Deadline</h2>");
+        out.println(
+            "<h2>Assignments Sorted by Deadline</h2>"
+        );
 
         try {
 
-            Connection con = DBConnection.getConnection();
+            Connection con =
+                    DBConnection.getConnection();
 
+            if (con == null) {
+
+                throw new Exception(
+                    "Database connection failed."
+                );
+            }
+
+            /*
+             * IMPORTANT:
+             * Show ONLY assignments belonging to
+             * the currently logged-in user.
+             *
+             * ORDER BY deadline ASC keeps the
+             * assignments sorted by deadline.
+             */
             String sql =
-                "SELECT * FROM assignments ORDER BY deadline ASC";
+                    "SELECT assignment_name, subject, " +
+                    "deadline, priority " +
+                    "FROM assignments " +
+                    "WHERE user_id = ? " +
+                    "ORDER BY deadline ASC";
 
             PreparedStatement ps =
-                con.prepareStatement(sql);
+                    con.prepareStatement(sql);
 
-            ResultSet rs = ps.executeQuery();
+            ps.setInt(1, userId);
+
+            ResultSet rs =
+                    ps.executeQuery();
 
             out.println("<table>");
 
             out.println("<tr>");
+
             out.println("<th>S.No.</th>");
-            out.println("<th>Assignment Name</th>");
+
+            out.println(
+                "<th>Assignment Name</th>"
+            );
+
             out.println("<th>Subject</th>");
+
             out.println("<th>Deadline</th>");
+
             out.println("<th>Priority</th>");
+
             out.println("</tr>");
 
             boolean found = false;
@@ -149,25 +279,35 @@ public class DeadlineSortServlet extends HttpServlet {
 
                 out.println("<tr>");
 
-                out.println("<td>" +
-                        serialNumber +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    serialNumber +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("assignment_name") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("assignment_name") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("subject") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("subject") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getDate("deadline") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getDate("deadline") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("priority") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("priority") +
+                    "</td>"
+                );
 
                 out.println("</tr>");
 
@@ -178,7 +318,9 @@ public class DeadlineSortServlet extends HttpServlet {
 
             if (!found) {
 
-                out.println("<p>No assignments found.</p>");
+                out.println(
+                    "<p>No assignments found.</p>"
+                );
             }
 
             rs.close();
@@ -188,28 +330,37 @@ public class DeadlineSortServlet extends HttpServlet {
         } catch (Exception e) {
 
             out.println(
-                "<p>Error: " +
+                "<p class='error'>" +
+                "<b>Error loading assignments:</b> " +
                 e.getMessage() +
                 "</p>"
             );
+
+            e.printStackTrace();
         }
 
         out.println(
-            "<a class='button' href='ViewAssignments'>" +
+            "<a class='button' href='" +
+            contextPath +
+            "/ViewAssignments'>" +
             "Back to All Assignments" +
             "</a>"
         );
 
         out.println(
-            "<a class='button' href='index.html'>" +
+            "<a class='button' href='" +
+            contextPath +
+            "/index.html'>" +
             "Back to Home" +
             "</a>"
         );
 
         out.println("</div>");
+
         out.println("</div>");
 
         out.println("</body>");
+
         out.println("</html>");
     }
 }

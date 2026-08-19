@@ -10,23 +10,60 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class SearchAssignmentServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html");
+        response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
 
+        String contextPath = request.getContextPath();
+
+        // ==============================
+        // CHECK LOGIN SESSION
+        // ==============================
+
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("userId") == null) {
+
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        int userId;
+
+        try {
+
+            userId = (Integer) session.getAttribute("userId");
+
+        } catch (Exception e) {
+
+            response.sendRedirect(contextPath + "/login.html");
+            return;
+        }
+
+        // ==============================
+        // GET SEARCH SUBJECT
+        // ==============================
+
         String subject = request.getParameter("subject");
+
+        // ==============================
+        // HTML PAGE
+        // ==============================
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
 
         out.println("<head>");
+        out.println("<meta charset='UTF-8'>");
         out.println("<title>Search Assignments</title>");
 
         out.println("<style>");
@@ -92,6 +129,7 @@ public class SearchAssignmentServlet extends HttpServlet {
         out.println(".button {");
         out.println("    display: inline-block;");
         out.println("    margin-top: 20px;");
+        out.println("    margin-right: 10px;");
         out.println("    padding: 12px 20px;");
         out.println("    background-color: #2c3e50;");
         out.println("    color: white;");
@@ -102,6 +140,10 @@ public class SearchAssignmentServlet extends HttpServlet {
 
         out.println(".button:hover {");
         out.println("    background-color: #1f2d3a;");
+        out.println("}");
+
+        out.println(".error {");
+        out.println("    color: #c0392b;");
         out.println("}");
 
         out.println("</style>");
@@ -118,13 +160,23 @@ public class SearchAssignmentServlet extends HttpServlet {
 
         out.println("<h2>Search Results</h2>");
 
+        // ==============================
+        // VALIDATE SUBJECT
+        // ==============================
+
         if (subject == null || subject.trim().isEmpty()) {
 
-            out.println("<p>Please enter a subject.</p>");
+            out.println("<p class='error'>Please enter a subject.</p>");
 
             out.println(
                 "<a class='button' href='search.html'>" +
                 "Back to Search" +
+                "</a>"
+            );
+
+            out.println(
+                "<a class='button' href='index.html'>" +
+                "Back to Home" +
                 "</a>"
             );
 
@@ -136,28 +188,45 @@ public class SearchAssignmentServlet extends HttpServlet {
             return;
         }
 
+        // Remove unnecessary spaces
+        subject = subject.trim();
+
+        // ==============================
+        // SEARCH ONLY LOGGED-IN USER'S
+        // ASSIGNMENTS
+        // ==============================
+
         try {
 
             Connection con = DBConnection.getConnection();
 
             String sql =
-                "SELECT * FROM assignments WHERE subject = ?";
+                "SELECT id, assignment_name, subject, deadline, priority " +
+                "FROM assignments " +
+                "WHERE user_id = ? AND subject = ? " +
+                "ORDER BY deadline ASC";
 
             PreparedStatement ps =
                 con.prepareStatement(sql);
 
-            ps.setString(1, subject.trim());
+            // First parameter = logged-in user
+            ps.setInt(1, userId);
+
+            // Second parameter = searched subject
+            ps.setString(2, subject);
 
             ResultSet rs = ps.executeQuery();
 
             out.println("<table>");
 
             out.println("<tr>");
+
             out.println("<th>S.No.</th>");
             out.println("<th>Assignment Name</th>");
             out.println("<th>Subject</th>");
             out.println("<th>Deadline</th>");
             out.println("<th>Priority</th>");
+
             out.println("</tr>");
 
             boolean found = false;
@@ -170,25 +239,35 @@ public class SearchAssignmentServlet extends HttpServlet {
 
                 out.println("<tr>");
 
-                out.println("<td>" +
-                        serialNumber +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    serialNumber +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("assignment_name") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("assignment_name") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("subject") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("subject") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getDate("deadline") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getDate("deadline") +
+                    "</td>"
+                );
 
-                out.println("<td>" +
-                        rs.getString("priority") +
-                        "</td>");
+                out.println(
+                    "<td>" +
+                    rs.getString("priority") +
+                    "</td>"
+                );
 
                 out.println("</tr>");
 
@@ -200,9 +279,9 @@ public class SearchAssignmentServlet extends HttpServlet {
             if (!found) {
 
                 out.println(
-                    "<p>No assignments found for subject: " +
+                    "<p>No assignments found for subject: <b>" +
                     subject +
-                    "</p>"
+                    "</b></p>"
                 );
             }
 
@@ -213,15 +292,28 @@ public class SearchAssignmentServlet extends HttpServlet {
         } catch (Exception e) {
 
             out.println(
-                "<p>Error: " +
+                "<p class='error'>" +
+                "<b>Error searching assignments:</b> " +
                 e.getMessage() +
                 "</p>"
             );
+
+            e.printStackTrace();
         }
+
+        // ==============================
+        // BUTTONS
+        // ==============================
 
         out.println(
             "<a class='button' href='search.html'>" +
             "Search Again" +
+            "</a>"
+        );
+
+        out.println(
+            "<a class='button' href='ViewAssignments'>" +
+            "View My Assignments" +
             "</a>"
         );
 
