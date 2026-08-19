@@ -1,4 +1,3 @@
-
 package com.tracker.servlet;
 
 import java.io.IOException;
@@ -10,22 +9,61 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class HelloServlet extends HttpServlet {
 
+    @Override
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response)
             throws ServletException, IOException {
-
-        String assignment = request.getParameter("assignmentName");
-        String subject = request.getParameter("subject");
-        String deadline = request.getParameter("deadline");
-        String priority = request.getParameter("priority");
 
         response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
+
+        String contextPath = request.getContextPath();
+
+        // Get logged-in user's session
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("userId") == null) {
+
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
+            return;
+        }
+
+        int userId;
+
+        try {
+
+            userId = (Integer) session.getAttribute("userId");
+
+        } catch (Exception e) {
+
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
+            return;
+        }
+
+        // Get form values
+        String assignment =
+                request.getParameter("assignmentName");
+
+        String subject =
+                request.getParameter("subject");
+
+        String deadline =
+                request.getParameter("deadline");
+
+        String priority =
+                request.getParameter("priority");
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -112,26 +150,32 @@ public class HelloServlet extends HttpServlet {
         out.println("<body>");
 
         out.println("<div class='header'>");
-        out.println("<h1>Student Assignment &amp; Deadline Tracker</h1>");
+        out.println(
+            "<h1>Student Assignment &amp; Deadline Tracker</h1>"
+        );
         out.println("</div>");
 
         out.println("<div class='container'>");
         out.println("<div class='card'>");
 
-        // Check for empty or missing values
-        if (assignment == null || assignment.trim().isEmpty() ||
-            subject == null || subject.trim().isEmpty() ||
-            deadline == null || deadline.trim().isEmpty() ||
-            priority == null || priority.trim().isEmpty()) {
+        // Validate form fields
+        if (assignment == null || assignment.trim().isEmpty()
+                || subject == null || subject.trim().isEmpty()
+                || deadline == null || deadline.trim().isEmpty()
+                || priority == null || priority.trim().isEmpty()) {
 
-            out.println("<h2 class='error'>Invalid Assignment</h2>");
+            out.println(
+                "<h2 class='error'>Invalid Assignment</h2>"
+            );
 
             out.println(
                 "<p>Please fill in all assignment details.</p>"
             );
 
             out.println(
-                "<a class='button' href='add.html'>" +
+                "<a class='button' href='" +
+                contextPath +
+                "/add.html'>" +
                 "Back to Add Assignment" +
                 "</a>"
             );
@@ -144,27 +188,62 @@ public class HelloServlet extends HttpServlet {
             return;
         }
 
-        String sql = "INSERT INTO assignments "
-                   + "(assignment_name, subject, deadline, priority) "
-                   + "VALUES (?, ?, ?, ?)";
+        /*
+         * IMPORTANT:
+         *
+         * user_id is now included in the INSERT.
+         */
+        String sql =
+                "INSERT INTO assignments " +
+                "(assignment_name, subject, deadline, priority, user_id) " +
+                "VALUES (?, ?, ?, ?, ?)";
+
+        Connection connection = null;
+        PreparedStatement statement = null;
 
         try {
 
-            Connection connection =
-                    DBConnection.getConnection();
+            connection = DBConnection.getConnection();
 
-            PreparedStatement statement =
+            if (connection == null) {
+
+                throw new Exception(
+                    "Database connection failed."
+                );
+            }
+
+            statement =
                     connection.prepareStatement(sql);
 
-            statement.setString(1, assignment);
-            statement.setString(2, subject);
-            statement.setString(3, deadline);
-            statement.setString(4, priority);
+            statement.setString(
+                    1,
+                    assignment.trim()
+            );
 
-            int rows = statement.executeUpdate();
+            statement.setString(
+                    2,
+                    subject.trim()
+            );
 
-            statement.close();
-            connection.close();
+            statement.setString(
+                    3,
+                    deadline.trim()
+            );
+
+            statement.setString(
+                    4,
+                    priority.trim()
+            );
+
+            // IMPORTANT:
+            // Store the logged-in user's ID.
+            statement.setInt(
+                    5,
+                    userId
+            );
+
+            int rows =
+                    statement.executeUpdate();
 
             if (rows > 0) {
 
@@ -178,38 +257,42 @@ public class HelloServlet extends HttpServlet {
 
                 out.println(
                     "<p><b>Assignment:</b> " +
-                    assignment +
+                    assignment.trim() +
                     "</p>"
                 );
 
                 out.println(
                     "<p><b>Subject:</b> " +
-                    subject +
+                    subject.trim() +
                     "</p>"
                 );
 
                 out.println(
                     "<p><b>Deadline:</b> " +
-                    deadline +
+                    deadline.trim() +
                     "</p>"
                 );
 
                 out.println(
                     "<p><b>Priority:</b> " +
-                    priority +
+                    priority.trim() +
                     "</p>"
                 );
 
                 out.println("</div>");
 
                 out.println(
-                    "<a class='button' href='add.html'>" +
+                    "<a class='button' href='" +
+                    contextPath +
+                    "/add.html'>" +
                     "Add Another Assignment" +
                     "</a>"
                 );
 
                 out.println(
-                    "<a class='button' href='ViewAssignments'>" +
+                    "<a class='button' href='" +
+                    contextPath +
+                    "/ViewAssignments'>" +
                     "View Assignments" +
                     "</a>"
                 );
@@ -223,13 +306,17 @@ public class HelloServlet extends HttpServlet {
                 );
 
                 out.println(
-                    "<a class='button' href='add.html'>" +
+                    "<a class='button' href='" +
+                    contextPath +
+                    "/add.html'>" +
                     "Back to Add Assignment" +
                     "</a>"
                 );
             }
 
         } catch (Exception e) {
+
+            e.printStackTrace();
 
             out.println(
                 "<h2 class='error'>" +
@@ -238,7 +325,10 @@ public class HelloServlet extends HttpServlet {
             );
 
             out.println(
-                "<p>Something went wrong while saving the assignment.</p>"
+                "<p>" +
+                "Something went wrong while saving " +
+                "the assignment." +
+                "</p>"
             );
 
             out.println(
@@ -248,12 +338,34 @@ public class HelloServlet extends HttpServlet {
             );
 
             out.println(
-                "<a class='button' href='add.html'>" +
+                "<a class='button' href='" +
+                contextPath +
+                "/add.html'>" +
                 "Back to Add Assignment" +
                 "</a>"
             );
 
-            e.printStackTrace();
+        } finally {
+
+            try {
+
+                if (statement != null) {
+                    statement.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+
+                if (connection != null) {
+                    connection.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         out.println("</div>");
