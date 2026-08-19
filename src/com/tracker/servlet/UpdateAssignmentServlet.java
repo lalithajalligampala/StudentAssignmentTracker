@@ -1,4 +1,3 @@
-```java
 package com.tracker.servlet;
 
 import java.io.IOException;
@@ -231,4 +230,3 @@ public class UpdateAssignmentServlet extends HttpServlet {
         out.println("</html>");
     }
 }
-```
