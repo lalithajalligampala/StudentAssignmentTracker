@@ -1,71 +1,152 @@
 package com.tracker.servlet;
 
-import java.util.Properties;
-
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 public class EmailUtil {
 
-    public static void sendEmail(String to, String subject, String messageText)
-            throws Exception {
+    public static void sendEmail(
+            String to,
+            String subject,
+            String messageText) throws Exception {
 
-        // Your Gmail address
-        final String fromEmail = System.getenv("MAIL_USERNAME");
+        // Resend API key from Render environment variables
+        String apiKey = System.getenv("RESEND_API_KEY");
 
-        // Gmail App Password
-        final String password = System.getenv("MAIL_PASSWORD");
+        // Email address/domain configured in Resend
+        String fromEmail = System.getenv("RESEND_FROM_EMAIL");
 
+        // Check API key
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            throw new Exception(
+                    "RESEND_API_KEY environment variable is missing."
+            );
+        }
+
+        // Check sender email
         if (fromEmail == null || fromEmail.trim().isEmpty()) {
-            throw new Exception("MAIL_USERNAME environment variable is missing.");
+            throw new Exception(
+                    "RESEND_FROM_EMAIL environment variable is missing."
+            );
         }
 
-        if (password == null || password.trim().isEmpty()) {
-            throw new Exception("MAIL_PASSWORD environment variable is missing.");
+        if (to == null || to.trim().isEmpty()) {
+            throw new Exception("Recipient email is missing.");
         }
 
-        Properties properties = new Properties();
+        if (subject == null) {
+            subject = "";
+        }
 
-        properties.put("mail.smtp.host", "smtp.gmail.com");
-        properties.put("mail.smtp.port", "587");
-        properties.put("mail.smtp.auth", "true");
-        properties.put("mail.smtp.starttls.enable", "true");
+        if (messageText == null) {
+            messageText = "";
+        }
 
-        Session session = Session.getInstance(
-                properties,
-                new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(
-                                fromEmail,
-                                password
-                        );
-                    }
-                }
-        );
+        /*
+         * Convert the email content to JSON-safe strings.
+         */
+        String jsonSubject = escapeJson(subject);
+        String jsonText = escapeJson(messageText);
+        String jsonTo = escapeJson(to);
+        String jsonFrom = escapeJson(fromEmail);
 
-        Message message = new MimeMessage(session);
+        /*
+         * Resend API request body.
+         */
+        String jsonBody =
+                "{"
+                + "\"from\":\"" + jsonFrom + "\","
+                + "\"to\":[\"" + jsonTo + "\"],"
+                + "\"subject\":\"" + jsonSubject + "\","
+                + "\"text\":\"" + jsonText + "\""
+                + "}";
 
-        message.setFrom(new InternetAddress(fromEmail));
+        /*
+         * Create HTTP client.
+         */
+        HttpClient client = HttpClient.newHttpClient();
 
-        message.setRecipients(
-                Message.RecipientType.TO,
-                InternetAddress.parse(to)
-        );
+        /*
+         * Create POST request.
+         */
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.resend.com/emails"))
+                .header(
+                        "Authorization",
+                        "Bearer " + apiKey
+                )
+                .header(
+                        "Content-Type",
+                        "application/json"
+                )
+                .POST(
+                        HttpRequest.BodyPublishers.ofString(
+                                jsonBody,
+                                StandardCharsets.UTF_8
+                        )
+                )
+                .build();
 
-        message.setSubject(subject);
+        /*
+         * Send request to Resend.
+         */
+        HttpResponse<String> response =
+                client.send(
+                        request,
+                        HttpResponse.BodyHandlers.ofString()
+                );
 
-        message.setText(messageText);
+        /*
+         * Check response.
+         */
+        if (response.statusCode() >= 200
+                && response.statusCode() < 300) {
 
-        Transport.send(message);
+            System.out.println(
+                    "Email sent successfully to: " + to
+            );
 
-        System.out.println(
-                "Email sent successfully to: " + to
-        );
+            System.out.println(
+                    "Resend response: " + response.body()
+            );
+
+        } else {
+
+            System.err.println(
+                    "Resend email failed."
+            );
+
+            System.err.println(
+                    "HTTP Status: " + response.statusCode()
+            );
+
+            System.err.println(
+                    "Response: " + response.body()
+            );
+
+            throw new IOException(
+                    "Email sending failed. Resend returned HTTP "
+                    + response.statusCode()
+                    + ": "
+                    + response.body()
+            );
+        }
+    }
+
+    /*
+     * Escape characters that have special meaning in JSON.
+     */
+    private static String escapeJson(String value) {
+
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t");
     }
 }
