@@ -15,7 +15,7 @@ public class RegisterServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
+                           HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
@@ -117,16 +117,21 @@ public class RegisterServlet extends HttpServlet {
                     String subject =
                             "Student Assignment Tracker - Registration Successful";
 
+                    /*
+                     * Email now contains:
+                     * 1. Username/email
+                     * 2. Password
+                     */
                     String message =
                             "Hello " + name + ",\n\n"
                             + "Your Student Assignment Tracker account "
                             + "has been created successfully.\n\n"
-                            + "Your registered email address is:\n"
-                            + email + "\n\n"
-                            + "You can now use your email and password "
-                            + "to log in to the application.\n\n"
-                            + "For security reasons, your password is not "
-                            + "included in this email.\n\n"
+                            + "Your login details are:\n\n"
+                            + "Username: " + email + "\n"
+                            + "Password: " + password + "\n\n"
+                            + "You can now use these credentials to log in "
+                            + "to the application.\n\n"
+                            + "Please keep these credentials secure.\n\n"
                             + "Regards,\n"
                             + "Student Assignment Tracker Team";
 
@@ -226,6 +231,7 @@ public class RegisterServlet extends HttpServlet {
                     );
 
                     if (emailError != null) {
+
                         out.println(
                             "<p>Email service error: "
                             + emailError
@@ -359,3 +365,4 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 }
+
