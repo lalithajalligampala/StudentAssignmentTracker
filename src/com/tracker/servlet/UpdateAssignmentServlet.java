@@ -21,7 +21,6 @@ public class UpdateAssignmentServlet extends HttpServlet {
         response.setContentType("text/html");
         response.setCharacterEncoding("UTF-8");
 
-        // Automatically works locally and on Render
         String contextPath = request.getContextPath();
 
         // Check logged-in session
@@ -32,9 +31,9 @@ public class UpdateAssignmentServlet extends HttpServlet {
             return;
         }
 
-        // Get logged-in user's ID
         int userId = (Integer) session.getAttribute("userId");
 
+        // Get form values
         String id = request.getParameter("id");
 
         String assignmentName =
@@ -46,6 +45,10 @@ public class UpdateAssignmentServlet extends HttpServlet {
         String deadline =
                 request.getParameter("deadline");
 
+        // NEW: get deadline time
+        String deadlineTime =
+                request.getParameter("deadline_time");
+
         String priority =
                 request.getParameter("priority");
 
@@ -55,70 +58,71 @@ public class UpdateAssignmentServlet extends HttpServlet {
         out.println("<html>");
 
         out.println("<head>");
+        out.println("<meta charset='UTF-8'>");
         out.println("<title>Update Assignment</title>");
 
         out.println("<style>");
 
         out.println("body {");
-        out.println("    font-family: Arial, sans-serif;");
-        out.println("    margin: 0;");
-        out.println("    background-color: #f4f6f8;");
-        out.println("    color: #333;");
+        out.println("font-family: Arial, sans-serif;");
+        out.println("margin: 0;");
+        out.println("background-color: #f4f6f8;");
+        out.println("color: #333;");
         out.println("}");
 
         out.println(".header {");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    padding: 25px;");
-        out.println("    text-align: center;");
+        out.println("background-color: #2c3e50;");
+        out.println("color: white;");
+        out.println("padding: 25px;");
+        out.println("text-align: center;");
         out.println("}");
 
         out.println(".header h1 {");
-        out.println("    margin: 0;");
-        out.println("    font-size: 30px;");
+        out.println("margin: 0;");
+        out.println("font-size: 30px;");
         out.println("}");
 
         out.println(".container {");
-        out.println("    width: 90%;");
-        out.println("    max-width: 600px;");
-        out.println("    margin: 50px auto;");
+        out.println("width: 90%;");
+        out.println("max-width: 600px;");
+        out.println("margin: 50px auto;");
         out.println("}");
 
         out.println(".card {");
-        out.println("    background-color: white;");
-        out.println("    padding: 35px;");
-        out.println("    border-radius: 10px;");
-        out.println("    box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
-        out.println("    text-align: center;");
+        out.println("background-color: white;");
+        out.println("padding: 35px;");
+        out.println("border-radius: 10px;");
+        out.println("box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
+        out.println("text-align: center;");
         out.println("}");
 
         out.println(".success {");
-        out.println("    color: #27ae60;");
-        out.println("    margin-bottom: 15px;");
+        out.println("color: #27ae60;");
+        out.println("margin-bottom: 15px;");
         out.println("}");
 
         out.println(".error {");
-        out.println("    color: #c0392b;");
-        out.println("    margin-bottom: 15px;");
+        out.println("color: #c0392b;");
+        out.println("margin-bottom: 15px;");
         out.println("}");
 
         out.println(".info {");
-        out.println("    color: #555;");
-        out.println("    margin-bottom: 25px;");
+        out.println("color: #555;");
+        out.println("margin-bottom: 25px;");
         out.println("}");
 
         out.println(".button {");
-        out.println("    display: inline-block;");
-        out.println("    padding: 12px 20px;");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    text-decoration: none;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-weight: bold;");
+        out.println("display: inline-block;");
+        out.println("padding: 12px 20px;");
+        out.println("background-color: #2c3e50;");
+        out.println("color: white;");
+        out.println("text-decoration: none;");
+        out.println("border-radius: 6px;");
+        out.println("font-weight: bold;");
         out.println("}");
 
         out.println(".button:hover {");
-        out.println("    background-color: #1f2d3a;");
+        out.println("background-color: #1f2d3a;");
         out.println("}");
 
         out.println("</style>");
@@ -148,17 +152,26 @@ public class UpdateAssignmentServlet extends HttpServlet {
             // Validate form fields
             if (assignmentName == null ||
                 assignmentName.trim().isEmpty() ||
+
                 subject == null ||
                 subject.trim().isEmpty() ||
+
                 deadline == null ||
                 deadline.trim().isEmpty() ||
+
+                deadlineTime == null ||
+                deadlineTime.trim().isEmpty() ||
+
                 priority == null ||
                 priority.trim().isEmpty()) {
 
-                throw new Exception("All assignment fields are required.");
+                throw new Exception(
+                    "All assignment fields are required."
+                );
             }
 
-            int assignmentId = Integer.parseInt(id);
+            int assignmentId =
+                    Integer.parseInt(id.trim());
 
             // Get database connection
             con = DBConnection.getConnection();
@@ -170,30 +183,60 @@ public class UpdateAssignmentServlet extends HttpServlet {
             }
 
             /*
-             * IMPORTANT:
+             * Update assignment.
              *
-             * Update ONLY the assignment that:
+             * deadline_time is now included.
              *
-             * 1. Has the requested assignment ID
-             * 2. Belongs to the currently logged-in user
+             * user_id ensures that a user can update
+             * only their own assignment.
              */
+
             String sql =
                     "UPDATE assignments SET " +
                     "assignment_name = ?, " +
                     "subject = ?, " +
                     "deadline = ?, " +
+                    "deadline_time = ?, " +
                     "priority = ? " +
                     "WHERE id = ? AND user_id = ?";
 
             ps = con.prepareStatement(sql);
 
-            ps.setString(1, assignmentName.trim());
-            ps.setString(2, subject.trim());
-            ps.setString(3, deadline.trim());
-            ps.setString(4, priority.trim());
+            ps.setString(
+                1,
+                assignmentName.trim()
+            );
 
-            ps.setInt(5, assignmentId);
-            ps.setInt(6, userId);
+            ps.setString(
+                2,
+                subject.trim()
+            );
+
+            ps.setString(
+                3,
+                deadline.trim()
+            );
+
+            // NEW: save deadline time
+            ps.setString(
+                4,
+                deadlineTime.trim()
+            );
+
+            ps.setString(
+                5,
+                priority.trim()
+            );
+
+            ps.setInt(
+                6,
+                assignmentId
+            );
+
+            ps.setInt(
+                7,
+                userId
+            );
 
             int rowsUpdated =
                     ps.executeUpdate();
@@ -213,15 +256,32 @@ public class UpdateAssignmentServlet extends HttpServlet {
                     "</p>"
                 );
 
+                out.println(
+                    "<p><b>Assignment:</b> " +
+                    assignmentName +
+                    "</p>"
+                );
+
+                out.println(
+                    "<p><b>Deadline:</b> " +
+                    deadline +
+                    "</p>"
+                );
+
+                out.println(
+                    "<p><b>Time:</b> " +
+                    deadlineTime +
+                    "</p>"
+                );
+
+                out.println(
+                    "<p><b>Priority:</b> " +
+                    priority +
+                    "</p>"
+                );
+
             } else {
 
-                /*
-                 * This means either:
-                 *
-                 * - assignment does not exist
-                 * OR
-                 * - assignment belongs to another user
-                 */
                 out.println(
                     "<h2 class='error'>" +
                     "Assignment Not Found" +
@@ -251,6 +311,8 @@ public class UpdateAssignmentServlet extends HttpServlet {
             );
 
         } catch (Exception e) {
+
+            e.printStackTrace();
 
             out.println(
                 "<h2 class='error'>" +
@@ -283,7 +345,6 @@ public class UpdateAssignmentServlet extends HttpServlet {
             }
         }
 
-        // Automatically works locally and on Render
         out.println(
             "<a class='button' " +
             "href='" +

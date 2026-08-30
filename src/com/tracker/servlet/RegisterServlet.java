@@ -21,13 +21,20 @@ public class RegisterServlet extends HttpServlet {
         response.setContentType("text/html");
         response.setCharacterEncoding("UTF-8");
 
+        // ==================================================
+        // GET REGISTRATION DETAILS
+        // ==================================================
+
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
         PrintWriter out = response.getWriter();
 
-        // Validate input
+        // ==================================================
+        // 1. VALIDATE INPUT
+        // ==================================================
+
         if (name == null || name.trim().isEmpty()
                 || email == null || email.trim().isEmpty()
                 || password == null || password.trim().isEmpty()) {
@@ -51,7 +58,10 @@ public class RegisterServlet extends HttpServlet {
 
         try {
 
-            // Connect to database
+            // ==================================================
+            // 2. CONNECT TO AIVEN DATABASE
+            // ==================================================
+
             connection = DBConnection.getConnection();
 
             if (connection == null) {
@@ -65,7 +75,10 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            // Check whether email already exists
+            // ==================================================
+            // 3. CHECK WHETHER EMAIL ALREADY EXISTS
+            // ==================================================
+
             String checkSql =
                     "SELECT id FROM users WHERE email = ?";
 
@@ -88,12 +101,16 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            // Insert new user
-            String sql =
-                    "INSERT INTO users (name, email, password) " +
-                    "VALUES (?, ?, ?)";
+            // ==================================================
+            // 4. INSERT USER INTO AIVEN DATABASE
+            // ==================================================
 
-            statement = connection.prepareStatement(sql);
+            String sql =
+                    "INSERT INTO users (name, email, password) "
+                    + "VALUES (?, ?, ?)";
+
+            statement =
+                    connection.prepareStatement(sql);
 
             statement.setString(1, name);
             statement.setString(2, email);
@@ -102,38 +119,73 @@ public class RegisterServlet extends HttpServlet {
             int rowsInserted =
                     statement.executeUpdate();
 
+            // ==================================================
+            // 5. CHECK REGISTRATION
+            // ==================================================
+
             if (rowsInserted > 0) {
 
-                /*
-                 * Database registration succeeded.
-                 *
-                 * Now send confirmation email separately.
-                 */
                 boolean emailSent = false;
                 String emailError = null;
+
+                // ==================================================
+                // 6. SEND REGISTRATION EMAIL
+                // ==================================================
 
                 try {
 
                     String subject =
-                            "Student Assignment Tracker - Registration Successful";
+                            "Student Assignment Tracker - Account Created";
 
                     /*
-                     * Email now contains:
-                     * 1. Username/email
+                     * IMPORTANT:
+                     *
+                     * The email address is ONLY used as the
+                     * recipient.
+                     *
+                     * The email BODY contains:
+                     * 1. Name
                      * 2. Password
+                     *
+                     * We are NOT displaying the email as username.
                      */
+
                     String message =
                             "Hello " + name + ",\n\n"
+
                             + "Your Student Assignment Tracker account "
                             + "has been created successfully.\n\n"
-                            + "Your login details are:\n\n"
-                            + "Username: " + email + "\n"
+
+                            + "Your registration details are:\n\n"
+
+                            + "Name: " + name + "\n"
                             + "Password: " + password + "\n\n"
-                            + "You can now use these credentials to log in "
-                            + "to the application.\n\n"
-                            + "Please keep these credentials secure.\n\n"
+
+                            + "You can now log in to the "
+                            + "Student Assignment Tracker using "
+                            + "your registered email address.\n\n"
+
+                            + "Please keep your password secure.\n\n"
+
                             + "Regards,\n"
                             + "Student Assignment Tracker Team";
+
+
+                    /*
+                     * EMAIL IS SENT TO THE REGISTERED EMAIL.
+                     *
+                     * Example:
+                     *
+                     * email = krishna@gmail.com
+                     *
+                     * The email goes TO:
+                     * krishna@gmail.com
+                     *
+                     * But the email BODY contains:
+                     *
+                     * Name: Krishna
+                     * Password: ********
+                     */
 
                     EmailUtil.sendEmail(
                             email,
@@ -143,17 +195,30 @@ public class RegisterServlet extends HttpServlet {
 
                     emailSent = true;
 
+                    System.out.println(
+                            "Registration email sent successfully to: "
+                            + email
+                    );
+
                 } catch (Exception emailException) {
 
                     emailError =
                             emailException.getMessage();
 
+                    System.err.println(
+                            "Registration email could not be sent."
+                    );
+
                     emailException.printStackTrace();
                 }
 
-                // Registration succeeded
+                // ==================================================
+                // 7. REGISTRATION SUCCESS PAGE
+                // ==================================================
+
                 out.println("<html>");
                 out.println("<head>");
+
                 out.println("<title>Registration Successful</title>");
 
                 out.println("<style>");
@@ -179,6 +244,14 @@ public class RegisterServlet extends HttpServlet {
                 out.println("color: #27ae60;");
                 out.println("}");
 
+                out.println(".success {");
+                out.println("background-color: #d4edda;");
+                out.println("color: #155724;");
+                out.println("padding: 15px;");
+                out.println("border-radius: 8px;");
+                out.println("margin-top: 20px;");
+                out.println("}");
+
                 out.println(".warning {");
                 out.println("background-color: #fff3cd;");
                 out.println("color: #856404;");
@@ -199,62 +272,98 @@ public class RegisterServlet extends HttpServlet {
                 out.println("}");
 
                 out.println("</style>");
+
                 out.println("</head>");
 
                 out.println("<body>");
 
                 out.println("<div class='box'>");
 
-                out.println("<h2>Registration Successful!</h2>");
+                out.println(
+                        "<h2>Registration Successful!</h2>"
+                );
 
-                out.println("<p>Your account has been created successfully.</p>");
+                out.println(
+                        "<p>Your account has been created successfully.</p>"
+                );
+
+                // ==================================================
+                // 8. EMAIL STATUS
+                // ==================================================
 
                 if (emailSent) {
 
+                    out.println("<div class='success'>");
+
                     out.println(
-                        "<p>Your confirmation email has been sent to "
-                        + email
-                        + ".</p>"
+                            "<b>Confirmation email sent successfully!</b>"
                     );
+
+                    out.println(
+                            "<p>Your name and password have been sent to:</p>"
+                    );
+
+                    out.println(
+                            "<b>" + email + "</b>"
+                    );
+
+                    out.println("</div>");
 
                 } else {
 
                     out.println("<div class='warning'>");
 
                     out.println(
-                        "<b>Account created, but email could not be sent.</b>"
+                            "<b>Account created, but email could not be sent.</b>"
                     );
 
                     out.println(
-                        "<p>You can still log in using your registered "
-                        + "email and password.</p>"
+                            "<p>You can still log in using your "
+                            + "registered email and password.</p>"
                     );
 
                     if (emailError != null) {
 
                         out.println(
-                            "<p>Email service error: "
-                            + emailError
-                            + "</p>"
+                                "<p>Email service error: "
+                                + emailError
+                                + "</p>"
                         );
                     }
 
                     out.println("</div>");
                 }
 
-                out.println("<a href='login.html'>Go to Login</a>");
+                // ==================================================
+                // 9. LOGIN LINK
+                // ==================================================
+
+                out.println(
+                        "<a href='login.html'>Go to Login</a>"
+                );
 
                 out.println("</div>");
 
                 out.println("</body>");
+
                 out.println("</html>");
 
             } else {
 
                 out.println("<html><body>");
-                out.println("<h2>Registration Failed</h2>");
-                out.println("<p>Unable to create your account.</p>");
-                out.println("<a href='register.html'>Try Again</a>");
+
+                out.println(
+                        "<h2>Registration Failed</h2>"
+                );
+
+                out.println(
+                        "<p>Unable to create your account.</p>"
+                );
+
+                out.println(
+                        "<a href='register.html'>Try Again</a>"
+                );
+
                 out.println("</body></html>");
             }
 
@@ -262,8 +371,14 @@ public class RegisterServlet extends HttpServlet {
 
             e.printStackTrace();
 
+            // ==================================================
+            // DATABASE / OTHER ERROR
+            // ==================================================
+
             out.println("<html>");
+
             out.println("<head>");
+
             out.println("<title>Registration Error</title>");
 
             out.println("<style>");
@@ -305,6 +420,7 @@ public class RegisterServlet extends HttpServlet {
             out.println("}");
 
             out.println("</style>");
+
             out.println("</head>");
 
             out.println("<body>");
@@ -314,55 +430,72 @@ public class RegisterServlet extends HttpServlet {
             out.println("<h2>Registration Error</h2>");
 
             out.println(
-                "<p>Something went wrong while processing your registration.</p>"
+                    "<p>Something went wrong while processing your registration.</p>"
             );
 
             out.println("<div class='error'>");
+
             out.println("<b>Actual Error:</b> ");
+
             out.println(e.getMessage());
+
             out.println("</div>");
 
-            out.println("<a href='register.html'>Try Again</a>");
+            out.println(
+                    "<a href='register.html'>Try Again</a>"
+            );
 
             out.println("</div>");
 
             out.println("</body>");
+
             out.println("</html>");
 
         } finally {
 
+            // ==================================================
+            // 10. CLOSE DATABASE RESOURCES
+            // ==================================================
+
             try {
+
                 if (checkResult != null) {
                     checkResult.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
+
                 if (checkStatement != null) {
                     checkStatement.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
+
                 if (statement != null) {
                     statement.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
+
                 if (connection != null) {
                     connection.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 }
-

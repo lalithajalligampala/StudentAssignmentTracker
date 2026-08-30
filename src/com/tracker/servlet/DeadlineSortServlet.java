@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 public class DeadlineSortServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
             throws ServletException, IOException {
@@ -76,6 +77,10 @@ public class DeadlineSortServlet extends HttpServlet {
 
             return;
         }
+
+        /*
+         * HTML PAGE
+         */
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -200,6 +205,10 @@ public class DeadlineSortServlet extends HttpServlet {
 
         out.println("<body>");
 
+        /*
+         * HEADER
+         */
+
         out.println("<div class='header'>");
 
         out.println(
@@ -207,6 +216,10 @@ public class DeadlineSortServlet extends HttpServlet {
         );
 
         out.println("</div>");
+
+        /*
+         * CONTAINER
+         */
 
         out.println("<div class='container'>");
 
@@ -216,10 +229,17 @@ public class DeadlineSortServlet extends HttpServlet {
             "<h2>Assignments Sorted by Deadline</h2>"
         );
 
+        /*
+         * DATABASE
+         */
+
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
         try {
 
-            Connection con =
-                    DBConnection.getConnection();
+            con = DBConnection.getConnection();
 
             if (con == null) {
 
@@ -230,26 +250,40 @@ public class DeadlineSortServlet extends HttpServlet {
 
             /*
              * IMPORTANT:
-             * Show ONLY assignments belonging to
-             * the currently logged-in user.
              *
-             * ORDER BY deadline ASC keeps the
-             * assignments sorted by deadline.
+             * Get:
+             * assignment_name
+             * subject
+             * deadline
+             * deadline_time
+             * priority
+             *
+             * Only for the logged-in user.
+             *
+             * Sort first by deadline date,
+             * then by deadline time.
              */
+
             String sql =
                     "SELECT assignment_name, subject, " +
-                    "deadline, priority " +
+                    "deadline, deadline_time, priority " +
                     "FROM assignments " +
                     "WHERE user_id = ? " +
-                    "ORDER BY deadline ASC";
+                    "ORDER BY deadline ASC, deadline_time ASC";
 
-            PreparedStatement ps =
-                    con.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
+
+            /*
+             * Logged-in user's ID
+             */
 
             ps.setInt(1, userId);
 
-            ResultSet rs =
-                    ps.executeQuery();
+            rs = ps.executeQuery();
+
+            /*
+             * TABLE
+             */
 
             out.println("<table>");
 
@@ -265,6 +299,8 @@ public class DeadlineSortServlet extends HttpServlet {
 
             out.println("<th>Deadline</th>");
 
+            out.println("<th>Time</th>");
+
             out.println("<th>Priority</th>");
 
             out.println("</tr>");
@@ -273,11 +309,19 @@ public class DeadlineSortServlet extends HttpServlet {
 
             int serialNumber = 1;
 
+            /*
+             * DISPLAY ASSIGNMENTS
+             */
+
             while (rs.next()) {
 
                 found = true;
 
                 out.println("<tr>");
+
+                /*
+                 * S.No.
+                 */
 
                 out.println(
                     "<td>" +
@@ -285,11 +329,19 @@ public class DeadlineSortServlet extends HttpServlet {
                     "</td>"
                 );
 
+                /*
+                 * Assignment Name
+                 */
+
                 out.println(
                     "<td>" +
                     rs.getString("assignment_name") +
                     "</td>"
                 );
+
+                /*
+                 * Subject
+                 */
 
                 out.println(
                     "<td>" +
@@ -297,11 +349,38 @@ public class DeadlineSortServlet extends HttpServlet {
                     "</td>"
                 );
 
+                /*
+                 * Deadline Date
+                 */
+
                 out.println(
                     "<td>" +
                     rs.getDate("deadline") +
                     "</td>"
                 );
+
+                /*
+                 * Deadline Time
+                 */
+
+                String deadlineTime =
+                        rs.getString("deadline_time");
+
+                if (deadlineTime == null ||
+                    deadlineTime.trim().isEmpty()) {
+
+                    deadlineTime = "-";
+                }
+
+                out.println(
+                    "<td>" +
+                    deadlineTime +
+                    "</td>"
+                );
+
+                /*
+                 * Priority
+                 */
 
                 out.println(
                     "<td>" +
@@ -316,16 +395,16 @@ public class DeadlineSortServlet extends HttpServlet {
 
             out.println("</table>");
 
+            /*
+             * NO ASSIGNMENTS
+             */
+
             if (!found) {
 
                 out.println(
                     "<p>No assignments found.</p>"
                 );
             }
-
-            rs.close();
-            ps.close();
-            con.close();
 
         } catch (Exception e) {
 
@@ -337,7 +416,55 @@ public class DeadlineSortServlet extends HttpServlet {
             );
 
             e.printStackTrace();
+
+        } finally {
+
+            /*
+             * Close ResultSet
+             */
+
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            /*
+             * Close PreparedStatement
+             */
+
+            try {
+
+                if (ps != null) {
+                    ps.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            /*
+             * Close Connection
+             */
+
+            try {
+
+                if (con != null) {
+                    con.close();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
+        /*
+         * BACK TO ASSIGNMENTS
+         */
 
         out.println(
             "<a class='button' href='" +
@@ -346,6 +473,10 @@ public class DeadlineSortServlet extends HttpServlet {
             "Back to All Assignments" +
             "</a>"
         );
+
+        /*
+         * BACK TO HOME
+         */
 
         out.println(
             "<a class='button' href='" +

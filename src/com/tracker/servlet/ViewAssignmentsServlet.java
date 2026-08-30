@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -18,7 +19,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request,
-                          HttpServletResponse response)
+                         HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html");
@@ -26,14 +27,8 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
-        /*
-         * Get the current logged-in user's session.
-         */
         HttpSession session = request.getSession(false);
 
-        /*
-         * User must be logged in.
-         */
         if (session == null || session.getAttribute("userId") == null) {
 
             response.sendRedirect(
@@ -43,24 +38,8 @@ public class ViewAssignmentsServlet extends HttpServlet {
             return;
         }
 
-        /*
-         * Get the logged-in user's ID.
-         *
-         * LoginServlet stores this value:
-         *
-         * session.setAttribute("userId", userId);
-         */
         int userId = (Integer) session.getAttribute("userId");
 
-        /*
-         * Automatically detects the application context path.
-         *
-         * Local:
-         * /StudentAssignmentTracker
-         *
-         * Render:
-         * usually empty string
-         */
         String contextPath = request.getContextPath();
 
         out.println("<!DOCTYPE html>");
@@ -211,6 +190,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
         out.println("<th>Assignment Name</th>");
         out.println("<th>Subject</th>");
         out.println("<th>Deadline</th>");
+        out.println("<th>Deadline Time</th>");
         out.println("<th>Priority</th>");
         out.println("<th>Deadline Status</th>");
         out.println("<th>Action</th>");
@@ -229,23 +209,17 @@ public class ViewAssignmentsServlet extends HttpServlet {
             }
 
             /*
-             * IMPORTANT:
-             *
-             * Only retrieve assignments belonging
-             * to the currently logged-in user.
+             * Get deadline_time also.
              */
             String sql =
                     "SELECT id, assignment_name, subject, " +
-                    "deadline, priority " +
+                    "deadline, deadline_time, priority " +
                     "FROM assignments " +
                     "WHERE user_id = ? " +
-                    "ORDER BY deadline ASC";
+                    "ORDER BY deadline ASC, deadline_time ASC";
 
             ps = con.prepareStatement(sql);
 
-            /*
-             * Set the logged-in user's ID.
-             */
             ps.setInt(1, userId);
 
             rs = ps.executeQuery();
@@ -264,6 +238,9 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 LocalDate deadline =
                         rs.getDate("deadline").toLocalDate();
+
+                Time deadlineTime =
+                        rs.getTime("deadline_time");
 
                 String priority =
                         rs.getString("priority");
@@ -322,6 +299,17 @@ public class ViewAssignmentsServlet extends HttpServlet {
                         "</td>"
                 );
 
+                /*
+                 * Display assignment deadline time.
+                 */
+                out.println(
+                        "<td>" +
+                        (deadlineTime != null
+                                ? deadlineTime.toString()
+                                : "Not Set") +
+                        "</td>"
+                );
+
                 out.println(
                         "<td>" +
                         priority +
@@ -338,12 +326,6 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 out.println("<td>");
 
-                /*
-                 * Edit link.
-                 *
-                 * Context path works both locally
-                 * and on Render.
-                 */
                 out.println(
                         "<a class='edit-btn' " +
                         "href='" +
@@ -357,12 +339,6 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 out.println("&nbsp;");
 
-                /*
-                 * Delete link.
-                 *
-                 * Context path works both locally
-                 * and on Render.
-                 */
                 out.println(
                         "<a class='delete-btn' " +
                         "href='" +
@@ -381,15 +357,12 @@ public class ViewAssignmentsServlet extends HttpServlet {
                 serialNumber++;
             }
 
-            /*
-             * If the user has no assignments.
-             */
             if (serialNumber == 1) {
 
                 out.println("<tr>");
 
                 out.println(
-                        "<td colspan='7'>" +
+                        "<td colspan='8'>" +
                         "No assignments found." +
                         "</td>"
                 );
@@ -403,7 +376,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
             out.println("<tr>");
 
-            out.println("<td colspan='7'>");
+            out.println("<td colspan='8'>");
 
             out.println(
                     "Error: " +
@@ -449,11 +422,6 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         out.println("</table>");
 
-        /*
-         * Back to Home.
-         *
-         * Context path works locally and on Render.
-         */
         out.println(
                 "<a class='home-btn' " +
                 "href='" +

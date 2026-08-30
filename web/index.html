@@ -395,6 +395,106 @@
     </div>
 
 
+    <!-- ================================================= -->
+    <!-- NOTIFICATION SERVICE WORKER REGISTRATION -->
+    <!-- ================================================= -->
+
+    <script>
+
+        if ("serviceWorker" in navigator) {
+
+            window.addEventListener("load", function () {
+
+                navigator.serviceWorker
+                    .register("/StudentAssignmentTracker/notification.js")
+                    .then(function (registration) {
+
+                        console.log(
+                            "Notification service worker registered:",
+                            registration.scope
+                        );
+
+                    })
+                    .catch(function (error) {
+
+                        console.error(
+                            "Service worker registration failed:",
+                            error
+                        );
+
+                    });
+
+            });
+
+        } else {
+
+            console.log(
+                "Service workers are not supported."
+            );
+
+        }
+
+
+        /* =================================================
+         * REQUEST NOTIFICATION PERMISSION
+         * ================================================= */
+
+        if ("Notification" in window) {
+
+            if (Notification.permission === "default") {
+
+                Notification.requestPermission()
+                    .then(function (permission) {
+
+                        if (permission === "granted") {
+
+                            console.log(
+                                "Notification permission granted."
+                            );
+
+                        } else {
+
+                            console.log(
+                                "Notification permission denied."
+                            );
+
+                        }
+
+                    })
+                    .catch(function (error) {
+
+                        console.error(
+                            "Notification permission error:",
+                            error
+                        );
+
+                    });
+
+            } else if (Notification.permission === "granted") {
+
+                console.log(
+                    "Notifications are already allowed."
+                );
+
+            } else {
+
+                console.log(
+                    "Notifications are blocked."
+                );
+
+            }
+
+        } else {
+
+            console.log(
+                "This browser does not support notifications."
+            );
+
+        }
+
+    </script>
+
+
 </body>
 
 </html>

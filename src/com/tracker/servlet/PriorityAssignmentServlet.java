@@ -201,18 +201,19 @@ public class PriorityAssignmentServlet extends HttpServlet {
             Connection con = DBConnection.getConnection();
 
             String sql =
-                "SELECT id, assignment_name, subject, deadline, priority " +
+                "SELECT id, assignment_name, subject, " +
+                "deadline, deadline_time, priority " +
                 "FROM assignments " +
                 "WHERE user_id = ? AND priority = ? " +
-                "ORDER BY deadline ASC";
+                "ORDER BY deadline ASC, deadline_time ASC";
 
             PreparedStatement ps =
                 con.prepareStatement(sql);
 
-            // First parameter = logged-in user
+            // Logged-in user
             ps.setInt(1, userId);
 
-            // Second parameter = selected priority
+            // Selected priority
             ps.setString(2, priority);
 
             ResultSet rs = ps.executeQuery();
@@ -225,6 +226,7 @@ public class PriorityAssignmentServlet extends HttpServlet {
             out.println("<th>Assignment Name</th>");
             out.println("<th>Subject</th>");
             out.println("<th>Deadline</th>");
+            out.println("<th>Time</th>");
             out.println("<th>Priority</th>");
 
             out.println("</tr>");
@@ -260,6 +262,14 @@ public class PriorityAssignmentServlet extends HttpServlet {
                 out.println(
                     "<td>" +
                     rs.getDate("deadline") +
+                    "</td>"
+                );
+
+                out.println(
+                    "<td>" +
+                    (rs.getTime("deadline_time") != null
+                        ? rs.getTime("deadline_time")
+                        : "Not Set") +
                     "</td>"
                 );
 

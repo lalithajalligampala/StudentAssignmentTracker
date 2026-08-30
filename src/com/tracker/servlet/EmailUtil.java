@@ -1,226 +1,146 @@
 package com.tracker.servlet;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.util.Properties;
+
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class EmailUtil {
 
-    private static final String RESEND_API_URL =
-            "https://api.resend.com/emails";
+    /*
+     * ============================================================
+     * GMAIL SMTP CONFIGURATION
+     * ============================================================
+     *
+     * IMPORTANT:
+     * Gmail username and App Password are read from
+     * environment variables.
+     *
+     * DO NOT put the Gmail App Password directly in this file.
+     */
+
+    private static final String SENDER_EMAIL =
+            System.getenv("GMAIL_USERNAME");
+
+    private static final String SENDER_PASSWORD =
+            System.getenv("GMAIL_APP_PASSWORD");
+
+
+    /*
+     * ============================================================
+     * SEND EMAIL
+     * ============================================================
+     */
 
     public static void sendEmail(
-            String to,
+            String recipientEmail,
             String subject,
-            String messageText) throws Exception {
+            String body) throws Exception {
 
-        // Get values from environment variables
-        String apiKey = System.getenv("RESEND_API_KEY");
-        String fromEmail = System.getenv("RESEND_FROM_EMAIL");
+        // --------------------------------------------------------
+        // Validate environment variables
+        // --------------------------------------------------------
 
-        // Validate API key
-        if (apiKey == null || apiKey.trim().isEmpty()) {
+        if (SENDER_EMAIL == null ||
+            SENDER_EMAIL.trim().isEmpty()) {
+
             throw new Exception(
-                    "RESEND_API_KEY environment variable is missing."
+                "GMAIL_USERNAME environment variable is missing."
             );
         }
 
-        // Validate sender email
-        if (fromEmail == null || fromEmail.trim().isEmpty()) {
+        if (SENDER_PASSWORD == null ||
+            SENDER_PASSWORD.trim().isEmpty()) {
+
             throw new Exception(
-                    "RESEND_FROM_EMAIL environment variable is missing."
+                "GMAIL_APP_PASSWORD environment variable is missing."
             );
         }
 
-        // Validate recipient
-        if (to == null || to.trim().isEmpty()) {
-            throw new Exception("Recipient email is missing.");
-        }
 
-        // Prevent null values
-        if (subject == null) {
-            subject = "";
-        }
+        // --------------------------------------------------------
+        // Gmail SMTP properties
+        // --------------------------------------------------------
 
-        if (messageText == null) {
-            messageText = "";
-        }
+        Properties properties = new Properties();
 
-        // Build JSON request body
-        String jsonBody =
-                "{"
-                + "\"from\":\"" + escapeJson(fromEmail) + "\","
-                + "\"to\":[\"" + escapeJson(to) + "\"],"
-                + "\"subject\":\"" + escapeJson(subject) + "\","
-                + "\"text\":\"" + escapeJson(messageText) + "\""
-                + "}";
+        properties.put(
+            "mail.smtp.host",
+            "smtp.gmail.com"
+        );
 
-        System.out.println("Sending email to: " + to);
-        System.out.println("Using Resend API...");
+        properties.put(
+            "mail.smtp.port",
+            "587"
+        );
 
-        HttpURLConnection connection = null;
+        properties.put(
+            "mail.smtp.auth",
+            "true"
+        );
 
-        try {
-            // Create connection
-            URL url = new URL(RESEND_API_URL);
+        properties.put(
+            "mail.smtp.starttls.enable",
+            "true"
+        );
 
-            connection = (HttpURLConnection) url.openConnection();
 
-            // Configure request
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
+        // --------------------------------------------------------
+        // Create Gmail SMTP session
+        // --------------------------------------------------------
 
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(30000);
+        Session session = Session.getInstance(
+            properties,
+            new Authenticator() {
 
-            // Headers
-            connection.setRequestProperty(
-                    "Authorization",
-                    "Bearer " + apiKey
-            );
+                @Override
+                protected PasswordAuthentication
+                getPasswordAuthentication() {
 
-            connection.setRequestProperty(
-                    "Content-Type",
-                    "application/json"
-            );
-
-            connection.setRequestProperty(
-                    "Accept",
-                    "application/json"
-            );
-
-            // Send JSON body
-            byte[] requestData =
-                    jsonBody.getBytes(StandardCharsets.UTF_8);
-
-            connection.setRequestProperty(
-                    "Content-Length",
-                    String.valueOf(requestData.length)
-            );
-
-            OutputStream outputStream =
-                    connection.getOutputStream();
-
-            outputStream.write(requestData);
-            outputStream.flush();
-            outputStream.close();
-
-            // Get HTTP response
-            int statusCode =
-                    connection.getResponseCode();
-
-            // Read response from the correct stream
-            InputStream responseStream;
-
-            if (statusCode >= 200 && statusCode < 300) {
-                responseStream = connection.getInputStream();
-            } else {
-                responseStream = connection.getErrorStream();
-
-                if (responseStream == null) {
-                    responseStream = connection.getInputStream();
+                    return new PasswordAuthentication(
+                        SENDER_EMAIL,
+                        SENDER_PASSWORD
+                    );
                 }
             }
+        );
 
-            String responseBody =
-                    readResponse(responseStream);
 
-            // Successful response
-            if (statusCode >= 200 && statusCode < 300) {
+        // --------------------------------------------------------
+        // Create email
+        // --------------------------------------------------------
 
-                System.out.println(
-                        "Email sent successfully to: " + to
-                );
+        Message message = new MimeMessage(session);
 
-                System.out.println(
-                        "Resend HTTP Status: " + statusCode
-                );
+        message.setFrom(
+            new InternetAddress(SENDER_EMAIL)
+        );
 
-                System.out.println(
-                        "Resend response: " + responseBody
-                );
+        message.setRecipients(
+            Message.RecipientType.TO,
+            InternetAddress.parse(recipientEmail)
+        );
 
-            } else {
+        message.setSubject(subject);
 
-                System.err.println(
-                        "Resend email failed."
-                );
+        message.setText(body);
 
-                System.err.println(
-                        "HTTP Status: " + statusCode
-                );
 
-                System.err.println(
-                        "Resend response: " + responseBody
-                );
+        // --------------------------------------------------------
+        // Send email
+        // --------------------------------------------------------
 
-                throw new IOException(
-                        "Email sending failed. Resend returned HTTP "
-                        + statusCode
-                        + ": "
-                        + responseBody
-                );
-            }
+        Transport.send(message);
 
-        } finally {
 
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-    }
-
-    /**
-     * Read HTTP response as String.
-     */
-    private static String readResponse(
-            InputStream inputStream) throws IOException {
-
-        if (inputStream == null) {
-            return "";
-        }
-
-        StringBuilder response =
-                new StringBuilder();
-
-        BufferedReader reader =
-                new BufferedReader(
-                        new InputStreamReader(
-                                inputStream,
-                                StandardCharsets.UTF_8
-                        )
-                );
-
-        String line;
-
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-
-        reader.close();
-
-        return response.toString();
-    }
-
-    /**
-     * Escape special characters for JSON.
-     */
-    private static String escapeJson(String value) {
-
-        if (value == null) {
-            return "";
-        }
-
-        return value
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\r", "\\r")
-                .replace("\n", "\\n")
-                .replace("\t", "\\t");
+        System.out.println(
+            "Email sent successfully to: "
+            + recipientEmail
+        );
     }
 }

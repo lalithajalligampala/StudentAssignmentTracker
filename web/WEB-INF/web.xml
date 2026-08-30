@@ -149,4 +149,12 @@
         <url-pattern>/Dashboard</url-pattern>
     </servlet-mapping>
 
+
+    <!-- ==================== Reminder Listener ==================== -->
+    <listener>
+        <listener-class>
+            com.tracker.servlet.ReminderListener
+        </listener-class>
+    </listener>
+
 </web-app>

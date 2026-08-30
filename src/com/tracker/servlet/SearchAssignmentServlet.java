@@ -169,13 +169,17 @@ public class SearchAssignmentServlet extends HttpServlet {
             out.println("<p class='error'>Please enter a subject.</p>");
 
             out.println(
-                "<a class='button' href='search.html'>" +
+                "<a class='button' href='" +
+                contextPath +
+                "/search.html'>" +
                 "Back to Search" +
                 "</a>"
             );
 
             out.println(
-                "<a class='button' href='index.html'>" +
+                "<a class='button' href='" +
+                contextPath +
+                "/index.html'>" +
                 "Back to Home" +
                 "</a>"
             );
@@ -188,34 +192,37 @@ public class SearchAssignmentServlet extends HttpServlet {
             return;
         }
 
-        // Remove unnecessary spaces
         subject = subject.trim();
 
         // ==============================
-        // SEARCH ONLY LOGGED-IN USER'S
-        // ASSIGNMENTS
+        // SEARCH USER'S ASSIGNMENTS
         // ==============================
+
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
 
-            Connection con = DBConnection.getConnection();
+            con = DBConnection.getConnection();
+
+            if (con == null) {
+                throw new Exception("Database connection failed.");
+            }
 
             String sql =
-                "SELECT id, assignment_name, subject, deadline, priority " +
+                "SELECT id, assignment_name, subject, " +
+                "deadline, deadline_time, priority " +
                 "FROM assignments " +
                 "WHERE user_id = ? AND subject = ? " +
-                "ORDER BY deadline ASC";
+                "ORDER BY deadline ASC, deadline_time ASC";
 
-            PreparedStatement ps =
-                con.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
 
-            // First parameter = logged-in user
             ps.setInt(1, userId);
-
-            // Second parameter = searched subject
             ps.setString(2, subject);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             out.println("<table>");
 
@@ -225,6 +232,7 @@ public class SearchAssignmentServlet extends HttpServlet {
             out.println("<th>Assignment Name</th>");
             out.println("<th>Subject</th>");
             out.println("<th>Deadline</th>");
+            out.println("<th>Time</th>");
             out.println("<th>Priority</th>");
 
             out.println("</tr>");
@@ -263,6 +271,18 @@ public class SearchAssignmentServlet extends HttpServlet {
                     "</td>"
                 );
 
+                // ==============================
+                // DISPLAY DEADLINE TIME
+                // ==============================
+
+                out.println(
+                    "<td>" +
+                    (rs.getTime("deadline_time") != null
+                        ? rs.getTime("deadline_time")
+                        : "-") +
+                    "</td>"
+                );
+
                 out.println(
                     "<td>" +
                     rs.getString("priority") +
@@ -285,10 +305,6 @@ public class SearchAssignmentServlet extends HttpServlet {
                 );
             }
 
-            rs.close();
-            ps.close();
-            con.close();
-
         } catch (Exception e) {
 
             out.println(
@@ -299,6 +315,32 @@ public class SearchAssignmentServlet extends HttpServlet {
             );
 
             e.printStackTrace();
+
+        } finally {
+
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                if (con != null) {
+                    con.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         // ==============================
@@ -306,19 +348,25 @@ public class SearchAssignmentServlet extends HttpServlet {
         // ==============================
 
         out.println(
-            "<a class='button' href='search.html'>" +
+            "<a class='button' href='" +
+            contextPath +
+            "/search.html'>" +
             "Search Again" +
             "</a>"
         );
 
         out.println(
-            "<a class='button' href='ViewAssignments'>" +
+            "<a class='button' href='" +
+            contextPath +
+            "/ViewAssignments'>" +
             "View My Assignments" +
             "</a>"
         );
 
         out.println(
-            "<a class='button' href='index.html'>" +
+            "<a class='button' href='" +
+            contextPath +
+            "/index.html'>" +
             "Back to Home" +
             "</a>"
         );

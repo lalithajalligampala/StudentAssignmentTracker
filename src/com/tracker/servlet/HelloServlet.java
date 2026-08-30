@@ -52,7 +52,10 @@ public class HelloServlet extends HttpServlet {
             return;
         }
 
-        // Get form values
+        // ==================================================
+        // GET FORM VALUES
+        // ==================================================
+
         String assignment =
                 request.getParameter("assignmentName");
 
@@ -62,8 +65,17 @@ public class HelloServlet extends HttpServlet {
         String deadline =
                 request.getParameter("deadline");
 
+        // NEW: Get deadline time
+        String deadlineTime =
+                request.getParameter("deadlineTime");
+
         String priority =
                 request.getParameter("priority");
+
+
+        // ==================================================
+        // HTML PAGE
+        // ==================================================
 
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -75,73 +87,73 @@ public class HelloServlet extends HttpServlet {
         out.println("<style>");
 
         out.println("body {");
-        out.println("    font-family: Arial, sans-serif;");
-        out.println("    margin: 0;");
-        out.println("    background-color: #f4f6f8;");
-        out.println("    color: #333;");
+        out.println("font-family: Arial, sans-serif;");
+        out.println("margin: 0;");
+        out.println("background-color: #f4f6f8;");
+        out.println("color: #333;");
         out.println("}");
 
         out.println(".header {");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    padding: 25px;");
-        out.println("    text-align: center;");
+        out.println("background-color: #2c3e50;");
+        out.println("color: white;");
+        out.println("padding: 25px;");
+        out.println("text-align: center;");
         out.println("}");
 
         out.println(".header h1 {");
-        out.println("    margin: 0;");
-        out.println("    font-size: 30px;");
+        out.println("margin: 0;");
+        out.println("font-size: 30px;");
         out.println("}");
 
         out.println(".container {");
-        out.println("    width: 90%;");
-        out.println("    max-width: 600px;");
-        out.println("    margin: 50px auto;");
+        out.println("width: 90%;");
+        out.println("max-width: 600px;");
+        out.println("margin: 50px auto;");
         out.println("}");
 
         out.println(".card {");
-        out.println("    background-color: white;");
-        out.println("    padding: 35px;");
-        out.println("    border-radius: 10px;");
-        out.println("    box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
-        out.println("    text-align: center;");
+        out.println("background-color: white;");
+        out.println("padding: 35px;");
+        out.println("border-radius: 10px;");
+        out.println("box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
+        out.println("text-align: center;");
         out.println("}");
 
         out.println(".success {");
-        out.println("    color: #27ae60;");
-        out.println("    font-size: 26px;");
-        out.println("    margin-bottom: 25px;");
+        out.println("color: #27ae60;");
+        out.println("font-size: 26px;");
+        out.println("margin-bottom: 25px;");
         out.println("}");
 
         out.println(".details {");
-        out.println("    text-align: left;");
-        out.println("    background-color: #f8f9fa;");
-        out.println("    padding: 20px;");
-        out.println("    border-radius: 8px;");
-        out.println("    margin-bottom: 25px;");
+        out.println("text-align: left;");
+        out.println("background-color: #f8f9fa;");
+        out.println("padding: 20px;");
+        out.println("border-radius: 8px;");
+        out.println("margin-bottom: 25px;");
         out.println("}");
 
         out.println(".details p {");
-        out.println("    margin: 10px 0;");
+        out.println("margin: 10px 0;");
         out.println("}");
 
         out.println(".button {");
-        out.println("    display: inline-block;");
-        out.println("    padding: 12px 20px;");
-        out.println("    margin: 5px;");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    text-decoration: none;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-weight: bold;");
+        out.println("display: inline-block;");
+        out.println("padding: 12px 20px;");
+        out.println("margin: 5px;");
+        out.println("background-color: #2c3e50;");
+        out.println("color: white;");
+        out.println("text-decoration: none;");
+        out.println("border-radius: 6px;");
+        out.println("font-weight: bold;");
         out.println("}");
 
         out.println(".button:hover {");
-        out.println("    background-color: #1f2d3a;");
+        out.println("background-color: #1f2d3a;");
         out.println("}");
 
         out.println(".error {");
-        out.println("    color: #c0392b;");
+        out.println("color: #c0392b;");
         out.println("}");
 
         out.println("</style>");
@@ -150,18 +162,25 @@ public class HelloServlet extends HttpServlet {
         out.println("<body>");
 
         out.println("<div class='header'>");
+
         out.println(
             "<h1>Student Assignment &amp; Deadline Tracker</h1>"
         );
+
         out.println("</div>");
 
         out.println("<div class='container'>");
         out.println("<div class='card'>");
 
-        // Validate form fields
+
+        // ==================================================
+        // VALIDATE FORM FIELDS
+        // ==================================================
+
         if (assignment == null || assignment.trim().isEmpty()
                 || subject == null || subject.trim().isEmpty()
                 || deadline == null || deadline.trim().isEmpty()
+                || deadlineTime == null || deadlineTime.trim().isEmpty()
                 || priority == null || priority.trim().isEmpty()) {
 
             out.println(
@@ -188,15 +207,17 @@ public class HelloServlet extends HttpServlet {
             return;
         }
 
-        /*
-         * IMPORTANT:
-         *
-         * user_id is now included in the INSERT.
-         */
+
+        // ==================================================
+        // INSERT INTO DATABASE
+        // ==================================================
+
         String sql =
                 "INSERT INTO assignments " +
-                "(assignment_name, subject, deadline, priority, user_id) " +
-                "VALUES (?, ?, ?, ?, ?)";
+                "(assignment_name, subject, deadline, " +
+                "deadline_time, priority, user_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
 
         Connection connection = null;
         PreparedStatement statement = null;
@@ -212,38 +233,60 @@ public class HelloServlet extends HttpServlet {
                 );
             }
 
+
             statement =
                     connection.prepareStatement(sql);
 
+
+            // Assignment name
             statement.setString(
                     1,
                     assignment.trim()
             );
 
+
+            // Subject
             statement.setString(
                     2,
                     subject.trim()
             );
 
+
+            // Deadline date
             statement.setString(
                     3,
                     deadline.trim()
             );
 
+
+            // NEW: Deadline time
             statement.setString(
                     4,
+                    deadlineTime.trim()
+            );
+
+
+            // Priority
+            statement.setString(
+                    5,
                     priority.trim()
             );
 
-            // IMPORTANT:
-            // Store the logged-in user's ID.
+
+            // Logged-in user
             statement.setInt(
-                    5,
+                    6,
                     userId
             );
 
+
             int rows =
                     statement.executeUpdate();
+
+
+            // ==================================================
+            // SUCCESS
+            // ==================================================
 
             if (rows > 0) {
 
@@ -268,8 +311,15 @@ public class HelloServlet extends HttpServlet {
                 );
 
                 out.println(
-                    "<p><b>Deadline:</b> " +
+                    "<p><b>Deadline Date:</b> " +
                     deadline.trim() +
+                    "</p>"
+                );
+
+                // NEW: Display time
+                out.println(
+                    "<p><b>Deadline Time:</b> " +
+                    deadlineTime.trim() +
                     "</p>"
                 );
 
@@ -281,6 +331,7 @@ public class HelloServlet extends HttpServlet {
 
                 out.println("</div>");
 
+
                 out.println(
                     "<a class='button' href='" +
                     contextPath +
@@ -289,6 +340,7 @@ public class HelloServlet extends HttpServlet {
                     "</a>"
                 );
 
+
                 out.println(
                     "<a class='button' href='" +
                     contextPath +
@@ -296,6 +348,7 @@ public class HelloServlet extends HttpServlet {
                     "View Assignments" +
                     "</a>"
                 );
+
 
             } else {
 
@@ -313,6 +366,7 @@ public class HelloServlet extends HttpServlet {
                     "</a>"
                 );
             }
+
 
         } catch (Exception e) {
 
@@ -357,6 +411,7 @@ public class HelloServlet extends HttpServlet {
                 e.printStackTrace();
             }
 
+
             try {
 
                 if (connection != null) {
@@ -367,6 +422,7 @@ public class HelloServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
+
 
         out.println("</div>");
         out.println("</div>");

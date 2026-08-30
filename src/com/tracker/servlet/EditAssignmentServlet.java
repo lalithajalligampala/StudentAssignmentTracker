@@ -104,6 +104,7 @@ public class EditAssignmentServlet extends HttpServlet {
 
         out.println("input[type='text'],");
         out.println("input[type='date'],");
+        out.println("input[type='time'],");
         out.println("select {");
         out.println("width: 100%;");
         out.println("padding: 11px;");
@@ -115,6 +116,7 @@ public class EditAssignmentServlet extends HttpServlet {
 
         out.println("input[type='text']:focus,");
         out.println("input[type='date']:focus,");
+        out.println("input[type='time']:focus,");
         out.println("select:focus {");
         out.println("border-color: #3498db;");
         out.println("outline: none;");
@@ -192,17 +194,11 @@ public class EditAssignmentServlet extends HttpServlet {
                 }
 
                 /*
-                 * IMPORTANT:
-                 *
-                 * Only retrieve the assignment if:
-                 *
-                 * 1. The assignment ID matches
-                 * 2. The assignment belongs to the logged-in user
-                 *
-                 * This prevents User B from editing User A's assignment.
+                 * deadline_time has been added here.
                  */
                 String sql =
-                        "SELECT id, assignment_name, subject, deadline, priority " +
+                        "SELECT id, assignment_name, subject, " +
+                        "deadline, deadline_time, priority " +
                         "FROM assignments " +
                         "WHERE id = ? AND user_id = ?";
 
@@ -228,6 +224,7 @@ public class EditAssignmentServlet extends HttpServlet {
                         "'>"
                     );
 
+                    // Assignment Name
                     out.println("<div class='form-group'>");
 
                     out.println(
@@ -246,6 +243,7 @@ public class EditAssignmentServlet extends HttpServlet {
 
                     out.println("</div>");
 
+                    // Subject
                     out.println("<div class='form-group'>");
 
                     out.println(
@@ -264,18 +262,20 @@ public class EditAssignmentServlet extends HttpServlet {
 
                     out.println("</div>");
 
+                    // Deadline Date
                     out.println("<div class='form-group'>");
 
                     out.println(
                         "<label for='deadline'>" +
-                        "Deadline:" +
+                        "Deadline Date:" +
                         "</label>"
                     );
 
                     String deadline = "";
 
                     if (rs.getDate("deadline") != null) {
-                        deadline = rs.getDate("deadline").toString();
+                        deadline =
+                                rs.getDate("deadline").toString();
                     }
 
                     out.println(
@@ -288,6 +288,47 @@ public class EditAssignmentServlet extends HttpServlet {
 
                     out.println("</div>");
 
+                    // Deadline Time
+                    out.println("<div class='form-group'>");
+
+                    out.println(
+                        "<label for='deadline_time'>" +
+                        "Deadline Time:" +
+                        "</label>"
+                    );
+
+                    String deadlineTime = "";
+
+                    if (rs.getTime("deadline_time") != null) {
+                        deadlineTime =
+                                rs.getTime("deadline_time").toString();
+                    }
+
+                    /*
+                     * MySQL TIME may return:
+                     * 10:30:00
+                     *
+                     * HTML time input accepts:
+                     * 10:30
+                     *
+                     * Therefore remove seconds.
+                     */
+                    if (deadlineTime.length() >= 5) {
+                        deadlineTime =
+                                deadlineTime.substring(0, 5);
+                    }
+
+                    out.println(
+                        "<input type='time' " +
+                        "id='deadline_time' " +
+                        "name='deadline_time' value='" +
+                        deadlineTime +
+                        "' required>"
+                    );
+
+                    out.println("</div>");
+
+                    // Priority
                     out.println("<div class='form-group'>");
 
                     out.println(
@@ -301,23 +342,27 @@ public class EditAssignmentServlet extends HttpServlet {
                         "name='priority' required>"
                     );
 
-                    String priority = rs.getString("priority");
+                    String priority =
+                            rs.getString("priority");
 
                     out.println(
                         "<option value='High' " +
-                        ("High".equals(priority) ? "selected" : "") +
+                        ("High".equals(priority)
+                            ? "selected" : "") +
                         ">High</option>"
                     );
 
                     out.println(
                         "<option value='Medium' " +
-                        ("Medium".equals(priority) ? "selected" : "") +
+                        ("Medium".equals(priority)
+                            ? "selected" : "") +
                         ">Medium</option>"
                     );
 
                     out.println(
                         "<option value='Low' " +
-                        ("Low".equals(priority) ? "selected" : "") +
+                        ("Low".equals(priority)
+                            ? "selected" : "") +
                         ">Low</option>"
                     );
 
@@ -334,14 +379,6 @@ public class EditAssignmentServlet extends HttpServlet {
 
                 } else {
 
-                    /*
-                     * This also occurs when:
-                     *
-                     * - assignment does not exist, OR
-                     * - assignment belongs to another user
-                     *
-                     * We deliberately don't reveal which case it is.
-                     */
                     out.println(
                         "<h3 class='error'>" +
                         "Assignment Not Found</h3>"
