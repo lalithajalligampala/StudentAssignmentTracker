@@ -1,188 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Register - Student Assignment Tracker</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Register</title>
+
+
+    <!-- =========================
+         EMAILJS
+         ========================= -->
+
+    <script type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+
 
     <style>
+
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #1f2933;
+            min-height: 100vh;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            background: linear-gradient(
+                135deg,
+                #eef6ff,
+                #f4fbfa
+            );
+
+            color: #1f2d3d;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px;
         }
 
-        .header {
-            background-color: #2c3e50;
-            color: white;
+        body::before {
+            content: '';
+
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            background: rgba(74, 144, 226, 0.06);
+
+            top: -150px;
+            left: -150px;
+
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+
+            position: fixed;
+
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+
+            background: rgba(80, 190, 170, 0.06);
+
+            bottom: -200px;
+            right: -180px;
+
+            z-index: -1;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .register-box {
+            background: rgba(255, 255, 255, 0.96);
+
+            border: 1px solid #d4e3f5;
+
+            border-radius: 14px;
+
+            padding: 45px 45px 42px 45px;
+
+            box-shadow:
+                0 12px 35px rgba(31, 60, 90, 0.12),
+                0 2px 8px rgba(31, 60, 90, 0.06);
+        }
+
+
+        /* =========================
+           TITLE
+           ========================= */
+
+        .title {
             text-align: center;
-            padding: 28px 20px;
+
+            color: #1d2d44;
+
+            font-size: 32px;
+
+            font-weight: 500;
+
+            letter-spacing: 3px;
+
+            margin-bottom: 38px;
+
+            text-transform: uppercase;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 36px;
-        }
 
-        .header p {
-            margin-top: 10px;
-            font-size: 18px;
-        }
+        /* =========================
+           INPUT GROUP
+           ========================= */
 
-        .container {
-            max-width: 550px;
-            margin: 60px auto;
-            padding: 0 20px;
-        }
+        .input-group {
+            display: flex;
 
-        .register-card {
-            background-color: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-        }
+            width: 100%;
 
-        .register-card h2 {
-            text-align: center;
-            color: #2c3e50;
-            font-size: 30px;
-            margin-top: 0;
-            margin-bottom: 30px;
-        }
+            height: 58px;
 
-        .form-group {
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #2c3e50;
+        .input-icon {
+            width: 58px;
+
+            flex-shrink: 0;
+
+            background-color: #f1f5fa;
+
+            border: 1px solid #d4dce6;
+
+            border-right: none;
+
+            border-radius: 7px 0 0 7px;
+
+            color: #3978d8;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            font-size: 20px;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
+        .input-group input {
+            flex: 1;
 
-        .form-group input:focus {
+            height: 58px;
+
+            border: 1px solid #d4dce6;
+
+            border-radius: 0 7px 7px 0;
+
             outline: none;
-            border-color: #3498db;
+
+            background-color: #ffffff;
+
+            padding: 0 18px;
+
+            font-size: 16px;
+
+            color: #34495e;
+
+            transition: all 0.2s ease;
         }
 
-        .register-button {
+        .input-group input::placeholder {
+            color: #8a99a8;
+        }
+
+        .input-group input:focus {
+            border-color: #3978d8;
+
+            box-shadow:
+                0 0 0 3px rgba(57, 120, 216, 0.10);
+        }
+
+
+        /* =========================
+           REGISTER BUTTON
+           ========================= */
+
+        .register-btn {
             width: 100%;
-            padding: 14px;
-            background-color: #3498db;
-            color: white;
+
+            height: 64px;
+
+            margin-top: 8px;
+
             border: none;
-            border-radius: 6px;
+
+            border-radius: 7px;
+
+            background-color: #3978d8;
+
+            color: white;
+
             font-size: 18px;
+
             font-weight: bold;
+
+            letter-spacing: 3px;
+
             cursor: pointer;
-            margin-top: 10px;
+
+            transition: all 0.2s ease;
         }
 
-        .register-button:hover {
-            background-color: #2980b9;
+        .register-btn:hover {
+            background-color: #2f69c2;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 5px 14px rgba(57, 120, 216, 0.20);
         }
 
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
+        .register-btn:disabled {
+            opacity: 0.7;
+
+            cursor: not-allowed;
+
+            transform: none;
         }
 
-        .login-link a {
-            color: #3498db;
+
+        /* =========================
+           LOGIN BUTTON
+           ========================= */
+
+        .login-btn {
+            display: block;
+
+            width: 100%;
+
+            height: 62px;
+
+            line-height: 58px;
+
+            margin-top: 18px;
+
+            border: 2px solid #3978d8;
+
+            border-radius: 7px;
+
+            background-color: white;
+
+            color: #3978d8;
+
             text-decoration: none;
+
+            text-align: center;
+
+            font-size: 18px;
+
             font-weight: bold;
+
+            letter-spacing: 3px;
+
+            transition: all 0.2s ease;
         }
+
+        .login-btn:hover {
+            background-color: #3978d8;
+
+            color: white;
+        }
+
+
+        /* =========================
+           MOBILE RESPONSIVE
+           ========================= */
 
         @media (max-width: 600px) {
-            .header h1 {
-                font-size: 28px;
+
+            body {
+                padding: 20px;
             }
 
-            .register-card {
-                padding: 30px 20px;
+            .register-box {
+                padding: 35px 25px 32px 25px;
             }
+
+            .title {
+                font-size: 27px;
+
+                letter-spacing: 2px;
+
+                margin-bottom: 30px;
+            }
+
+            .input-group {
+                height: 54px;
+            }
+
+            .input-icon {
+                width: 54px;
+            }
+
+            .input-group input {
+                height: 54px;
+            }
+
+            .register-btn {
+                height: 58px;
+
+                font-size: 16px;
+            }
+
+            .login-btn {
+                height: 58px;
+
+                line-height: 54px;
+
+                font-size: 16px;
+            }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
-<header class="header">
-    <h1>Student Assignment &amp; Deadline Tracker</h1>
-    <p>Manage your assignments and keep track of important deadlines.</p>
-</header>
 
-<main class="container">
+<div class="register-container">
 
-    <div class="register-card">
 
-        <h2>Create Account</h2>
+    <!-- REGISTER BOX -->
 
-        <!-- Send registration data to RegisterServlet -->
-        <form action="RegisterServlet" method="post">
+    <div class="register-box">
 
-            <div class="form-group">
-                <label for="name">Name</label>
+
+        <!-- TITLE -->
+
+        <div class="title">
+
+            REGISTER
+
+        </div>
+
+
+        <!-- REGISTER FORM -->
+
+        <form id="registerForm">
+
+
+            <!-- NAME -->
+
+            <div class="input-group">
+
+                <div class="input-icon">
+                    👤
+                </div>
 
                 <input
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="Enter your name"
+                    placeholder="Name"
                     required>
+
             </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
+
+            <!-- EMAIL -->
+
+            <div class="input-group">
+
+                <div class="input-icon">
+                    ✉️
+                </div>
 
                 <input
                     type="email"
                     id="email"
                     name="email"
-                    placeholder="Enter your email"
+                    placeholder="Email ID"
                     required>
+
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
+
+            <!-- PASSWORD -->
+
+            <div class="input-group">
+
+                <div class="input-icon">
+                    🔒
+                </div>
 
                 <input
                     type="password"
                     id="password"
                     name="password"
-                    placeholder="Enter your password"
+                    placeholder="Password"
                     required>
+
             </div>
 
-            <button type="submit" class="register-button">
-                Register
+
+            <!-- REGISTER BUTTON -->
+
+            <button
+                type="submit"
+                id="registerButton"
+                class="register-btn">
+
+                REGISTER
+
             </button>
+
 
         </form>
 
-        <div class="login-link">
-            Already have an account?
-            <a href="login.html">Login</a>
-        </div>
+
+        <!-- LOGIN BUTTON -->
+
+        <a
+            href="index.html"
+            class="login-btn">
+
+            LOGIN
+
+        </a>
+
 
     </div>
 
-</main>
+
+</div>
+
+
+<!-- =========================
+     EMAILJS + REGISTRATION
+     ========================= -->
+
+<script>
+
+
+    /*
+     * Initialize EmailJS
+     */
+
+    emailjs.init({
+        publicKey: "lW3GJrPPsL1pvSMwH"
+    });
+
+
+    /*
+     * Registration Form
+     */
+
+    document.getElementById("registerForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            /* Get form values */
+
+            const name =
+                document.getElementById("name").value.trim();
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const password =
+                document.getElementById("password").value;
+
+
+            const button =
+                document.getElementById("registerButton");
+
+
+            /* Disable button */
+
+            button.disabled = true;
+
+            button.innerText = "REGISTERING...";
+
+
+            try {
+
+
+                /*
+                 * Send registration data
+                 * to RegisterServlet.
+                 */
+
+                const response = await fetch("RegisterServlet", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body:
+                        "name=" + encodeURIComponent(name) +
+                        "&email=" + encodeURIComponent(email) +
+                        "&password=" + encodeURIComponent(password)
+
+                });
+
+
+                const result =
+                    await response.text();
+
+
+                /*
+                 * Check servlet response.
+                 */
+
+                if (result.trim() === "SUCCESS") {
+
+
+                    /*
+                     * Send email through EmailJS.
+                     */
+
+                    await emailjs.send(
+
+                        "service_0dd2o2j",
+
+                        "template_6368n4j",
+
+                        {
+                            name: name,
+                            email: email,
+                            password: password
+                        }
+
+                    );
+
+
+                    alert(
+                        "Account created successfully!\n\n" +
+                        "Your Name and Password have been sent to your email."
+                    );
+
+
+                    /*
+                     * Go to login page.
+                     */
+
+                    window.location.href = "index.html";
+
+
+                } else {
+
+
+                    /*
+                     * Registration failed.
+                     */
+
+                    alert(result);
+
+
+                    button.disabled = false;
+
+                    button.innerText = "REGISTER";
+
+                }
+
+
+            } catch (error) {
+
+
+                console.error(
+                    "Registration/EmailJS Error:",
+                    error
+                );
+
+
+                alert(
+                    "Account registration or email sending failed.\n\n" +
+                    "Please try again."
+                );
+
+
+                button.disabled = false;
+
+                button.innerText = "REGISTER";
+
+            }
+
+        });
+
+
+</script>
+
 
 </body>
+
 </html>

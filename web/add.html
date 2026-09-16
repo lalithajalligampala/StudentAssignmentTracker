@@ -2,252 +2,450 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Add Assignment</title>
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            background-color: #f4f6f8;
-            color: #333;
+            min-height: 100vh;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            background: linear-gradient(135deg, #eef6ff, #f4fbfa);
+
+            color: #1f2d3d;
         }
 
-        .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 25px;
+
+        /* Decorative Background Circle - Top Left */
+
+        body::before {
+            content: "";
+
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            background: rgba(74, 144, 226, 0.06);
+
+            top: -150px;
+            left: -150px;
+
+            z-index: -1;
+        }
+
+
+        /* Decorative Background Circle - Bottom Right */
+
+        body::after {
+            content: "";
+
+            position: fixed;
+
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+
+            background: rgba(80, 190, 170, 0.06);
+
+            bottom: -200px;
+            right: -180px;
+
+            z-index: -1;
+        }
+
+
+        /* Page Heading */
+
+        .page-title {
             text-align: center;
+
+            margin-top: 55px;
+            margin-bottom: 48px;
+
+            font-size: 38px;
+
+            font-weight: 500;
+
+            letter-spacing: 6px;
+
+            color: #1d2d44;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 30px;
+
+        /* Form Card */
+
+        .form-container {
+            width: 760px;
+
+            max-width: 90%;
+
+            margin: 0 auto 50px auto;
+
+            padding: 45px 45px 48px 45px;
+
+            background: rgba(255, 255, 255, 0.96);
+
+            border: 1px solid #d4e3f5;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 12px 35px rgba(31, 60, 90, 0.12),
+                0 2px 8px rgba(31, 60, 90, 0.06);
         }
 
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: 40px auto;
-        }
 
-        .card {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
+        /* Labels */
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+
+            margin-bottom: 9px;
+
+            font-size: 17px;
+
+            font-weight: 600;
+
+            color: #1f2d3d;
         }
 
-        input[type="text"],
-        input[type="date"],
-        input[type="time"],
+
+        /* Input and Select Fields */
+
+        input,
         select {
             width: 100%;
-            padding: 11px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
 
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        input[type="time"]:focus,
-        select:focus {
-            border-color: #3498db;
-            outline: none;
-        }
+            height: 58px;
 
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
+            padding: 0 18px;
+
+            margin-bottom: 27px;
+
+            border: 1px solid #d4dce6;
+
+            border-radius: 7px;
+
+            background: #ffffff;
+
+            color: #34495e;
+
             font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
+
+            outline: none;
+
+            transition: all 0.2s ease;
         }
 
-        input[type="submit"]:hover {
-            background-color: #217dbb;
+
+        /* Input Focus */
+
+        input:focus,
+        select:focus {
+            border-color: #3978d8;
+
+            box-shadow:
+                0 0 0 3px rgba(57, 120, 216, 0.10);
         }
 
-        .home-btn {
-            display: block;
-            margin-top: 20px;
-            padding: 12px;
-            background-color: #2c3e50;
+
+        /* Placeholder */
+
+        input::placeholder {
+            color: #718096;
+        }
+
+
+        /* Date and Time */
+
+        input[type="date"],
+        input[type="time"] {
+            color: #34495e;
+        }
+
+
+        /* Add Assignment Button */
+
+        .add-button {
+            width: 100%;
+
+            height: 64px;
+
+            margin-top: 3px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #3978d8;
+
             color: white;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 6px;
+
+            font-size: 18px;
+
             font-weight: bold;
+
+            letter-spacing: 3px;
+
+            cursor: pointer;
+
+            transition: all 0.2s ease;
         }
 
-        .home-btn:hover {
-            background-color: #1f2d3a;
+
+        /* Add Button Hover */
+
+        .add-button:hover {
+            background: #2f69c2;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 5px 14px rgba(57, 120, 216, 0.20);
+        }
+
+
+        /* Add Button Click */
+
+        .add-button:active {
+            transform: translateY(0);
+        }
+
+
+        /* Back to Dashboard */
+
+        .back-button {
+            display: block;
+
+            width: 100%;
+
+            height: 62px;
+
+            margin-top: 18px;
+
+            border: 2px solid #3978d8;
+
+            border-radius: 7px;
+
+            background: white;
+
+            color: #3978d8;
+
+            text-decoration: none;
+
+            text-align: center;
+
+            line-height: 58px;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            letter-spacing: 3px;
+
+            transition: all 0.2s ease;
+        }
+
+
+        /* Back Button Hover */
+
+        .back-button:hover {
+            background: #3978d8;
+
+            color: white;
+        }
+
+
+        /* Responsive Design */
+
+        @media (max-width: 700px) {
+
+            .page-title {
+                margin-top: 35px;
+
+                margin-bottom: 30px;
+
+                font-size: 28px;
+
+                letter-spacing: 4px;
+            }
+
+
+            .form-container {
+                padding: 30px 25px 35px 25px;
+            }
+
+
+            input,
+            select {
+                height: 54px;
+            }
+
+
+            .add-button {
+                height: 58px;
+
+                font-size: 16px;
+            }
+
+
+            .back-button {
+                height: 58px;
+
+                line-height: 54px;
+
+                font-size: 16px;
+            }
         }
 
     </style>
-
 </head>
+
 
 <body>
 
-    <div class="header">
 
-        <h1>
-            Student Assignment &amp; Deadline Tracker
-        </h1>
+    <!-- Page Heading -->
 
+    <div class="page-title">
+        ADD NEW ASSIGNMENT
     </div>
 
 
-    <div class="container">
+    <!-- Assignment Form -->
 
-        <div class="card">
+    <div class="form-container">
 
-            <h2>Add New Assignment</h2>
+        <!-- HelloServlet handles the form submission -->
 
-
-            <form action="HelloServlet" method="post">
-
-
-                <!-- Assignment Name -->
-
-                <div class="form-group">
-
-                    <label for="assignmentName">
-                        Assignment Name:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="assignmentName"
-                        name="assignmentName"
-                        required>
-
-                </div>
+        <form action="HelloServlet" method="post">
 
 
-                <!-- Subject -->
+            <!-- Assignment Name -->
 
-                <div class="form-group">
+            <label for="assignmentName">
+                Assignment Name:
+            </label>
 
-                    <label for="subject">
-                        Subject:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="subject"
-                        name="subject"
-                        required>
-
-                </div>
+            <input
+                type="text"
+                id="assignmentName"
+                name="assignmentName"
+                placeholder="Enter assignment name"
+                required
+            >
 
 
-                <!-- Deadline Date -->
+            <!-- Subject -->
 
-                <div class="form-group">
+            <label for="subject">
+                Subject:
+            </label>
 
-                    <label for="deadline">
-                        Deadline Date:
-                    </label>
-
-                    <input
-                        type="date"
-                        id="deadline"
-                        name="deadline"
-                        required>
-
-                </div>
+            <input
+                type="text"
+                id="subject"
+                name="subject"
+                placeholder="Enter subject"
+                required
+            >
 
 
-                <!-- Deadline Time -->
+            <!-- Deadline Date -->
 
-                <div class="form-group">
+            <label for="deadline">
+                Deadline Date:
+            </label>
 
-                    <label for="deadlineTime">
-                        Deadline Time:
-                    </label>
-
-                    <input
-                        type="time"
-                        id="deadlineTime"
-                        name="deadlineTime"
-                        required>
-
-                </div>
+            <input
+                type="date"
+                id="deadline"
+                name="deadline"
+                required
+            >
 
 
-                <!-- Priority -->
+            <!-- Deadline Time -->
 
-                <div class="form-group">
+            <label for="deadlineTime">
+                Deadline Time:
+            </label>
 
-                    <label for="priority">
-                        Priority:
-                    </label>
-
-                    <select
-                        id="priority"
-                        name="priority"
-                        required>
-
-                        <option value="High">
-                            High
-                        </option>
-
-                        <option value="Medium">
-                            Medium
-                        </option>
-
-                        <option value="Low">
-                            Low
-                        </option>
-
-                    </select>
-
-                </div>
+            <input
+                type="time"
+                id="deadlineTime"
+                name="deadlineTime"
+                required
+            >
 
 
-                <input
-                    type="submit"
-                    value="Add Assignment">
+            <!-- Priority -->
 
-            </form>
+            <label for="priority">
+                Priority:
+            </label>
+
+            <select
+                id="priority"
+                name="priority"
+                required
+            >
+
+                <option value="High">
+                    High
+                </option>
+
+                <option value="Medium">
+                    Medium
+                </option>
+
+                <option value="Low">
+                    Low
+                </option>
+
+            </select>
 
 
-            <a
-                class="home-btn"
-                href="index.html">
+            <!-- Add Assignment -->
 
-                Back to Home
+            <button
+                type="submit"
+                class="add-button">
 
-            </a>
+                ADD ASSIGNMENT
 
-        </div>
+            </button>
+
+        </form>
+
+
+        <!-- Back to Dashboard -->
+
+        <a
+            href="Dashboard"
+            class="back-button">
+
+            BACK TO DASHBOARD
+
+        </a>
 
     </div>
+
 
 </body>
 

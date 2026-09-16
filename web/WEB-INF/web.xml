@@ -6,7 +6,11 @@
          http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
 
-    <!-- ==================== HelloServlet ==================== -->
+
+    <!-- ================================================== -->
+    <!-- HelloServlet / Add Assignment -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>HelloServlet</servlet-name>
         <servlet-class>com.tracker.servlet.HelloServlet</servlet-class>
@@ -18,7 +22,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== TestDB ==================== -->
+    <!-- ================================================== -->
+    <!-- TestDB -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>TestDB</servlet-name>
         <servlet-class>com.tracker.servlet.TestDB</servlet-class>
@@ -30,7 +37,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== RegisterServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- RegisterServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>RegisterServlet</servlet-name>
         <servlet-class>com.tracker.servlet.RegisterServlet</servlet-class>
@@ -42,7 +52,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== LoginServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- LoginServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>com.tracker.servlet.LoginServlet</servlet-class>
@@ -54,7 +67,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== ViewAssignmentsServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- ViewAssignmentsServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>ViewAssignmentsServlet</servlet-name>
         <servlet-class>com.tracker.servlet.ViewAssignmentsServlet</servlet-class>
@@ -66,7 +82,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== DeleteAssignmentServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- DeleteAssignmentServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>DeleteAssignmentServlet</servlet-name>
         <servlet-class>com.tracker.servlet.DeleteAssignmentServlet</servlet-class>
@@ -78,7 +97,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== EditAssignmentServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- EditAssignmentServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>EditAssignmentServlet</servlet-name>
         <servlet-class>com.tracker.servlet.EditAssignmentServlet</servlet-class>
@@ -90,7 +112,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== UpdateAssignmentServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- UpdateAssignmentServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>UpdateAssignmentServlet</servlet-name>
         <servlet-class>com.tracker.servlet.UpdateAssignmentServlet</servlet-class>
@@ -102,7 +127,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== SearchAssignmentServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- SearchAssignmentServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>SearchAssignmentServlet</servlet-name>
         <servlet-class>com.tracker.servlet.SearchAssignmentServlet</servlet-class>
@@ -114,7 +142,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== PriorityAssignmentServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- PriorityAssignmentServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>PriorityAssignmentServlet</servlet-name>
         <servlet-class>com.tracker.servlet.PriorityAssignmentServlet</servlet-class>
@@ -126,7 +157,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== DeadlineSortServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- DeadlineSortServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>DeadlineSortServlet</servlet-name>
         <servlet-class>com.tracker.servlet.DeadlineSortServlet</servlet-class>
@@ -138,7 +172,10 @@
     </servlet-mapping>
 
 
-    <!-- ==================== DashboardServlet ==================== -->
+    <!-- ================================================== -->
+    <!-- DashboardServlet -->
+    <!-- ================================================== -->
+
     <servlet>
         <servlet-name>DashboardServlet</servlet-name>
         <servlet-class>com.tracker.servlet.DashboardServlet</servlet-class>
@@ -150,11 +187,15 @@
     </servlet-mapping>
 
 
-    <!-- ==================== Reminder Listener ==================== -->
+    <!-- ================================================== -->
+    <!-- Reminder Listener -->
+    <!-- ================================================== -->
+
     <listener>
         <listener-class>
             com.tracker.servlet.ReminderListener
         </listener-class>
     </listener>
+
 
 </web-app>

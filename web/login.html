@@ -1,165 +1,378 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <meta charset="UTF-8">
-    <title>Student Assignment & Deadline Tracker - Login</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
+            padding: 0;
+            min-height: 100vh;
+
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #f4f6f8;
-            color: #222;
+
+            background: linear-gradient(
+                135deg,
+                #eef6ff,
+                #f4fbfa
+            );
+
+            color: #1f2d3d;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .header {
-            background-color: #2c4054;
-            color: white;
-            text-align: center;
-            padding: 28px 20px;
+        /* Background Decorations */
+
+        body::before {
+            content: '';
+
+            position: fixed;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            background: rgba(74, 144, 226, 0.06);
+
+            top: -150px;
+            left: -150px;
+
+            z-index: -1;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 42px;
+        body::after {
+            content: '';
+
+            position: fixed;
+
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+
+            background: rgba(80, 190, 170, 0.06);
+
+            bottom: -200px;
+            right: -180px;
+
+            z-index: -1;
         }
 
-        .header p {
-            margin: 12px 0 0;
-            font-size: 20px;
-        }
+        /* Login Card */
 
         .container {
-            width: 500px;
-            max-width: 90%;
-            margin: 75px auto;
-            background-color: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+            width: 90%;
+            max-width: 430px;
+
+            padding: 42px 38px;
+
+            background: rgba(255, 255, 255, 0.96);
+
+            border: 1px solid #d4e3f5;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 12px 35px rgba(31, 60, 90, 0.12),
+                0 2px 8px rgba(31, 60, 90, 0.06);
         }
 
-        h2 {
+        /* Heading */
+
+        .container h2 {
+            margin: 0 0 32px;
+
             text-align: center;
-            color: #294766;
-            font-size: 32px;
-            margin-bottom: 30px;
+
+            color: #1d2d44;
+
+            font-size: 30px;
+
+            font-weight: 500;
+
+            letter-spacing: 3px;
+
+            text-transform: uppercase;
         }
+
+        /* Labels */
 
         label {
             display: block;
-            font-size: 17px;
-            font-weight: bold;
-            margin-bottom: 8px;
+
+            margin-bottom: 9px;
+
+            color: #1d2d44;
+
+            font-size: 16px;
+
+            font-weight: 600;
         }
+
+        /* Input Fields */
 
         input {
             width: 100%;
-            padding: 14px;
+
+            height: 58px;
+
+            padding: 0 16px;
+
             margin-bottom: 22px;
-            border: 1px solid #ccc;
+
+            border: 1px solid #d4dce6;
+
             border-radius: 7px;
+
+            background: #ffffff;
+
+            color: #1f2d3d;
+
             font-size: 16px;
+
+            outline: none;
+
+            transition: all 0.2s ease;
+        }
+
+        input::placeholder {
+            color: #8a98a8;
         }
 
         input:focus {
-            outline: none;
-            border-color: #3498db;
+            border-color: #3978d8;
+
+            box-shadow:
+                0 0 0 3px rgba(57, 120, 216, 0.12);
         }
+
+        /* Login Button */
 
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background-color: #3498db;
-            color: white;
+
+            height: 62px;
+
             border: none;
+
             border-radius: 7px;
+
+            background: #3978d8;
+
+            color: white;
+
             font-size: 18px;
+
             font-weight: bold;
+
+            letter-spacing: 3px;
+
             cursor: pointer;
+
+            box-shadow:
+                0 5px 12px rgba(57, 120, 216, 0.20);
+
+            transition: all 0.2s ease;
         }
 
         .login-btn:hover {
-            background-color: #2980b9;
+            background: #2f69c2;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 7px 16px rgba(57, 120, 216, 0.25);
         }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Message */
+
+        .message {
+            margin-top: 28px;
+
+            margin-bottom: 12px;
+
+            text-align: center;
+
+            color: #526579;
+
+            font-size: 15px;
+        }
+
+        /* Register Button */
 
         .register-btn {
             display: block;
+
             width: 100%;
-            padding: 14px;
-            margin-top: 15px;
-            background-color: #2c4054;
-            color: white;
+
+            height: 60px;
+
+            line-height: 56px;
+
             text-align: center;
+
             text-decoration: none;
+
+            border: 2px solid #3978d8;
+
             border-radius: 7px;
-            font-size: 18px;
+
+            background: #ffffff;
+
+            color: #3978d8;
+
+            font-size: 16px;
+
             font-weight: bold;
+
+            letter-spacing: 2px;
+
+            transition: all 0.2s ease;
         }
 
         .register-btn:hover {
-            background-color: #1f3040;
+            background: #3978d8;
+
+            color: #ffffff;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 5px 12px rgba(57, 120, 216, 0.18);
         }
 
-        .message {
-            text-align: center;
-            margin-top: 20px;
-            color: #555;
-            font-size: 15px;
+        /* Mobile Responsive */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                width: 92%;
+
+                padding: 35px 25px;
+            }
+
+            .container h2 {
+                font-size: 26px;
+
+                letter-spacing: 2px;
+            }
+
+            input {
+                height: 54px;
+            }
+
+            .login-btn {
+                height: 58px;
+
+                font-size: 16px;
+            }
+
+            .register-btn {
+                height: 56px;
+
+                line-height: 52px;
+
+                font-size: 15px;
+            }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
-    <div class="header">
-        <h1>Student Assignment & Deadline Tracker</h1>
-        <p>Manage your assignments and keep track of important deadlines.</p>
-    </div>
 
     <div class="container">
 
-        <h2>Login</h2>
+
+        <h2>LOGIN</h2>
+
 
         <form action="LoginServlet" method="post">
 
-            <label for="email">Email:</label>
+
+            <label for="email">
+                Email
+            </label>
+
             <input
                 type="email"
                 id="email"
                 name="email"
                 placeholder="Enter your email"
-                required
-            >
+                required>
 
-            <label for="password">Password:</label>
+
+            <label for="password">
+                Password
+            </label>
+
             <input
                 type="password"
                 id="password"
                 name="password"
                 placeholder="Enter your password"
-                required
-            >
+                required>
 
-            <button type="submit" class="login-btn">
-                Login
+
+            <button
+                type="submit"
+                class="login-btn">
+
+                LOGIN
+
             </button>
+
 
         </form>
 
+
         <div class="message">
+
             Don't have an account?
+
         </div>
 
-        <a href="register.html" class="register-btn">
-            Create Account
+
+        <a
+            href="register.html"
+            class="register-btn">
+
+            CREATE ACCOUNT
+
         </a>
+
 
     </div>
 
+
 </body>
+
 </html>

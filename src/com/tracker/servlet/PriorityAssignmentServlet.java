@@ -5,15 +5,17 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Date;
+import java.sql.Time;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 public class PriorityAssignmentServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest request,
                           HttpServletResponse response)
             throws ServletException, IOException {
@@ -31,21 +33,51 @@ public class PriorityAssignmentServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
 
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null ||
+            session.getAttribute("userId") == null) {
 
-            response.sendRedirect(contextPath + "/login.html");
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
             return;
         }
+
+        // ==========================================
+        // GET LOGGED-IN USER ID
+        // ==========================================
 
         int userId;
 
         try {
 
-            userId = (Integer) session.getAttribute("userId");
+            Object userIdObject =
+                    session.getAttribute("userId");
+
+            if (userIdObject instanceof Integer) {
+
+                userId = (Integer) userIdObject;
+
+            } else if (userIdObject instanceof Number) {
+
+                userId =
+                    ((Number) userIdObject).intValue();
+
+            } else {
+
+                response.sendRedirect(
+                    contextPath + "/login.html"
+                );
+
+                return;
+            }
 
         } catch (Exception e) {
 
-            response.sendRedirect(contextPath + "/login.html");
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
             return;
         }
 
@@ -53,7 +85,8 @@ public class PriorityAssignmentServlet extends HttpServlet {
         // GET PRIORITY
         // ==========================================
 
-        String priority = request.getParameter("priority");
+        String priority =
+                request.getParameter("priority");
 
         // ==========================================
         // HTML PAGE
@@ -63,128 +96,256 @@ public class PriorityAssignmentServlet extends HttpServlet {
         out.println("<html>");
 
         out.println("<head>");
+
         out.println("<meta charset='UTF-8'>");
-        out.println("<title>Priority Assignments</title>");
+
+        out.println(
+            "<meta name='viewport' " +
+            "content='width=device-width, initial-scale=1.0'>"
+        );
+
+        out.println(
+            "<title>Priority Assignments</title>"
+        );
 
         out.println("<style>");
 
-        out.println("body {");
-        out.println("    font-family: Arial, sans-serif;");
-        out.println("    margin: 0;");
-        out.println("    background-color: #f4f6f8;");
-        out.println("    color: #333;");
-        out.println("}");
+        // BODY
+        out.println(
+            "body {" +
+            "font-family: Arial, sans-serif;" +
+            "margin: 0;" +
+            "padding: 0;" +
+            "background: linear-gradient(135deg, #eef6ff, #f4fbfa);" +
+            "color: #1d2d44;" +
+            "min-height: 100vh;" +
+            "}"
+        );
 
-        out.println(".header {");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    padding: 25px;");
-        out.println("    text-align: center;");
-        out.println("}");
+        // CONTAINER
+        out.println(
+            ".container {" +
+            "width: 92%;" +
+            "max-width: 1100px;" +
+            "margin: 45px auto;" +
+            "}"
+        );
 
-        out.println(".header h1 {");
-        out.println("    margin: 0;");
-        out.println("}");
+        // CARD
+        out.println(
+            ".card {" +
+            "background: rgba(255,255,255,0.96);" +
+            "padding: 30px;" +
+            "border-radius: 16px;" +
+            "box-shadow: 0 8px 25px rgba(45,80,120,0.12);" +
+            "border: 1px solid #d4e3f5;" +
+            "overflow-x: auto;" +
+            "}"
+        );
 
-        out.println(".container {");
-        out.println("    width: 92%;");
-        out.println("    max-width: 1100px;");
-        out.println("    margin: 30px auto;");
-        out.println("}");
+        // HEADING
+        out.println(
+            ".card h2 {" +
+            "text-align: center;" +
+            "margin: 0 0 10px 0;" +
+            "color: #1d2d44;" +
+            "font-size: 25px;" +
+            "letter-spacing: 0.5px;" +
+            "}"
+        );
 
-        out.println(".card {");
-        out.println("    background-color: white;");
-        out.println("    padding: 25px;");
-        out.println("    border-radius: 10px;");
-        out.println("    box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
-        out.println("    overflow-x: auto;");
-        out.println("}");
+        // SELECTED PRIORITY
+        out.println(
+            ".priority-info {" +
+            "text-align: center;" +
+            "color: #526579;" +
+            "font-size: 15px;" +
+            "margin-bottom: 25px;" +
+            "}"
+        );
 
-        out.println(".card h2 {");
-        out.println("    color: #2c3e50;");
-        out.println("}");
+        // TABLE
+        out.println(
+            "table {" +
+            "width: 100%;" +
+            "border-collapse: collapse;" +
+            "margin-top: 10px;" +
+            "background: white;" +
+            "}"
+        );
 
-        out.println("table {");
-        out.println("    width: 100%;");
-        out.println("    border-collapse: collapse;");
-        out.println("    margin-top: 20px;");
-        out.println("}");
+        // TABLE HEADER
+        out.println(
+            "th {" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "padding: 14px 12px;" +
+            "font-size: 14px;" +
+            "border: 1px solid #3978d8;" +
+            "}"
+        );
 
-        out.println("th {");
-        out.println("    background-color: #3498db;");
-        out.println("    color: white;");
-        out.println("    padding: 14px;");
-        out.println("}");
+        // TABLE DATA
+        out.println(
+            "td {" +
+            "padding: 13px 12px;" +
+            "text-align: center;" +
+            "border-bottom: 1px solid #dce6f2;" +
+            "color: #33475b;" +
+            "font-size: 14px;" +
+            "}"
+        );
 
-        out.println("td {");
-        out.println("    padding: 12px;");
-        out.println("    text-align: center;");
-        out.println("    border-bottom: 1px solid #ddd;");
-        out.println("}");
+        // ROW HOVER
+        out.println(
+            "tr:hover {" +
+            "background-color: #f4f8ff;" +
+            "}"
+        );
 
-        out.println("tr:hover {");
-        out.println("    background-color: #f5f5f5;");
-        out.println("}");
+        // EMPTY MESSAGE
+        out.println(
+            ".empty {" +
+            "text-align: center;" +
+            "padding: 20px;" +
+            "color: #526579;" +
+            "font-size: 15px;" +
+            "}"
+        );
 
-        out.println(".button {");
-        out.println("    display: inline-block;");
-        out.println("    margin-top: 20px;");
-        out.println("    margin-right: 10px;");
-        out.println("    padding: 12px 20px;");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    text-decoration: none;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-weight: bold;");
-        out.println("}");
+        // ERROR
+        out.println(
+            ".error {" +
+            "background: #fff1f1;" +
+            "border: 1px solid #f0bcbc;" +
+            "color: #b42318;" +
+            "padding: 14px;" +
+            "border-radius: 8px;" +
+            "margin-top: 20px;" +
+            "}"
+        );
 
-        out.println(".button:hover {");
-        out.println("    background-color: #1f2d3a;");
-        out.println("}");
+        // BUTTON CONTAINER
+        out.println(
+            ".buttons {" +
+            "text-align: center;" +
+            "margin-top: 28px;" +
+            "}"
+        );
 
-        out.println(".error {");
-        out.println("    color: #c0392b;");
-        out.println("}");
+        // BUTTON
+        out.println(
+            ".button {" +
+            "display: inline-block;" +
+            "margin: 6px;" +
+            "padding: 12px 20px;" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "text-decoration: none;" +
+            "border-radius: 8px;" +
+            "font-weight: bold;" +
+            "font-size: 14px;" +
+            "transition: 0.2s;" +
+            "}"
+        );
+
+        // BUTTON HOVER
+        out.println(
+            ".button:hover {" +
+            "background: #2f69c2;" +
+            "transform: translateY(-1px);" +
+            "}"
+        );
+
+        // RESPONSIVE DESIGN
+        out.println(
+            "@media (max-width: 700px) {" +
+
+            ".container {" +
+            "width: 94%;" +
+            "margin: 25px auto;" +
+            "}" +
+
+            ".card {" +
+            "padding: 20px;" +
+            "}" +
+
+            ".card h2 {" +
+            "font-size: 21px;" +
+            "}" +
+
+            "th, td {" +
+            "padding: 10px 8px;" +
+            "font-size: 12px;" +
+            "}" +
+
+            ".button {" +
+            "display: block;" +
+            "margin: 8px 0;" +
+            "}" +
+
+            "}"
+        );
 
         out.println("</style>");
+
         out.println("</head>");
 
         out.println("<body>");
 
-        out.println("<div class='header'>");
-        out.println("<h1>Student Assignment Tracker</h1>");
-        out.println("</div>");
-
         out.println("<div class='container'>");
+
         out.println("<div class='card'>");
 
-        out.println("<h2>Priority Search Results</h2>");
+        // ==========================================
+        // HEADING
+        // ==========================================
+
+        out.println(
+            "<h2>FILTER BY PRIORITY</h2>"
+        );
 
         // ==========================================
         // VALIDATE PRIORITY
         // ==========================================
 
-        if (priority == null || priority.trim().isEmpty()) {
+        if (priority == null ||
+            priority.trim().isEmpty()) {
 
             out.println(
-                "<p class='error'>Please select a priority.</p>"
+                "<div class='error'>" +
+                "Please select a priority." +
+                "</div>"
             );
 
             out.println(
-                "<a class='button' href='priority.html'>" +
-                "Back to Priority Filter" +
+                "<div class='buttons'>"
+            );
+
+            out.println(
+                "<a class='button' href='" +
+                contextPath +
+                "/priority.html'>" +
+                "BACK TO PRIORITY FILTER" +
                 "</a>"
             );
 
             out.println(
-                "<a class='button' href='index.html'>" +
-                "Back to Home" +
+                "<a class='button' href='" +
+                contextPath +
+                "/Dashboard'>" +
+                "BACK TO DASHBOARD" +
                 "</a>"
             );
 
             out.println("</div>");
+
             out.println("</div>");
+
+            out.println("</div>");
+
             out.println("</body>");
+
             out.println("</html>");
 
             return;
@@ -193,12 +354,39 @@ public class PriorityAssignmentServlet extends HttpServlet {
         priority = priority.trim();
 
         // ==========================================
-        // SEARCH ONLY LOGGED-IN USER'S ASSIGNMENTS
+        // SELECTED PRIORITY
         // ==========================================
+
+        out.println(
+            "<div class='priority-info'>" +
+            "Selected Priority: <b>" +
+            escapeHtml(priority) +
+            "</b>" +
+            "</div>"
+        );
+
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
 
-            Connection con = DBConnection.getConnection();
+            // ==========================================
+            // DATABASE CONNECTION
+            // ==========================================
+
+            con = DBConnection.getConnection();
+
+            if (con == null) {
+
+                throw new Exception(
+                    "Database connection failed."
+                );
+            }
+
+            // ==========================================
+            // SEARCH ASSIGNMENTS
+            // ==========================================
 
             String sql =
                 "SELECT id, assignment_name, subject, " +
@@ -207,8 +395,7 @@ public class PriorityAssignmentServlet extends HttpServlet {
                 "WHERE user_id = ? AND priority = ? " +
                 "ORDER BY deadline ASC, deadline_time ASC";
 
-            PreparedStatement ps =
-                con.prepareStatement(sql);
+            ps = con.prepareStatement(sql);
 
             // Logged-in user
             ps.setInt(1, userId);
@@ -216,17 +403,26 @@ public class PriorityAssignmentServlet extends HttpServlet {
             // Selected priority
             ps.setString(2, priority);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
+
+            // ==========================================
+            // TABLE
+            // ==========================================
 
             out.println("<table>");
 
             out.println("<tr>");
 
             out.println("<th>S.No.</th>");
+
             out.println("<th>Assignment Name</th>");
+
             out.println("<th>Subject</th>");
+
             out.println("<th>Deadline</th>");
+
             out.println("<th>Time</th>");
+
             out.println("<th>Priority</th>");
 
             out.println("</tr>");
@@ -235,47 +431,71 @@ public class PriorityAssignmentServlet extends HttpServlet {
 
             int serialNumber = 1;
 
+            // ==========================================
+            // DISPLAY ASSIGNMENTS
+            // ==========================================
+
             while (rs.next()) {
 
                 found = true;
 
                 out.println("<tr>");
 
+                // S.No.
                 out.println(
                     "<td>" +
                     serialNumber +
                     "</td>"
                 );
 
+                // Assignment Name
                 out.println(
                     "<td>" +
-                    rs.getString("assignment_name") +
+                    escapeHtml(
+                        rs.getString("assignment_name")
+                    ) +
                     "</td>"
                 );
 
+                // Subject
                 out.println(
                     "<td>" +
-                    rs.getString("subject") +
+                    escapeHtml(
+                        rs.getString("subject")
+                    ) +
                     "</td>"
                 );
 
-                out.println(
-                    "<td>" +
-                    rs.getDate("deadline") +
-                    "</td>"
-                );
+                // Deadline
+                Date deadline =
+                    rs.getDate("deadline");
 
                 out.println(
                     "<td>" +
-                    (rs.getTime("deadline_time") != null
-                        ? rs.getTime("deadline_time")
-                        : "Not Set") +
+                    (deadline != null
+                        ? deadline.toString()
+                        : "-") +
                     "</td>"
                 );
 
+                // Deadline Time
+                Time deadlineTime =
+                    rs.getTime("deadline_time");
+
                 out.println(
                     "<td>" +
-                    rs.getString("priority") +
+                    (deadlineTime != null
+                        ? deadlineTime.toString()
+                        : "-") +
+                    "</td>"
+                );
+
+                // Priority
+                out.println(
+                    "<td>" +
+                    escapeHtml(
+                        rs.getString("priority")
+                    ) +
                     "</td>"
                 );
 
@@ -286,29 +506,65 @@ public class PriorityAssignmentServlet extends HttpServlet {
 
             out.println("</table>");
 
+            // ==========================================
+            // NO ASSIGNMENTS
+            // ==========================================
+
             if (!found) {
 
                 out.println(
-                    "<p>No assignments found with priority: <b>" +
-                    priority +
-                    "</b></p>"
+                    "<div class='empty'>" +
+                    "No assignments found with priority: " +
+                    "<b>" +
+                    escapeHtml(priority) +
+                    "</b>" +
+                    "</div>"
                 );
             }
 
-            rs.close();
-            ps.close();
-            con.close();
-
         } catch (Exception e) {
 
+            e.printStackTrace();
+
             out.println(
-                "<p class='error'>" +
-                "<b>Error loading assignments:</b> " +
-                e.getMessage() +
-                "</p>"
+                "<div class='error'>" +
+                "<b>Error loading assignments:</b>" +
+                "<br><br>" +
+                escapeHtml(e.getMessage()) +
+                "</div>"
             );
 
-            e.printStackTrace();
+        } finally {
+
+            // CLOSE RESULTSET
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+            } catch (Exception ignored) {
+            }
+
+            // CLOSE PREPARED STATEMENT
+            try {
+
+                if (ps != null) {
+                    ps.close();
+                }
+
+            } catch (Exception ignored) {
+            }
+
+            // CLOSE CONNECTION
+            try {
+
+                if (con != null) {
+                    con.close();
+                }
+
+            } catch (Exception ignored) {
+            }
         }
 
         // ==========================================
@@ -316,27 +572,62 @@ public class PriorityAssignmentServlet extends HttpServlet {
         // ==========================================
 
         out.println(
-            "<a class='button' href='priority.html'>" +
-            "Filter Again" +
+            "<div class='buttons'>"
+        );
+
+        // FILTER AGAIN
+        out.println(
+            "<a class='button' href='" +
+            contextPath +
+            "/priority.html'>" +
+            "FILTER AGAIN" +
             "</a>"
         );
 
+        // VIEW ASSIGNMENTS
         out.println(
-            "<a class='button' href='ViewAssignments'>" +
-            "View My Assignments" +
+            "<a class='button' href='" +
+            contextPath +
+            "/ViewAssignments'>" +
+            "VIEW MY ASSIGNMENTS" +
             "</a>"
         );
 
+        // DASHBOARD
         out.println(
-            "<a class='button' href='index.html'>" +
-            "Back to Home" +
+            "<a class='button' href='" +
+            contextPath +
+            "/Dashboard'>" +
+            "BACK TO DASHBOARD" +
             "</a>"
         );
 
         out.println("</div>");
+
+        out.println("</div>");
+
         out.println("</div>");
 
         out.println("</body>");
+
         out.println("</html>");
+    }
+
+    // ==========================================
+    // ESCAPE HTML
+    // ==========================================
+
+    private String escapeHtml(String value) {
+
+        if (value == null) {
+            return "";
+        }
+
+        return value
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;");
     }
 }

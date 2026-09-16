@@ -22,10 +22,14 @@ public class ViewAssignmentsServlet extends HttpServlet {
                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html");
+        response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
         PrintWriter out = response.getWriter();
+
+        // ==================================================
+        // CHECK LOGIN SESSION
+        // ==================================================
 
         HttpSession session = request.getSession(false);
 
@@ -42,150 +46,376 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         String contextPath = request.getContextPath();
 
+        // ==================================================
+        // HTML START
+        // ==================================================
+
         out.println("<!DOCTYPE html>");
         out.println("<html>");
 
         out.println("<head>");
+
+        out.println("<meta charset='UTF-8'>");
+
+        out.println(
+            "<meta name='viewport' " +
+            "content='width=device-width, initial-scale=1.0'>"
+        );
+
         out.println("<title>View Assignments</title>");
+
+        // ==================================================
+        // CSS
+        // ==================================================
 
         out.println("<style>");
 
-        out.println("body {");
-        out.println("    font-family: Arial, sans-serif;");
-        out.println("    margin: 0;");
-        out.println("    background-color: #f4f6f8;");
-        out.println("    color: #333;");
-        out.println("}");
+        // Universal
+        out.println(
+            "* {" +
+            "box-sizing: border-box;" +
+            "}"
+        );
 
-        out.println(".header {");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    padding: 25px;");
-        out.println("    text-align: center;");
-        out.println("}");
+        // Body
+        out.println(
+            "body {" +
+            "margin: 0;" +
+            "min-height: 100vh;" +
+            "font-family: Arial, Helvetica, sans-serif;" +
+            "background: linear-gradient(135deg, #eef6ff, #f4fbfa);" +
+            "color: #1f2d3d;" +
+            "}"
+        );
 
-        out.println(".header h1 {");
-        out.println("    margin: 0;");
-        out.println("    font-size: 30px;");
-        out.println("}");
+        // Decorative Circle - Top Left
+        out.println(
+            "body::before {" +
+            "content: '';" +
+            "position: fixed;" +
+            "width: 420px;" +
+            "height: 420px;" +
+            "border-radius: 50%;" +
+            "background: rgba(74, 144, 226, 0.06);" +
+            "top: -150px;" +
+            "left: -150px;" +
+            "z-index: -1;" +
+            "}"
+        );
 
-        out.println(".container {");
-        out.println("    width: 92%;");
-        out.println("    max-width: 1200px;");
-        out.println("    margin: 30px auto;");
-        out.println("}");
+        // Decorative Circle - Bottom Right
+        out.println(
+            "body::after {" +
+            "content: '';" +
+            "position: fixed;" +
+            "width: 500px;" +
+            "height: 500px;" +
+            "border-radius: 50%;" +
+            "background: rgba(80, 190, 170, 0.06);" +
+            "bottom: -200px;" +
+            "right: -180px;" +
+            "z-index: -1;" +
+            "}"
+        );
 
-        out.println(".card {");
-        out.println("    background-color: white;");
-        out.println("    padding: 25px;");
-        out.println("    border-radius: 10px;");
-        out.println("    box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
-        out.println("    overflow-x: auto;");
-        out.println("}");
+        // Main Container
+        out.println(
+            ".container {" +
+            "width: 92%;" +
+            "max-width: 1350px;" +
+            "margin: 35px auto 50px auto;" +
+            "}"
+        );
 
-        out.println(".card h2 {");
-        out.println("    margin-top: 0;");
-        out.println("    color: #2c3e50;");
-        out.println("}");
+        // Card
+        out.println(
+            ".card {" +
+            "background: rgba(255, 255, 255, 0.96);" +
+            "padding: 32px;" +
+            "border: 1px solid #d4e3f5;" +
+            "border-radius: 12px;" +
+            "box-shadow: " +
+            "0 12px 35px rgba(31, 60, 90, 0.12), " +
+            "0 2px 8px rgba(31, 60, 90, 0.06);" +
+            "overflow-x: auto;" +
+            "}"
+        );
 
-        out.println("table {");
-        out.println("    width: 100%;");
-        out.println("    border-collapse: collapse;");
-        out.println("    margin-top: 20px;");
-        out.println("}");
+        // Card Heading
+        out.println(
+            ".card h2 {" +
+            "margin: 0 0 24px 0;" +
+            "font-size: 28px;" +
+            "font-weight: 600;" +
+            "color: #1d2d44;" +
+            "}"
+        );
 
-        out.println("th {");
-        out.println("    background-color: #3498db;");
-        out.println("    color: white;");
-        out.println("    padding: 14px;");
-        out.println("    text-align: center;");
-        out.println("}");
+        // Table
+        out.println(
+            "table {" +
+            "width: 100%;" +
+            "border-collapse: separate;" +
+            "border-spacing: 0;" +
+            "margin-top: 10px;" +
+            "overflow: hidden;" +
+            "border: 1px solid #d9e3ee;" +
+            "border-radius: 8px;" +
+            "}"
+        );
 
-        out.println("td {");
-        out.println("    padding: 12px;");
-        out.println("    text-align: center;");
-        out.println("    border-bottom: 1px solid #ddd;");
-        out.println("}");
+        // Table Header
+        out.println(
+            "th {" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "padding: 15px 12px;" +
+            "text-align: center;" +
+            "font-size: 16px;" +
+            "font-weight: 600;" +
+            "white-space: nowrap;" +
+            "}"
+        );
 
-        out.println("tr:hover {");
-        out.println("    background-color: #f5f5f5;");
-        out.println("}");
+        // Table Data
+        out.println(
+            "td {" +
+            "padding: 15px 12px;" +
+            "text-align: center;" +
+            "font-size: 16px;" +
+            "color: #26384a;" +
+            "border-bottom: 1px solid #e1e6ec;" +
+            "background: #ffffff;" +
+            "}"
+        );
 
-        out.println(".status {");
-        out.println("    font-weight: bold;");
-        out.println("}");
+        // Last Row
+        out.println(
+            "tr:last-child td {" +
+            "border-bottom: none;" +
+            "}"
+        );
 
-        out.println(".overdue {");
-        out.println("    color: #c0392b;");
-        out.println("}");
+        // Row Hover
+        out.println(
+            "tr:hover td {" +
+            "background: #f5f9ff;" +
+            "}"
+        );
 
-        out.println(".due-soon {");
-        out.println("    color: #e67e22;");
-        out.println("}");
+        // Status
+        out.println(
+            ".status {" +
+            "font-weight: bold;" +
+            "white-space: nowrap;" +
+            "}"
+        );
 
-        out.println(".upcoming {");
-        out.println("    color: #27ae60;");
-        out.println("}");
+        // Overdue
+        out.println(
+            ".overdue {" +
+            "color: #d9362b;" +
+            "}"
+        );
 
-        out.println(".edit-btn, .delete-btn {");
-        out.println("    display: inline-block;");
-        out.println("    padding: 7px 12px;");
-        out.println("    border-radius: 5px;");
-        out.println("    text-decoration: none;");
-        out.println("    font-weight: bold;");
-        out.println("}");
+        // Due Soon
+        out.println(
+            ".due-soon {" +
+            "color: #e58a00;" +
+            "}"
+        );
 
-        out.println(".edit-btn {");
-        out.println("    background-color: #3498db;");
-        out.println("    color: white;");
-        out.println("}");
+        // Upcoming
+        out.println(
+            ".upcoming {" +
+            "color: #149447;" +
+            "}"
+        );
 
-        out.println(".delete-btn {");
-        out.println("    background-color: #e74c3c;");
-        out.println("    color: white;");
-        out.println("}");
+        // Action Column
+        out.println(
+            ".action-cell {" +
+            "white-space: nowrap;" +
+            "}"
+        );
 
-        out.println(".edit-btn:hover {");
-        out.println("    background-color: #217dbb;");
-        out.println("}");
+        // Edit and Delete Buttons
+        out.println(
+            ".edit-btn, .delete-btn {" +
+            "display: inline-block;" +
+            "padding: 9px 15px;" +
+            "border-radius: 7px;" +
+            "text-decoration: none;" +
+            "font-weight: bold;" +
+            "font-size: 15px;" +
+            "transition: all 0.2s ease;" +
+            "}"
+        );
 
-        out.println(".delete-btn:hover {");
-        out.println("    background-color: #c0392b;");
-        out.println("}");
+        // Edit Button
+        out.println(
+            ".edit-btn {" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "}"
+        );
 
-        out.println(".home-btn {");
-        out.println("    display: inline-block;");
-        out.println("    margin-top: 20px;");
-        out.println("    padding: 12px 20px;");
-        out.println("    background-color: #2c3e50;");
-        out.println("    color: white;");
-        out.println("    text-decoration: none;");
-        out.println("    border-radius: 6px;");
-        out.println("    font-weight: bold;");
-        out.println("}");
+        // Delete Button
+        out.println(
+            ".delete-btn {" +
+            "background: #e94b3c;" +
+            "color: white;" +
+            "}"
+        );
 
-        out.println(".home-btn:hover {");
-        out.println("    background-color: #1f2d3a;");
-        out.println("}");
+        // Edit Hover
+        out.println(
+            ".edit-btn:hover {" +
+            "background: #2f69c2;" +
+            "transform: translateY(-1px);" +
+            "box-shadow: 0 4px 10px rgba(57, 120, 216, 0.20);" +
+            "}"
+        );
+
+        // Delete Hover
+        out.println(
+            ".delete-btn:hover {" +
+            "background: #d63d30;" +
+            "transform: translateY(-1px);" +
+            "box-shadow: 0 4px 10px rgba(233, 75, 60, 0.18);" +
+            "}"
+        );
+
+        // Dashboard Button
+        out.println(
+            ".dashboard-btn {" +
+            "display: inline-block;" +
+            "margin-top: 25px;" +
+            "padding: 13px 22px;" +
+            "background: white;" +
+            "color: #3978d8;" +
+            "border: 2px solid #3978d8;" +
+            "border-radius: 7px;" +
+            "text-decoration: none;" +
+            "font-weight: bold;" +
+            "font-size: 16px;" +
+            "letter-spacing: 0.5px;" +
+            "transition: all 0.2s ease;" +
+            "}"
+        );
+
+        // Dashboard Hover
+        out.println(
+            ".dashboard-btn:hover {" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "transform: translateY(-1px);" +
+            "box-shadow: 0 5px 14px rgba(57, 120, 216, 0.20);" +
+            "}"
+        );
+
+        // No Assignment Message
+        out.println(
+            ".no-data {" +
+            "padding: 25px;" +
+            "color: #718096;" +
+            "font-size: 16px;" +
+            "}"
+        );
+
+        // Error Message
+        out.println(
+            ".error-message {" +
+            "color: #d9362b;" +
+            "font-weight: bold;" +
+            "padding: 20px;" +
+            "}"
+        );
+
+        // Responsive Design
+        out.println(
+            "@media (max-width: 900px) {" +
+
+            ".container {" +
+            "width: 95%;" +
+            "}" +
+
+            ".card {" +
+            "padding: 22px;" +
+            "}" +
+
+            "th, td {" +
+            "padding: 12px 9px;" +
+            "font-size: 14px;" +
+            "}" +
+
+            ".edit-btn, .delete-btn {" +
+            "padding: 8px 11px;" +
+            "font-size: 14px;" +
+            "}" +
+
+            "}"
+        );
+
+        // Mobile Design
+        out.println(
+            "@media (max-width: 600px) {" +
+
+            ".container {" +
+            "width: 96%;" +
+            "margin-top: 25px;" +
+            "}" +
+
+            ".card {" +
+            "padding: 18px;" +
+            "}" +
+
+            ".card h2 {" +
+            "font-size: 24px;" +
+            "}" +
+
+            "th, td {" +
+            "padding: 10px 8px;" +
+            "font-size: 13px;" +
+            "}" +
+
+            ".dashboard-btn {" +
+            "width: 100%;" +
+            "text-align: center;" +
+            "}" +
+
+            "}"
+        );
 
         out.println("</style>");
+
         out.println("</head>");
+
+        // ==================================================
+        // BODY
+        // ==================================================
 
         out.println("<body>");
 
-        out.println("<div class='header'>");
-        out.println("<h1>Student Assignment Tracker</h1>");
-        out.println("</div>");
+        // ==================================================
+        // CONTAINER
+        // ==================================================
 
         out.println("<div class='container'>");
 
+        // Card
         out.println("<div class='card'>");
 
         out.println("<h2>My Assignments</h2>");
 
+        // ==================================================
+        // TABLE
+        // ==================================================
+
         out.println("<table>");
 
         out.println("<tr>");
+
         out.println("<th>S.No.</th>");
         out.println("<th>Assignment Name</th>");
         out.println("<th>Subject</th>");
@@ -194,6 +424,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
         out.println("<th>Priority</th>");
         out.println("<th>Deadline Status</th>");
         out.println("<th>Action</th>");
+
         out.println("</tr>");
 
         Connection con = null;
@@ -205,12 +436,16 @@ public class ViewAssignmentsServlet extends HttpServlet {
             con = DBConnection.getConnection();
 
             if (con == null) {
-                throw new Exception("Database connection failed.");
+
+                throw new Exception(
+                    "Database connection failed."
+                );
             }
 
-            /*
-             * Get deadline_time also.
-             */
+            // ==================================================
+            // ONLY SHOW LOGGED-IN USER'S ASSIGNMENTS
+            // ==================================================
+
             String sql =
                     "SELECT id, assignment_name, subject, " +
                     "deadline, deadline_time, priority " +
@@ -250,8 +485,8 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
                 long daysRemaining =
                         ChronoUnit.DAYS.between(
-                                today,
-                                deadline
+                            today,
+                            deadline
                         );
 
                 String deadlineStatus;
@@ -273,81 +508,88 @@ public class ViewAssignmentsServlet extends HttpServlet {
                     statusClass = "upcoming";
                 }
 
+                // ==================================================
+                // ROW
+                // ==================================================
+
                 out.println("<tr>");
 
                 out.println(
-                        "<td>" +
-                        serialNumber +
-                        "</td>"
+                    "<td>" +
+                    serialNumber +
+                    "</td>"
                 );
 
                 out.println(
-                        "<td>" +
-                        assignmentName +
-                        "</td>"
+                    "<td>" +
+                    assignmentName +
+                    "</td>"
                 );
 
                 out.println(
-                        "<td>" +
-                        subject +
-                        "</td>"
+                    "<td>" +
+                    subject +
+                    "</td>"
                 );
 
                 out.println(
-                        "<td>" +
-                        deadline +
-                        "</td>"
-                );
-
-                /*
-                 * Display assignment deadline time.
-                 */
-                out.println(
-                        "<td>" +
-                        (deadlineTime != null
-                                ? deadlineTime.toString()
-                                : "Not Set") +
-                        "</td>"
+                    "<td>" +
+                    deadline +
+                    "</td>"
                 );
 
                 out.println(
-                        "<td>" +
-                        priority +
-                        "</td>"
+                    "<td>" +
+                    (deadlineTime != null
+                        ? deadlineTime.toString()
+                        : "Not Set") +
+                    "</td>"
                 );
 
                 out.println(
-                        "<td class='status " +
-                        statusClass +
-                        "'>" +
-                        deadlineStatus +
-                        "</td>"
+                    "<td>" +
+                    priority +
+                    "</td>"
                 );
 
-                out.println("<td>");
+                out.println(
+                    "<td class='status " +
+                    statusClass +
+                    "'>" +
+                    deadlineStatus +
+                    "</td>"
+                );
+
+                // ==================================================
+                // ACTIONS
+                // ==================================================
 
                 out.println(
-                        "<a class='edit-btn' " +
-                        "href='" +
-                        contextPath +
-                        "/EditAssignment?id=" +
-                        id +
-                        "'>" +
-                        "Edit" +
-                        "</a>"
+                    "<td class='action-cell'>"
+                );
+
+                out.println(
+                    "<a class='edit-btn' " +
+                    "href='" +
+                    contextPath +
+                    "/EditAssignment?id=" +
+                    id +
+                    "'>" +
+                    "Edit" +
+                    "</a>"
                 );
 
                 out.println("&nbsp;");
 
                 out.println(
-                        "<a class='delete-btn' " +
-                        "href='" +
-                        contextPath +
-                        "/DeleteAssignment?id=" +
-                        id +
-                        "'>" +
-                        "Delete" +
-                        "</a>"
+                    "<a class='delete-btn' " +
+                    "href='" +
+                    contextPath +
+                    "/DeleteAssignment?id=" +
+                    id +
+                    "'>" +
+                    "Delete" +
+                    "</a>"
                 );
 
                 out.println("</td>");
@@ -357,14 +599,18 @@ public class ViewAssignmentsServlet extends HttpServlet {
                 serialNumber++;
             }
 
+            // ==================================================
+            // NO ASSIGNMENTS
+            // ==================================================
+
             if (serialNumber == 1) {
 
                 out.println("<tr>");
 
                 out.println(
-                        "<td colspan='8'>" +
-                        "No assignments found." +
-                        "</td>"
+                    "<td colspan='8' class='no-data'>" +
+                    "No assignments found." +
+                    "</td>"
                 );
 
                 out.println("</tr>");
@@ -376,11 +622,13 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
             out.println("<tr>");
 
-            out.println("<td colspan='8'>");
+            out.println(
+                "<td colspan='8' class='error-message'>"
+            );
 
             out.println(
-                    "Error: " +
-                    e.getMessage()
+                "Error: " +
+                e.getMessage()
             );
 
             out.println("</td>");
@@ -422,19 +670,25 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
         out.println("</table>");
 
+        // ==================================================
+        // BACK TO DASHBOARD
+        // ==================================================
+
         out.println(
-                "<a class='home-btn' " +
-                "href='" +
-                contextPath +
-                "/index.html'>" +
-                "Back to Home" +
-                "</a>"
+            "<a class='dashboard-btn' " +
+            "href='" +
+            contextPath +
+            "/Dashboard'>" +
+            "Back to Dashboard" +
+            "</a>"
         );
 
         out.println("</div>");
+
         out.println("</div>");
 
         out.println("</body>");
+
         out.println("</html>");
     }
 }

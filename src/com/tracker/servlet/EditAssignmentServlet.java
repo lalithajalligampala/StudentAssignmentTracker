@@ -16,440 +16,763 @@ public class EditAssignmentServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html");
+        response.setContentType("text/html;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
         String contextPath = request.getContextPath();
 
-        // Check login session
+        // ==================================================
+        // CHECK LOGIN SESSION
+        // ==================================================
+
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("userId") == null) {
-            response.sendRedirect(contextPath + "/login.html");
+
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
             return;
         }
 
         int userId;
 
         try {
+
             userId = (Integer) session.getAttribute("userId");
+
         } catch (Exception e) {
-            response.sendRedirect(contextPath + "/login.html");
+
+            response.sendRedirect(
+                contextPath + "/login.html"
+            );
+
             return;
         }
+
+        // ==================================================
+        // GET ASSIGNMENT ID
+        // ==================================================
 
         String id = request.getParameter("id");
 
         PrintWriter out = response.getWriter();
 
+        // ==================================================
+        // HTML START
+        // ==================================================
+
         out.println("<!DOCTYPE html>");
         out.println("<html>");
 
         out.println("<head>");
+
         out.println("<meta charset='UTF-8'>");
+
+        out.println(
+            "<meta name='viewport' " +
+            "content='width=device-width, initial-scale=1.0'>"
+        );
+
         out.println("<title>Edit Assignment</title>");
+
+        // ==================================================
+        // CSS
+        // ==================================================
 
         out.println("<style>");
 
-        out.println("body {");
-        out.println("font-family: Arial, sans-serif;");
-        out.println("margin: 0;");
-        out.println("background-color: #f4f6f8;");
-        out.println("color: #333;");
-        out.println("}");
+        out.println(
+            "* {" +
+            "box-sizing: border-box;" +
+            "}"
+        );
 
-        out.println(".header {");
-        out.println("background-color: #2c3e50;");
-        out.println("color: white;");
-        out.println("padding: 25px;");
-        out.println("text-align: center;");
-        out.println("}");
+        out.println(
+            "body {" +
+            "margin: 0;" +
+            "min-height: 100vh;" +
+            "font-family: Arial, Helvetica, sans-serif;" +
+            "background: linear-gradient(135deg, #eef6ff, #f4fbfa);" +
+            "color: #1f2d3d;" +
+            "}"
+        );
 
-        out.println(".header h1 {");
-        out.println("margin: 0;");
-        out.println("font-size: 30px;");
-        out.println("}");
+        // ==================================================
+        // DECORATIVE BACKGROUND
+        // ==================================================
 
-        out.println(".container {");
-        out.println("width: 90%;");
-        out.println("max-width: 600px;");
-        out.println("margin: 40px auto;");
-        out.println("}");
+        out.println(
+            "body::before {" +
+            "content: '';" +
+            "position: fixed;" +
+            "width: 420px;" +
+            "height: 420px;" +
+            "border-radius: 50%;" +
+            "background: rgba(74, 144, 226, 0.06);" +
+            "top: -150px;" +
+            "left: -150px;" +
+            "z-index: -1;" +
+            "}"
+        );
 
-        out.println(".card {");
-        out.println("background-color: white;");
-        out.println("padding: 30px;");
-        out.println("border-radius: 10px;");
-        out.println("box-shadow: 0 2px 8px rgba(0,0,0,0.12);");
-        out.println("}");
+        out.println(
+            "body::after {" +
+            "content: '';" +
+            "position: fixed;" +
+            "width: 500px;" +
+            "height: 500px;" +
+            "border-radius: 50%;" +
+            "background: rgba(80, 190, 170, 0.06);" +
+            "bottom: -200px;" +
+            "right: -180px;" +
+            "z-index: -1;" +
+            "}"
+        );
 
-        out.println(".card h2 {");
-        out.println("margin-top: 0;");
-        out.println("color: #2c3e50;");
-        out.println("text-align: center;");
-        out.println("}");
+        // ==================================================
+        // MAIN CONTAINER
+        // ==================================================
 
-        out.println(".form-group {");
-        out.println("margin-bottom: 20px;");
-        out.println("}");
+        out.println(
+            ".container {" +
+            "width: 760px;" +
+            "max-width: 90%;" +
+            "margin: 50px auto;" +
+            "}"
+        );
 
-        out.println("label {");
-        out.println("display: block;");
-        out.println("margin-bottom: 8px;");
-        out.println("font-weight: bold;");
-        out.println("}");
+        // ==================================================
+        // CARD
+        // ==================================================
 
-        out.println("input[type='text'],");
-        out.println("input[type='date'],");
-        out.println("input[type='time'],");
-        out.println("select {");
-        out.println("width: 100%;");
-        out.println("padding: 11px;");
-        out.println("border: 1px solid #ccc;");
-        out.println("border-radius: 6px;");
-        out.println("box-sizing: border-box;");
-        out.println("font-size: 15px;");
-        out.println("}");
+        out.println(
+            ".card {" +
+            "background: rgba(255, 255, 255, 0.96);" +
+            "border: 1px solid #d4e3f5;" +
+            "border-radius: 12px;" +
+            "padding: 42px 45px 45px 45px;" +
+            "box-shadow: " +
+            "0 12px 35px rgba(31, 60, 90, 0.12), " +
+            "0 2px 8px rgba(31, 60, 90, 0.06);" +
+            "}"
+        );
 
-        out.println("input[type='text']:focus,");
-        out.println("input[type='date']:focus,");
-        out.println("input[type='time']:focus,");
-        out.println("select:focus {");
-        out.println("border-color: #3498db;");
-        out.println("outline: none;");
-        out.println("}");
+        // ==================================================
+        // SINGLE HEADING
+        // ==================================================
 
-        out.println("input[type='submit'] {");
-        out.println("width: 100%;");
-        out.println("padding: 12px;");
-        out.println("background-color: #3498db;");
-        out.println("color: white;");
-        out.println("border: none;");
-        out.println("border-radius: 6px;");
-        out.println("font-size: 16px;");
-        out.println("font-weight: bold;");
-        out.println("cursor: pointer;");
-        out.println("}");
+        out.println(
+            ".card h2 {" +
+            "margin: 0 0 35px 0;" +
+            "text-align: center;" +
+            "font-size: 30px;" +
+            "font-weight: 500;" +
+            "letter-spacing: 3px;" +
+            "color: #1d2d44;" +
+            "}"
+        );
 
-        out.println("input[type='submit']:hover {");
-        out.println("background-color: #217dbb;");
-        out.println("}");
+        // ==================================================
+        // FORM GROUP
+        // ==================================================
 
-        out.println(".back-btn {");
-        out.println("display: block;");
-        out.println("margin-top: 20px;");
-        out.println("padding: 12px;");
-        out.println("background-color: #2c3e50;");
-        out.println("color: white;");
-        out.println("text-decoration: none;");
-        out.println("text-align: center;");
-        out.println("border-radius: 6px;");
-        out.println("font-weight: bold;");
-        out.println("}");
+        out.println(
+            ".form-group {" +
+            "margin-bottom: 25px;" +
+            "}"
+        );
 
-        out.println(".back-btn:hover {");
-        out.println("background-color: #1f2d3a;");
-        out.println("}");
+        // ==================================================
+        // LABEL
+        // ==================================================
 
-        out.println(".error {");
-        out.println("text-align: center;");
-        out.println("color: #c0392b;");
-        out.println("}");
+        out.println(
+            "label {" +
+            "display: block;" +
+            "margin-bottom: 9px;" +
+            "font-size: 17px;" +
+            "font-weight: 600;" +
+            "color: #1f2d3d;" +
+            "}"
+        );
+
+        // ==================================================
+        // INPUTS
+        // ==================================================
+
+        out.println(
+            "input[type='text'], " +
+            "input[type='date'], " +
+            "input[type='time'], " +
+            "select {" +
+            "width: 100%;" +
+            "height: 58px;" +
+            "padding: 0 18px;" +
+            "border: 1px solid #d4dce6;" +
+            "border-radius: 7px;" +
+            "background: #ffffff;" +
+            "color: #34495e;" +
+            "font-size: 16px;" +
+            "outline: none;" +
+            "transition: all 0.2s ease;" +
+            "}"
+        );
+
+        // ==================================================
+        // INPUT FOCUS
+        // ==================================================
+
+        out.println(
+            "input[type='text']:focus, " +
+            "input[type='date']:focus, " +
+            "input[type='time']:focus, " +
+            "select:focus {" +
+            "border-color: #3978d8;" +
+            "box-shadow: 0 0 0 3px rgba(57, 120, 216, 0.10);" +
+            "}"
+        );
+
+        // ==================================================
+        // UPDATE BUTTON
+        // ==================================================
+
+        out.println(
+            "input[type='submit'] {" +
+            "width: 100%;" +
+            "height: 64px;" +
+            "margin-top: 8px;" +
+            "border: none;" +
+            "border-radius: 7px;" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "font-size: 18px;" +
+            "font-weight: bold;" +
+            "letter-spacing: 3px;" +
+            "cursor: pointer;" +
+            "transition: all 0.2s ease;" +
+            "}"
+        );
+
+        out.println(
+            "input[type='submit']:hover {" +
+            "background: #2f69c2;" +
+            "transform: translateY(-1px);" +
+            "box-shadow: 0 5px 14px rgba(57, 120, 216, 0.20);" +
+            "}"
+        );
+
+        // ==================================================
+        // BACK BUTTON
+        // ==================================================
+
+        out.println(
+            ".back-btn {" +
+            "display: block;" +
+            "width: 100%;" +
+            "height: 62px;" +
+            "margin-top: 18px;" +
+            "border: 2px solid #3978d8;" +
+            "border-radius: 7px;" +
+            "background: white;" +
+            "color: #3978d8;" +
+            "text-decoration: none;" +
+            "text-align: center;" +
+            "line-height: 58px;" +
+            "font-size: 18px;" +
+            "font-weight: bold;" +
+            "letter-spacing: 3px;" +
+            "transition: all 0.2s ease;" +
+            "}"
+        );
+
+        out.println(
+            ".back-btn:hover {" +
+            "background: #3978d8;" +
+            "color: white;" +
+            "}"
+        );
+
+        // ==================================================
+        // ERROR BOX
+        // ==================================================
+
+        out.println(
+            ".error-box {" +
+            "text-align: center;" +
+            "background: #fff5f5;" +
+            "border: 1px solid #f1c4c4;" +
+            "border-radius: 9px;" +
+            "padding: 22px;" +
+            "margin-bottom: 25px;" +
+            "}"
+        );
+
+        out.println(
+            ".error {" +
+            "margin: 0 0 10px 0;" +
+            "color: #d64545;" +
+            "font-size: 25px;" +
+            "}"
+        );
+
+        out.println(
+            ".info {" +
+            "color: #526579;" +
+            "font-size: 16px;" +
+            "line-height: 1.6;" +
+            "margin: 0;" +
+            "}"
+        );
+
+        // ==================================================
+        // RESPONSIVE DESIGN
+        // ==================================================
+
+        out.println(
+            "@media (max-width: 700px) {" +
+
+            ".container {" +
+            "max-width: 92%;" +
+            "margin: 30px auto;" +
+            "}" +
+
+            ".card {" +
+            "padding: 30px 25px 35px 25px;" +
+            "}" +
+
+            ".card h2 {" +
+            "font-size: 25px;" +
+            "letter-spacing: 2px;" +
+            "margin-bottom: 28px;" +
+            "}" +
+
+            "input[type='text'], " +
+            "input[type='date'], " +
+            "input[type='time'], " +
+            "select {" +
+            "height: 54px;" +
+            "}" +
+
+            "input[type='submit'] {" +
+            "height: 58px;" +
+            "font-size: 16px;" +
+            "}" +
+
+            ".back-btn {" +
+            "height: 58px;" +
+            "line-height: 54px;" +
+            "font-size: 16px;" +
+            "}" +
+
+            "}"
+        );
 
         out.println("</style>");
+
         out.println("</head>");
+
+        // ==================================================
+        // BODY
+        // ==================================================
 
         out.println("<body>");
 
-        out.println("<div class='header'>");
-        out.println("<h1>Student Assignment &amp; Deadline Tracker</h1>");
-        out.println("</div>");
+        // NO TOP HEADER HERE
 
         out.println("<div class='container'>");
+
         out.println("<div class='card'>");
 
-        out.println("<h2>Edit Assignment</h2>");
+        // ONLY ONE HEADING
 
-        if (id == null || id.trim().isEmpty()) {
+        out.println("<h2>EDIT ASSIGNMENT</h2>");
 
-            out.println("<h3 class='error'>Invalid Assignment ID</h3>");
+        // ==================================================
+        // DATABASE
+        // ==================================================
 
-        } else {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-            Connection con = null;
-            PreparedStatement ps = null;
-            ResultSet rs = null;
+        try {
+
+            // ==================================================
+            // VALIDATE ID
+            // ==================================================
+
+            if (id == null || id.trim().isEmpty()) {
+
+                throw new Exception(
+                    "Assignment ID is missing."
+                );
+            }
+
+            int assignmentId =
+                    Integer.parseInt(id.trim());
+
+            // ==================================================
+            // DATABASE CONNECTION
+            // ==================================================
+
+            con = DBConnection.getConnection();
+
+            if (con == null) {
+
+                throw new Exception(
+                    "Database connection failed."
+                );
+            }
+
+            // ==================================================
+            // GET ASSIGNMENT
+            // ==================================================
+
+            String sql =
+                    "SELECT id, assignment_name, subject, " +
+                    "deadline, deadline_time, priority " +
+                    "FROM assignments " +
+                    "WHERE id = ? AND user_id = ?";
+
+            ps = con.prepareStatement(sql);
+
+            ps.setInt(1, assignmentId);
+            ps.setInt(2, userId);
+
+            rs = ps.executeQuery();
+
+            // ==================================================
+            // ASSIGNMENT FOUND
+            // ==================================================
+
+            if (rs.next()) {
+
+                String assignmentName =
+                        rs.getString("assignment_name");
+
+                String subject =
+                        rs.getString("subject");
+
+                String deadline =
+                        rs.getString("deadline");
+
+                String deadlineTime =
+                        rs.getString("deadline_time");
+
+                String priority =
+                        rs.getString("priority");
+
+                // Convert database time HH:mm:ss
+                // to HTML time HH:mm
+
+                if (deadlineTime != null &&
+                    deadlineTime.length() >= 5) {
+
+                    deadlineTime =
+                        deadlineTime.substring(0, 5);
+                }
+
+                // ==================================================
+                // FORM
+                // ==================================================
+
+                out.println(
+                    "<form action='" +
+                    contextPath +
+                    "/UpdateAssignment' method='post'>"
+                );
+
+                // Hidden ID
+
+                out.println(
+                    "<input type='hidden' " +
+                    "name='id' value='" +
+                    escapeHtml(String.valueOf(assignmentId)) +
+                    "'>"
+                );
+
+                // ==================================================
+                // ASSIGNMENT NAME
+                // ==================================================
+
+                out.println("<div class='form-group'>");
+
+                out.println(
+                    "<label>Assignment Name</label>"
+                );
+
+                out.println(
+                    "<input type='text' " +
+                    "name='assignment_name' " +
+                    "value='" +
+                    escapeHtml(assignmentName) +
+                    "' required>"
+                );
+
+                out.println("</div>");
+
+                // ==================================================
+                // SUBJECT
+                // ==================================================
+
+                out.println("<div class='form-group'>");
+
+                out.println(
+                    "<label>Subject</label>"
+                );
+
+                out.println(
+                    "<input type='text' " +
+                    "name='subject' " +
+                    "value='" +
+                    escapeHtml(subject) +
+                    "' required>"
+                );
+
+                out.println("</div>");
+
+                // ==================================================
+                // DEADLINE
+                // ==================================================
+
+                out.println("<div class='form-group'>");
+
+                out.println(
+                    "<label>Deadline</label>"
+                );
+
+                out.println(
+                    "<input type='date' " +
+                    "name='deadline' " +
+                    "value='" +
+                    escapeHtml(deadline) +
+                    "' required>"
+                );
+
+                out.println("</div>");
+
+                // ==================================================
+                // TIME
+                // ==================================================
+
+                out.println("<div class='form-group'>");
+
+                out.println(
+                    "<label>Deadline Time</label>"
+                );
+
+                out.println(
+                    "<input type='time' " +
+                    "name='deadline_time' " +
+                    "value='" +
+                    escapeHtml(deadlineTime) +
+                    "' required>"
+                );
+
+                out.println("</div>");
+
+                // ==================================================
+                // PRIORITY
+                // ==================================================
+
+                out.println("<div class='form-group'>");
+
+                out.println(
+                    "<label>Priority</label>"
+                );
+
+                out.println(
+                    "<select name='priority' required>"
+                );
+
+                out.println(
+                    "<option value='High' " +
+                    selected(priority, "High") +
+                    ">High</option>"
+                );
+
+                out.println(
+                    "<option value='Medium' " +
+                    selected(priority, "Medium") +
+                    ">Medium</option>"
+                );
+
+                out.println(
+                    "<option value='Low' " +
+                    selected(priority, "Low") +
+                    ">Low</option>"
+                );
+
+                out.println("</select>");
+
+                out.println("</div>");
+
+                // ==================================================
+                // UPDATE BUTTON
+                // ==================================================
+
+                out.println(
+                    "<input type='submit' " +
+                    "value='UPDATE ASSIGNMENT'>"
+                );
+
+                out.println("</form>");
+
+            } else {
+
+                // ==================================================
+                // NOT FOUND
+                // ==================================================
+
+                out.println("<div class='error-box'>");
+
+                out.println(
+                    "<h2 class='error'>" +
+                    "Assignment Not Found" +
+                    "</h2>"
+                );
+
+                out.println(
+                    "<p class='info'>" +
+                    "The assignment does not exist or " +
+                    "does not belong to your account." +
+                    "</p>"
+                );
+
+                out.println("</div>");
+            }
+
+        } catch (NumberFormatException e) {
+
+            out.println("<div class='error-box'>");
+
+            out.println(
+                "<h2 class='error'>" +
+                "Invalid Assignment ID" +
+                "</h2>"
+            );
+
+            out.println(
+                "<p class='info'>" +
+                "The assignment ID must be a number." +
+                "</p>"
+            );
+
+            out.println("</div>");
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            out.println("<div class='error-box'>");
+
+            out.println(
+                "<h2 class='error'>" +
+                "Error Loading Assignment" +
+                "</h2>"
+            );
+
+            out.println(
+                "<p class='info'>" +
+                escapeHtml(e.getMessage()) +
+                "</p>"
+            );
+
+            out.println("</div>");
+
+        } finally {
+
+            // ==================================================
+            // CLOSE RESULT SET
+            // ==================================================
 
             try {
 
-                int assignmentId = Integer.parseInt(id.trim());
-
-                con = DBConnection.getConnection();
-
-                if (con == null) {
-                    throw new Exception("Database connection failed.");
+                if (rs != null) {
+                    rs.close();
                 }
-
-                /*
-                 * deadline_time has been added here.
-                 */
-                String sql =
-                        "SELECT id, assignment_name, subject, " +
-                        "deadline, deadline_time, priority " +
-                        "FROM assignments " +
-                        "WHERE id = ? AND user_id = ?";
-
-                ps = con.prepareStatement(sql);
-
-                ps.setInt(1, assignmentId);
-                ps.setInt(2, userId);
-
-                rs = ps.executeQuery();
-
-                if (rs.next()) {
-
-                    out.println(
-                        "<form action='" +
-                        contextPath +
-                        "/UpdateAssignment' method='post'>"
-                    );
-
-                    out.println(
-                        "<input type='hidden' " +
-                        "name='id' value='" +
-                        rs.getInt("id") +
-                        "'>"
-                    );
-
-                    // Assignment Name
-                    out.println("<div class='form-group'>");
-
-                    out.println(
-                        "<label for='assignment_name'>" +
-                        "Assignment Name:" +
-                        "</label>"
-                    );
-
-                    out.println(
-                        "<input type='text' " +
-                        "id='assignment_name' " +
-                        "name='assignment_name' value='" +
-                        escapeHtml(rs.getString("assignment_name")) +
-                        "' required>"
-                    );
-
-                    out.println("</div>");
-
-                    // Subject
-                    out.println("<div class='form-group'>");
-
-                    out.println(
-                        "<label for='subject'>" +
-                        "Subject:" +
-                        "</label>"
-                    );
-
-                    out.println(
-                        "<input type='text' " +
-                        "id='subject' " +
-                        "name='subject' value='" +
-                        escapeHtml(rs.getString("subject")) +
-                        "' required>"
-                    );
-
-                    out.println("</div>");
-
-                    // Deadline Date
-                    out.println("<div class='form-group'>");
-
-                    out.println(
-                        "<label for='deadline'>" +
-                        "Deadline Date:" +
-                        "</label>"
-                    );
-
-                    String deadline = "";
-
-                    if (rs.getDate("deadline") != null) {
-                        deadline =
-                                rs.getDate("deadline").toString();
-                    }
-
-                    out.println(
-                        "<input type='date' " +
-                        "id='deadline' " +
-                        "name='deadline' value='" +
-                        deadline +
-                        "' required>"
-                    );
-
-                    out.println("</div>");
-
-                    // Deadline Time
-                    out.println("<div class='form-group'>");
-
-                    out.println(
-                        "<label for='deadline_time'>" +
-                        "Deadline Time:" +
-                        "</label>"
-                    );
-
-                    String deadlineTime = "";
-
-                    if (rs.getTime("deadline_time") != null) {
-                        deadlineTime =
-                                rs.getTime("deadline_time").toString();
-                    }
-
-                    /*
-                     * MySQL TIME may return:
-                     * 10:30:00
-                     *
-                     * HTML time input accepts:
-                     * 10:30
-                     *
-                     * Therefore remove seconds.
-                     */
-                    if (deadlineTime.length() >= 5) {
-                        deadlineTime =
-                                deadlineTime.substring(0, 5);
-                    }
-
-                    out.println(
-                        "<input type='time' " +
-                        "id='deadline_time' " +
-                        "name='deadline_time' value='" +
-                        deadlineTime +
-                        "' required>"
-                    );
-
-                    out.println("</div>");
-
-                    // Priority
-                    out.println("<div class='form-group'>");
-
-                    out.println(
-                        "<label for='priority'>" +
-                        "Priority:" +
-                        "</label>"
-                    );
-
-                    out.println(
-                        "<select id='priority' " +
-                        "name='priority' required>"
-                    );
-
-                    String priority =
-                            rs.getString("priority");
-
-                    out.println(
-                        "<option value='High' " +
-                        ("High".equals(priority)
-                            ? "selected" : "") +
-                        ">High</option>"
-                    );
-
-                    out.println(
-                        "<option value='Medium' " +
-                        ("Medium".equals(priority)
-                            ? "selected" : "") +
-                        ">Medium</option>"
-                    );
-
-                    out.println(
-                        "<option value='Low' " +
-                        ("Low".equals(priority)
-                            ? "selected" : "") +
-                        ">Low</option>"
-                    );
-
-                    out.println("</select>");
-
-                    out.println("</div>");
-
-                    out.println(
-                        "<input type='submit' " +
-                        "value='Update Assignment'>"
-                    );
-
-                    out.println("</form>");
-
-                } else {
-
-                    out.println(
-                        "<h3 class='error'>" +
-                        "Assignment Not Found</h3>"
-                    );
-
-                    out.println(
-                        "<p style='text-align:center;'>" +
-                        "This assignment does not belong to your account." +
-                        "</p>"
-                    );
-                }
-
-            } catch (NumberFormatException e) {
-
-                out.println(
-                    "<h3 class='error'>" +
-                    "Invalid Assignment ID</h3>"
-                );
 
             } catch (Exception e) {
 
                 e.printStackTrace();
+            }
 
-                out.println(
-                    "<h3 class='error'>" +
-                    "Error loading assignment.</h3>"
-                );
+            // ==================================================
+            // CLOSE STATEMENT
+            // ==================================================
 
-            } finally {
+            try {
 
-                try {
-                    if (rs != null) {
-                        rs.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (ps != null) {
+                    ps.close();
                 }
 
-                try {
-                    if (ps != null) {
-                        ps.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+
+            // ==================================================
+            // CLOSE CONNECTION
+            // ==================================================
+
+            try {
+
+                if (con != null) {
+                    con.close();
                 }
 
-                try {
-                    if (con != null) {
-                        con.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+
+                e.printStackTrace();
             }
         }
+
+        // ==================================================
+        // BACK BUTTON
+        // ==================================================
 
         out.println(
             "<a class='back-btn' " +
             "href='" +
             contextPath +
             "/ViewAssignments'>" +
-            "Back to Assignments" +
+            "BACK TO ASSIGNMENTS" +
             "</a>"
         );
 
         out.println("</div>");
+
         out.println("</div>");
 
         out.println("</body>");
+
         out.println("</html>");
     }
+
+    // ==================================================
+    // SELECTED OPTION
+    // ==================================================
+
+    private String selected(String value, String option) {
+
+        if (value != null &&
+            value.equalsIgnoreCase(option)) {
+
+            return "selected";
+        }
+
+        return "";
+    }
+
+    // ==================================================
+    // ESCAPE HTML
+    // ==================================================
 
     private String escapeHtml(String value) {
 

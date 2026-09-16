@@ -26,9 +26,7 @@ public class DeadlineSortServlet extends HttpServlet {
 
         String contextPath = request.getContextPath();
 
-        /*
-         * Check login session
-         */
+        // Check login session
         HttpSession session = request.getSession(false);
 
         if (session == null ||
@@ -41,9 +39,7 @@ public class DeadlineSortServlet extends HttpServlet {
             return;
         }
 
-        /*
-         * Get logged-in user's ID
-         */
+        // Get logged-in user's ID
         int userId;
 
         try {
@@ -78,124 +74,188 @@ public class DeadlineSortServlet extends HttpServlet {
             return;
         }
 
-        /*
-         * HTML PAGE
-         */
-
+        // HTML PAGE
         out.println("<!DOCTYPE html>");
         out.println("<html>");
-
         out.println("<head>");
 
         out.println("<meta charset='UTF-8'>");
 
         out.println(
-            "<title>Assignments by Deadline</title>"
+            "<meta name='viewport' " +
+            "content='width=device-width, initial-scale=1.0'>"
+        );
+
+        out.println(
+            "<title>Sort by Deadline</title>"
         );
 
         out.println("<style>");
 
+        // BODY
         out.println(
             "body {" +
             "font-family: Arial, sans-serif;" +
             "margin: 0;" +
-            "background-color: #f4f6f8;" +
-            "color: #333;" +
+            "padding: 0;" +
+            "background: linear-gradient(135deg, #eef6ff, #f4fbfa);" +
+            "color: #1d2d44;" +
+            "min-height: 100vh;" +
             "}"
         );
 
-        out.println(
-            ".header {" +
-            "background-color: #2c3e50;" +
-            "color: white;" +
-            "padding: 25px;" +
-            "text-align: center;" +
-            "}"
-        );
-
-        out.println(
-            ".header h1 {" +
-            "margin: 0;" +
-            "}"
-        );
-
+        // CONTAINER
         out.println(
             ".container {" +
             "width: 92%;" +
             "max-width: 1100px;" +
-            "margin: 30px auto;" +
+            "margin: 45px auto;" +
             "}"
         );
 
+        // CARD
         out.println(
             ".card {" +
-            "background-color: white;" +
-            "padding: 25px;" +
-            "border-radius: 10px;" +
-            "box-shadow: 0 2px 8px rgba(0,0,0,0.12);" +
+            "background: rgba(255,255,255,0.96);" +
+            "padding: 30px;" +
+            "border-radius: 16px;" +
+            "box-shadow: 0 8px 25px rgba(45,80,120,0.12);" +
+            "border: 1px solid #d4e3f5;" +
             "overflow-x: auto;" +
             "}"
         );
 
+        // HEADING
         out.println(
             ".card h2 {" +
-            "color: #2c3e50;" +
+            "text-align: center;" +
+            "margin: 0 0 25px 0;" +
+            "color: #1d2d44;" +
+            "font-size: 25px;" +
+            "letter-spacing: 0.5px;" +
             "}"
         );
 
+        // TABLE
         out.println(
             "table {" +
             "width: 100%;" +
             "border-collapse: collapse;" +
-            "margin-top: 20px;" +
+            "margin-top: 10px;" +
+            "background: white;" +
             "}"
         );
 
+        // TABLE HEADER
         out.println(
             "th {" +
-            "background-color: #3498db;" +
+            "background: #3978d8;" +
             "color: white;" +
-            "padding: 14px;" +
+            "padding: 14px 12px;" +
+            "font-size: 14px;" +
+            "border: 1px solid #3978d8;" +
             "}"
         );
 
+        // TABLE DATA
         out.println(
             "td {" +
-            "padding: 12px;" +
+            "padding: 13px 12px;" +
             "text-align: center;" +
-            "border-bottom: 1px solid #ddd;" +
+            "border-bottom: 1px solid #dce6f2;" +
+            "color: #33475b;" +
+            "font-size: 14px;" +
             "}"
         );
 
+        // ROW HOVER
         out.println(
             "tr:hover {" +
-            "background-color: #f5f5f5;" +
+            "background-color: #f4f8ff;" +
             "}"
         );
 
+        // BUTTON CONTAINER
+        out.println(
+            ".buttons {" +
+            "text-align: center;" +
+            "margin-top: 28px;" +
+            "}"
+        );
+
+        // BUTTON
         out.println(
             ".button {" +
             "display: inline-block;" +
-            "margin-top: 20px;" +
-            "margin-right: 10px;" +
+            "margin: 6px;" +
             "padding: 12px 20px;" +
-            "background-color: #2c3e50;" +
+            "background: #3978d8;" +
             "color: white;" +
             "text-decoration: none;" +
-            "border-radius: 6px;" +
+            "border-radius: 8px;" +
             "font-weight: bold;" +
+            "font-size: 14px;" +
+            "transition: 0.2s;" +
             "}"
         );
 
+        // BUTTON HOVER
         out.println(
             ".button:hover {" +
-            "background-color: #1f2d3a;" +
+            "background: #2f69c2;" +
+            "transform: translateY(-1px);" +
             "}"
         );
 
+        // NO ASSIGNMENTS
+        out.println(
+            ".empty {" +
+            "text-align: center;" +
+            "padding: 25px;" +
+            "color: #526579;" +
+            "font-size: 15px;" +
+            "}"
+        );
+
+        // ERROR
         out.println(
             ".error {" +
-            "color: #c0392b;" +
+            "background: #fff1f1;" +
+            "border: 1px solid #f0bcbc;" +
+            "color: #b42318;" +
+            "padding: 14px;" +
+            "border-radius: 8px;" +
+            "margin-top: 20px;" +
+            "}"
+        );
+
+        // RESPONSIVE DESIGN
+        out.println(
+            "@media (max-width: 700px) {" +
+
+            ".container {" +
+            "width: 94%;" +
+            "margin: 25px auto;" +
+            "}" +
+
+            ".card {" +
+            "padding: 20px;" +
+            "}" +
+
+            ".card h2 {" +
+            "font-size: 21px;" +
+            "}" +
+
+            "th, td {" +
+            "padding: 10px 8px;" +
+            "font-size: 12px;" +
+            "}" +
+
+            ".button {" +
+            "display: block;" +
+            "margin: 8px 0;" +
+            "}" +
+
             "}"
         );
 
@@ -205,33 +265,16 @@ public class DeadlineSortServlet extends HttpServlet {
 
         out.println("<body>");
 
-        /*
-         * HEADER
-         */
-
-        out.println("<div class='header'>");
-
-        out.println(
-            "<h1>Student Assignment Tracker</h1>"
-        );
-
-        out.println("</div>");
-
-        /*
-         * CONTAINER
-         */
-
+        // CONTAINER
         out.println("<div class='container'>");
 
+        // CARD
         out.println("<div class='card'>");
 
+        // HEADING
         out.println(
-            "<h2>Assignments Sorted by Deadline</h2>"
+            "<h2>SORT BY DEADLINE</h2>"
         );
-
-        /*
-         * DATABASE
-         */
 
         Connection con = null;
         PreparedStatement ps = null;
@@ -239,6 +282,7 @@ public class DeadlineSortServlet extends HttpServlet {
 
         try {
 
+            // DATABASE CONNECTION
             con = DBConnection.getConnection();
 
             if (con == null) {
@@ -249,42 +293,28 @@ public class DeadlineSortServlet extends HttpServlet {
             }
 
             /*
-             * IMPORTANT:
+             * Get assignments for the logged-in user.
              *
-             * Get:
-             * assignment_name
-             * subject
-             * deadline
-             * deadline_time
-             * priority
-             *
-             * Only for the logged-in user.
-             *
-             * Sort first by deadline date,
-             * then by deadline time.
+             * Sort by:
+             * 1. Deadline date
+             * 2. Deadline time
              */
 
             String sql =
-                    "SELECT assignment_name, subject, " +
-                    "deadline, deadline_time, priority " +
-                    "FROM assignments " +
-                    "WHERE user_id = ? " +
-                    "ORDER BY deadline ASC, deadline_time ASC";
+                "SELECT assignment_name, subject, " +
+                "deadline, deadline_time, priority " +
+                "FROM assignments " +
+                "WHERE user_id = ? " +
+                "ORDER BY deadline ASC, deadline_time ASC";
 
             ps = con.prepareStatement(sql);
 
-            /*
-             * Logged-in user's ID
-             */
-
+            // Set logged-in user's ID
             ps.setInt(1, userId);
 
             rs = ps.executeQuery();
 
-            /*
-             * TABLE
-             */
-
+            // TABLE
             out.println("<table>");
 
             out.println("<tr>");
@@ -309,62 +339,48 @@ public class DeadlineSortServlet extends HttpServlet {
 
             int serialNumber = 1;
 
-            /*
-             * DISPLAY ASSIGNMENTS
-             */
-
+            // DISPLAY ASSIGNMENTS
             while (rs.next()) {
 
                 found = true;
 
                 out.println("<tr>");
 
-                /*
-                 * S.No.
-                 */
-
+                // S.No.
                 out.println(
                     "<td>" +
                     serialNumber +
                     "</td>"
                 );
 
-                /*
-                 * Assignment Name
-                 */
-
+                // Assignment Name
                 out.println(
                     "<td>" +
-                    rs.getString("assignment_name") +
+                    escapeHtml(
+                        rs.getString("assignment_name")
+                    ) +
                     "</td>"
                 );
 
-                /*
-                 * Subject
-                 */
-
+                // Subject
                 out.println(
                     "<td>" +
-                    rs.getString("subject") +
+                    escapeHtml(
+                        rs.getString("subject")
+                    ) +
                     "</td>"
                 );
 
-                /*
-                 * Deadline Date
-                 */
-
+                // Deadline Date
                 out.println(
                     "<td>" +
                     rs.getDate("deadline") +
                     "</td>"
                 );
 
-                /*
-                 * Deadline Time
-                 */
-
+                // Deadline Time
                 String deadlineTime =
-                        rs.getString("deadline_time");
+                    rs.getString("deadline_time");
 
                 if (deadlineTime == null ||
                     deadlineTime.trim().isEmpty()) {
@@ -374,17 +390,16 @@ public class DeadlineSortServlet extends HttpServlet {
 
                 out.println(
                     "<td>" +
-                    deadlineTime +
+                    escapeHtml(deadlineTime) +
                     "</td>"
                 );
 
-                /*
-                 * Priority
-                 */
-
+                // Priority
                 out.println(
                     "<td>" +
-                    rs.getString("priority") +
+                    escapeHtml(
+                        rs.getString("priority")
+                    ) +
                     "</td>"
                 );
 
@@ -395,34 +410,30 @@ public class DeadlineSortServlet extends HttpServlet {
 
             out.println("</table>");
 
-            /*
-             * NO ASSIGNMENTS
-             */
-
+            // NO ASSIGNMENTS
             if (!found) {
 
                 out.println(
-                    "<p>No assignments found.</p>"
+                    "<div class='empty'>" +
+                    "No assignments found." +
+                    "</div>"
                 );
             }
 
         } catch (Exception e) {
 
             out.println(
-                "<p class='error'>" +
+                "<div class='error'>" +
                 "<b>Error loading assignments:</b> " +
-                e.getMessage() +
-                "</p>"
+                escapeHtml(e.getMessage()) +
+                "</div>"
             );
 
             e.printStackTrace();
 
         } finally {
 
-            /*
-             * Close ResultSet
-             */
-
+            // CLOSE RESULTSET
             try {
 
                 if (rs != null) {
@@ -433,10 +444,7 @@ public class DeadlineSortServlet extends HttpServlet {
                 e.printStackTrace();
             }
 
-            /*
-             * Close PreparedStatement
-             */
-
+            // CLOSE PREPARED STATEMENT
             try {
 
                 if (ps != null) {
@@ -447,10 +455,7 @@ public class DeadlineSortServlet extends HttpServlet {
                 e.printStackTrace();
             }
 
-            /*
-             * Close Connection
-             */
-
+            // CLOSE CONNECTION
             try {
 
                 if (con != null) {
@@ -462,29 +467,28 @@ public class DeadlineSortServlet extends HttpServlet {
             }
         }
 
-        /*
-         * BACK TO ASSIGNMENTS
-         */
+        // BUTTONS
+        out.println("<div class='buttons'>");
 
+        // BACK TO ALL ASSIGNMENTS
         out.println(
             "<a class='button' href='" +
             contextPath +
             "/ViewAssignments'>" +
-            "Back to All Assignments" +
+            "BACK TO ALL ASSIGNMENTS" +
             "</a>"
         );
 
-        /*
-         * BACK TO HOME
-         */
-
+        // BACK TO DASHBOARD
         out.println(
             "<a class='button' href='" +
             contextPath +
-            "/index.html'>" +
-            "Back to Home" +
+            "/Dashboard'>" +
+            "BACK TO DASHBOARD" +
             "</a>"
         );
+
+        out.println("</div>");
 
         out.println("</div>");
 
@@ -493,5 +497,20 @@ public class DeadlineSortServlet extends HttpServlet {
         out.println("</body>");
 
         out.println("</html>");
+    }
+
+    // HTML ESCAPE METHOD
+    private String escapeHtml(String value) {
+
+        if (value == null) {
+            return "";
+        }
+
+        return value
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;");
     }
 }
