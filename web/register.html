@@ -26,6 +26,7 @@
             box-sizing: border-box;
         }
 
+
         body {
             margin: 0;
             min-height: 100vh;
@@ -47,6 +48,7 @@
             padding: 30px;
         }
 
+
         body::before {
             content: '';
 
@@ -64,6 +66,7 @@
 
             z-index: -1;
         }
+
 
         body::after {
             content: '';
@@ -83,10 +86,12 @@
             z-index: -1;
         }
 
+
         .register-container {
             width: 100%;
             max-width: 520px;
         }
+
 
         .register-box {
             background: rgba(255, 255, 255, 0.96);
@@ -125,6 +130,53 @@
 
 
         /* =========================
+           MESSAGE BOX
+           ========================= */
+
+        .message-box {
+            display: none;
+
+            width: 100%;
+
+            padding: 16px 18px;
+
+            margin-bottom: 22px;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            line-height: 1.5;
+
+            text-align: center;
+
+            font-weight: 500;
+        }
+
+
+        .message-box.success {
+            display: block;
+
+            background-color: #eaf8ef;
+
+            border: 1px solid #a9dfba;
+
+            color: #216e39;
+        }
+
+
+        .message-box.error {
+            display: block;
+
+            background-color: #fff0f0;
+
+            border: 1px solid #efb0b0;
+
+            color: #a52828;
+        }
+
+
+        /* =========================
            INPUT GROUP
            ========================= */
 
@@ -137,6 +189,7 @@
 
             margin-bottom: 20px;
         }
+
 
         .input-icon {
             width: 58px;
@@ -162,6 +215,7 @@
             font-size: 20px;
         }
 
+
         .input-group input {
             flex: 1;
 
@@ -184,9 +238,11 @@
             transition: all 0.2s ease;
         }
 
+
         .input-group input::placeholder {
             color: #8a99a8;
         }
+
 
         .input-group input:focus {
             border-color: #3978d8;
@@ -226,6 +282,7 @@
             transition: all 0.2s ease;
         }
 
+
         .register-btn:hover {
             background-color: #2f69c2;
 
@@ -234,6 +291,7 @@
             box-shadow:
                 0 5px 14px rgba(57, 120, 216, 0.20);
         }
+
 
         .register-btn:disabled {
             opacity: 0.7;
@@ -280,6 +338,7 @@
             transition: all 0.2s ease;
         }
 
+
         .login-btn:hover {
             background-color: #3978d8;
 
@@ -297,9 +356,11 @@
                 padding: 20px;
             }
 
+
             .register-box {
                 padding: 35px 25px 32px 25px;
             }
+
 
             .title {
                 font-size: 27px;
@@ -309,17 +370,21 @@
                 margin-bottom: 30px;
             }
 
+
             .input-group {
                 height: 54px;
             }
+
 
             .input-icon {
                 width: 54px;
             }
 
+
             .input-group input {
                 height: 54px;
             }
+
 
             .register-btn {
                 height: 58px;
@@ -327,12 +392,20 @@
                 font-size: 16px;
             }
 
+
             .login-btn {
                 height: 58px;
 
                 line-height: 54px;
 
                 font-size: 16px;
+            }
+
+
+            .message-box {
+                font-size: 14px;
+
+                padding: 14px;
             }
 
         }
@@ -356,9 +429,14 @@
         <!-- TITLE -->
 
         <div class="title">
-
             REGISTER
+        </div>
 
+
+        <!-- MESSAGE BOX -->
+
+        <div id="messageBox"
+             class="message-box">
         </div>
 
 
@@ -470,6 +548,40 @@
 
 
     /*
+     * Show message inside page
+     */
+
+    function showMessage(message, type) {
+
+        const messageBox =
+            document.getElementById("messageBox");
+
+        messageBox.innerHTML = message;
+
+        messageBox.className =
+            "message-box " + type;
+
+    }
+
+
+    /*
+     * Hide message
+     */
+
+    function hideMessage() {
+
+        const messageBox =
+            document.getElementById("messageBox");
+
+        messageBox.innerHTML = "";
+
+        messageBox.className =
+            "message-box";
+
+    }
+
+
+    /*
      * Registration Form
      */
 
@@ -479,7 +591,16 @@
             event.preventDefault();
 
 
-            /* Get form values */
+            /*
+             * Hide previous message
+             */
+
+            hideMessage();
+
+
+            /*
+             * Get form values
+             */
 
             const name =
                 document.getElementById("name").value.trim();
@@ -495,7 +616,9 @@
                 document.getElementById("registerButton");
 
 
-            /* Disable button */
+            /*
+             * Disable button
+             */
 
             button.disabled = true;
 
@@ -557,17 +680,34 @@
                     );
 
 
-                    alert(
-                        "Account created successfully!\n\n" +
-                        "Your Name and Password have been sent to your email."
+                    /*
+                     * Show success message.
+                     */
+
+                    showMessage(
+                        "✓ Account created successfully!<br><br>" +
+                        "Your Name and Password have been sent to your email.",
+                        "success"
                     );
 
 
                     /*
-                     * Go to login page.
+                     * Clear form.
                      */
 
-                    window.location.href = "index.html";
+                    document.getElementById("registerForm").reset();
+
+
+                    /*
+                     * Redirect to login page
+                     * after a short delay.
+                     */
+
+                    setTimeout(function() {
+
+                        window.location.href = "index.html";
+
+                    }, 2500);
 
 
                 } else {
@@ -577,7 +717,10 @@
                      * Registration failed.
                      */
 
-                    alert(result);
+                    showMessage(
+                        "✕ " + result,
+                        "error"
+                    );
 
 
                     button.disabled = false;
@@ -596,9 +739,15 @@
                 );
 
 
-                alert(
-                    "Account registration or email sending failed.\n\n" +
-                    "Please try again."
+                /*
+                 * Show error message
+                 * inside the page.
+                 */
+
+                showMessage(
+                    "✕ Account registration or email sending failed.<br>" +
+                    "Please try again.",
+                    "error"
                 );
 
 
