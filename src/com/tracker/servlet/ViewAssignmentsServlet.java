@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import javax.servlet.ServletException;
@@ -480,8 +482,41 @@ public class ViewAssignmentsServlet extends HttpServlet {
                 String priority =
                         rs.getString("priority");
 
-                LocalDate today =
-                        LocalDate.now();
+                // ==================================================
+                // CALCULATE DEADLINE STATUS
+                // ==================================================
+
+                LocalDate today = LocalDate.now();
+
+                LocalTime nowTime = LocalTime.now();
+
+                LocalDateTime now =
+                        LocalDateTime.of(
+                            today,
+                            nowTime
+                        );
+
+                LocalTime assignmentTime;
+
+                if (deadlineTime != null) {
+
+                    assignmentTime =
+                            deadlineTime.toLocalTime();
+
+                } else {
+
+                    // If no deadline time is set,
+                    // treat the deadline as the end of that day.
+
+                    assignmentTime =
+                            LocalTime.MAX;
+                }
+
+                LocalDateTime deadlineDateTime =
+                        LocalDateTime.of(
+                            deadline,
+                            assignmentTime
+                        );
 
                 long daysRemaining =
                         ChronoUnit.DAYS.between(
@@ -492,17 +527,27 @@ public class ViewAssignmentsServlet extends HttpServlet {
                 String deadlineStatus;
                 String statusClass;
 
-                if (daysRemaining < 0) {
+                // ==================================================
+                // STATUS LOGIC
+                // ==================================================
+
+                if (deadlineDateTime.isBefore(now)) {
+
+                    // Deadline date and time have passed.
 
                     deadlineStatus = "Overdue";
                     statusClass = "overdue";
 
                 } else if (daysRemaining <= 3) {
 
+                    // Deadline is within the next 3 days.
+
                     deadlineStatus = "Due Soon";
                     statusClass = "due-soon";
 
                 } else {
+
+                    // Deadline is more than 3 days away.
 
                     deadlineStatus = "Upcoming";
                     statusClass = "upcoming";
