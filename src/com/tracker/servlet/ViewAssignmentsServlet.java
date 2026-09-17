@@ -9,6 +9,8 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import javax.servlet.ServletException;
@@ -463,6 +465,25 @@ public class ViewAssignmentsServlet extends HttpServlet {
 
             int serialNumber = 1;
 
+            // ==================================================
+            // INDIA TIMEZONE
+            // ==================================================
+
+            ZoneId indiaZone =
+                    ZoneId.of("Asia/Kolkata");
+
+            ZonedDateTime indiaNow =
+                    ZonedDateTime.now(indiaZone);
+
+            LocalDate today =
+                    indiaNow.toLocalDate();
+
+            LocalTime nowTime =
+                    indiaNow.toLocalTime();
+
+            LocalDateTime now =
+                    indiaNow.toLocalDateTime();
+
             while (rs.next()) {
 
                 int id = rs.getInt("id");
@@ -483,18 +504,8 @@ public class ViewAssignmentsServlet extends HttpServlet {
                         rs.getString("priority");
 
                 // ==================================================
-                // CALCULATE DEADLINE STATUS
+                // CALCULATE DEADLINE DATETIME
                 // ==================================================
-
-                LocalDate today = LocalDate.now();
-
-                LocalTime nowTime = LocalTime.now();
-
-                LocalDateTime now =
-                        LocalDateTime.of(
-                            today,
-                            nowTime
-                        );
 
                 LocalTime assignmentTime;
 
@@ -528,7 +539,7 @@ public class ViewAssignmentsServlet extends HttpServlet {
                 String statusClass;
 
                 // ==================================================
-                // STATUS LOGIC
+                // DEADLINE STATUS
                 // ==================================================
 
                 if (deadlineDateTime.isBefore(now)) {
