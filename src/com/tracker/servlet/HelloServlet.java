@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -251,6 +252,13 @@ public class HelloServlet extends HttpServlet {
         out.println("margin-bottom: 20px;");
         out.println("}");
 
+        // Duplicate
+        out.println(".duplicate {");
+        out.println("color: #d68910;");
+        out.println("font-size: 25px;");
+        out.println("margin-bottom: 20px;");
+        out.println("}");
+
         // Paragraph
         out.println(".card > p {");
         out.println("color: #526579;");
@@ -279,6 +287,10 @@ public class HelloServlet extends HttpServlet {
         out.println("}");
 
         out.println(".success {");
+        out.println("font-size: 22px;");
+        out.println("}");
+
+        out.println(".duplicate {");
         out.println("font-size: 22px;");
         out.println("}");
 
@@ -375,178 +387,428 @@ public class HelloServlet extends HttpServlet {
 
 
         // ==================================================
-        // INSERT INTO DATABASE
+        // CLEAN FORM VALUES
         // ==================================================
 
-        String sql =
-                "INSERT INTO assignments " +
-                "(assignment_name, subject, deadline, " +
-                "deadline_time, priority, user_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        assignment = assignment.trim();
+        subject = subject.trim();
+        deadline = deadline.trim();
+        deadlineTime = deadlineTime.trim();
+        priority = priority.trim();
 
+
+        // ==================================================
+        // DATABASE OPERATIONS
+        // ==================================================
 
         Connection connection = null;
-        PreparedStatement statement = null;
+        PreparedStatement duplicateStatement = null;
+        PreparedStatement insertStatement = null;
+        ResultSet resultSet = null;
 
 
-        try {
+        /*
+         * Synchronizing on the user's session prevents two nearly
+         * simultaneous requests from the same logged-in user from
+         * both passing the duplicate check at the same time.
+         */
+        synchronized (session) {
 
-            connection = DBConnection.getConnection();
+            try {
 
-
-            if (connection == null) {
-
-                throw new Exception(
-                    "Database connection failed."
-                );
-            }
-
-
-            statement =
-                    connection.prepareStatement(sql);
+                connection = DBConnection.getConnection();
 
 
-            // Assignment Name
-            statement.setString(
-                    1,
-                    assignment.trim()
-            );
+                if (connection == null) {
+
+                    throw new Exception(
+                        "Database connection failed."
+                    );
+                }
 
 
-            // Subject
-            statement.setString(
-                    2,
-                    subject.trim()
-            );
+                // ==================================================
+                // CHECK FOR EXISTING ASSIGNMENT
+                // ==================================================
+
+                String duplicateSql =
+                        "SELECT id FROM assignments " +
+                        "WHERE user_id = ? " +
+                        "AND assignment_name = ? " +
+                        "AND subject = ? " +
+                        "AND deadline = ? " +
+                        "AND deadline_time = ? " +
+                        "AND priority = ? " +
+                        "LIMIT 1";
 
 
-            // Deadline Date
-            statement.setString(
-                    3,
-                    deadline.trim()
-            );
+                duplicateStatement =
+                        connection.prepareStatement(duplicateSql);
 
 
-            // Deadline Time
-            statement.setString(
-                    4,
-                    deadlineTime.trim()
-            );
-
-
-            // Priority
-            statement.setString(
-                    5,
-                    priority.trim()
-            );
-
-
-            // Logged-in User
-            statement.setInt(
-                    6,
-                    userId
-            );
-
-
-            int rows =
-                    statement.executeUpdate();
-
-
-            // ==================================================
-            // SUCCESS
-            // ==================================================
-
-            if (rows > 0) {
-
-                out.println(
-                    "<h2 class='success'>" +
-                    "Assignment Saved Successfully!" +
-                    "</h2>"
+                // Logged-in user
+                duplicateStatement.setInt(
+                        1,
+                        userId
                 );
 
 
-                // Assignment Details
-
-                out.println("<div class='details'>");
-
-
-                out.println(
-                    "<p><b>Assignment:</b> " +
-                    assignment.trim() +
-                    "</p>"
+                // Assignment name
+                duplicateStatement.setString(
+                        2,
+                        assignment
                 );
 
 
-                out.println(
-                    "<p><b>Subject:</b> " +
-                    subject.trim() +
-                    "</p>"
+                // Subject
+                duplicateStatement.setString(
+                        3,
+                        subject
                 );
 
 
-                out.println(
-                    "<p><b>Deadline Date:</b> " +
-                    deadline.trim() +
-                    "</p>"
+                // Deadline date
+                duplicateStatement.setString(
+                        4,
+                        deadline
                 );
 
 
-                out.println(
-                    "<p><b>Deadline Time:</b> " +
-                    deadlineTime.trim() +
-                    "</p>"
+                // Deadline time
+                duplicateStatement.setString(
+                        5,
+                        deadlineTime
                 );
 
 
-                out.println(
-                    "<p><b>Priority:</b> " +
-                    priority.trim() +
-                    "</p>"
+                // Priority
+                duplicateStatement.setString(
+                        6,
+                        priority
                 );
 
 
-                out.println("</div>");
+                resultSet =
+                        duplicateStatement.executeQuery();
 
 
-                // Add Another Assignment
+                // ==================================================
+                // DUPLICATE FOUND
+                // ==================================================
 
-                out.println(
-                    "<a class='button' href='" +
-                    contextPath +
-                    "/add.html'>" +
-                    "Add Another Assignment" +
-                    "</a>"
+                if (resultSet.next()) {
+
+                    int existingAssignmentId =
+                            resultSet.getInt("id");
+
+
+                    out.println(
+                        "<h2 class='duplicate'>" +
+                        "Assignment Already Exists" +
+                        "</h2>"
+                    );
+
+
+                    out.println(
+                        "<p>" +
+                        "This assignment has already been added. " +
+                        "A duplicate assignment was not created." +
+                        "</p>"
+                    );
+
+
+                    out.println("<div class='details'>");
+
+
+                    out.println(
+                        "<p><b>Assignment:</b> " +
+                        escapeHtml(assignment) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Subject:</b> " +
+                        escapeHtml(subject) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Deadline Date:</b> " +
+                        escapeHtml(deadline) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Deadline Time:</b> " +
+                        escapeHtml(deadlineTime) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Priority:</b> " +
+                        escapeHtml(priority) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Existing Assignment ID:</b> " +
+                        existingAssignmentId +
+                        "</p>"
+                    );
+
+
+                    out.println("</div>");
+
+
+                    // Back to Add Assignment
+
+                    out.println(
+                        "<a class='button' href='" +
+                        contextPath +
+                        "/add.html'>" +
+                        "Add Another Assignment" +
+                        "</a>"
+                    );
+
+
+                    // View Assignments
+
+                    out.println(
+                        "<a class='button' href='" +
+                        contextPath +
+                        "/ViewAssignments'>" +
+                        "View Assignments" +
+                        "</a>"
+                    );
+
+
+                    // Back to Dashboard
+
+                    out.println(
+                        "<a class='button dashboard-button' href='" +
+                        contextPath +
+                        "/Dashboard'>" +
+                        "Back to Dashboard" +
+                        "</a>"
+                    );
+
+
+                    out.println("</div>");
+                    out.println("</div>");
+                    out.println("</body>");
+                    out.println("</html>");
+
+                    return;
+                }
+
+
+                // ==================================================
+                // INSERT INTO DATABASE
+                // ==================================================
+
+                String insertSql =
+                        "INSERT INTO assignments " +
+                        "(assignment_name, subject, deadline, " +
+                        "deadline_time, priority, user_id) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
+
+
+                insertStatement =
+                        connection.prepareStatement(insertSql);
+
+
+                // Assignment Name
+                insertStatement.setString(
+                        1,
+                        assignment
                 );
 
 
-                // View Assignments
-
-                out.println(
-                    "<a class='button' href='" +
-                    contextPath +
-                    "/ViewAssignments'>" +
-                    "View Assignments" +
-                    "</a>"
+                // Subject
+                insertStatement.setString(
+                        2,
+                        subject
                 );
 
 
-                // Back to Dashboard
-
-                out.println(
-                    "<a class='button dashboard-button' href='" +
-                    contextPath +
-                    "/Dashboard'>" +
-                    "Back to Dashboard" +
-                    "</a>"
+                // Deadline Date
+                insertStatement.setString(
+                        3,
+                        deadline
                 );
 
 
-            } else {
+                // Deadline Time
+                insertStatement.setString(
+                        4,
+                        deadlineTime
+                );
+
+
+                // Priority
+                insertStatement.setString(
+                        5,
+                        priority
+                );
+
+
+                // Logged-in User
+                insertStatement.setInt(
+                        6,
+                        userId
+                );
+
+
+                int rows =
+                        insertStatement.executeUpdate();
+
+
+                // ==================================================
+                // SUCCESS
+                // ==================================================
+
+                if (rows > 0) {
+
+                    out.println(
+                        "<h2 class='success'>" +
+                        "Assignment Saved Successfully!" +
+                        "</h2>"
+                    );
+
+
+                    // Assignment Details
+
+                    out.println("<div class='details'>");
+
+
+                    out.println(
+                        "<p><b>Assignment:</b> " +
+                        escapeHtml(assignment) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Subject:</b> " +
+                        escapeHtml(subject) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Deadline Date:</b> " +
+                        escapeHtml(deadline) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Deadline Time:</b> " +
+                        escapeHtml(deadlineTime) +
+                        "</p>"
+                    );
+
+
+                    out.println(
+                        "<p><b>Priority:</b> " +
+                        escapeHtml(priority) +
+                        "</p>"
+                    );
+
+
+                    out.println("</div>");
+
+
+                    // Add Another Assignment
+
+                    out.println(
+                        "<a class='button' href='" +
+                        contextPath +
+                        "/add.html'>" +
+                        "Add Another Assignment" +
+                        "</a>"
+                    );
+
+
+                    // View Assignments
+
+                    out.println(
+                        "<a class='button' href='" +
+                        contextPath +
+                        "/ViewAssignments'>" +
+                        "View Assignments" +
+                        "</a>"
+                    );
+
+
+                    // Back to Dashboard
+
+                    out.println(
+                        "<a class='button dashboard-button' href='" +
+                        contextPath +
+                        "/Dashboard'>" +
+                        "Back to Dashboard" +
+                        "</a>"
+                    );
+
+
+                } else {
+
+                    out.println(
+                        "<h2 class='error'>" +
+                        "Assignment Was Not Saved" +
+                        "</h2>"
+                    );
+
+
+                    out.println(
+                        "<a class='button' href='" +
+                        contextPath +
+                        "/add.html'>" +
+                        "Back to Add Assignment" +
+                        "</a>"
+                    );
+
+
+                    out.println(
+                        "<a class='button dashboard-button' href='" +
+                        contextPath +
+                        "/Dashboard'>" +
+                        "Back to Dashboard" +
+                        "</a>"
+                    );
+                }
+
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
 
                 out.println(
                     "<h2 class='error'>" +
-                    "Assignment Was Not Saved" +
+                    "Error Saving Assignment" +
                     "</h2>"
+                );
+
+
+                out.println(
+                    "<p>" +
+                    "Something went wrong while saving " +
+                    "the assignment." +
+                    "</p>"
+                );
+
+
+                out.println(
+                    "<p><b>Error:</b> " +
+                    escapeHtml(e.getMessage()) +
+                    "</p>"
                 );
 
 
@@ -566,85 +828,74 @@ public class HelloServlet extends HttpServlet {
                     "Back to Dashboard" +
                     "</a>"
                 );
-            }
 
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
+            } finally {
 
 
-            out.println(
-                "<h2 class='error'>" +
-                "Error Saving Assignment" +
-                "</h2>"
-            );
+                // ==================================================
+                // CLOSE RESULT SET
+                // ==================================================
 
+                try {
 
-            out.println(
-                "<p>" +
-                "Something went wrong while saving " +
-                "the assignment." +
-                "</p>"
-            );
+                    if (resultSet != null) {
+                        resultSet.close();
+                    }
 
+                } catch (Exception e) {
 
-            out.println(
-                "<p><b>Error:</b> " +
-                e.getMessage() +
-                "</p>"
-            );
-
-
-            out.println(
-                "<a class='button' href='" +
-                contextPath +
-                "/add.html'>" +
-                "Back to Add Assignment" +
-                "</a>"
-            );
-
-
-            out.println(
-                "<a class='button dashboard-button' href='" +
-                contextPath +
-                "/Dashboard'>" +
-                "Back to Dashboard" +
-                "</a>"
-            );
-
-
-        } finally {
-
-            // Close Statement
-
-            try {
-
-                if (statement != null) {
-                    statement.close();
+                    e.printStackTrace();
                 }
 
-            } catch (Exception e) {
 
-                e.printStackTrace();
+                // ==================================================
+                // CLOSE DUPLICATE CHECK STATEMENT
+                // ==================================================
 
-            }
+                try {
 
+                    if (duplicateStatement != null) {
+                        duplicateStatement.close();
+                    }
 
-            // Close Connection
+                } catch (Exception e) {
 
-            try {
-
-                if (connection != null) {
-                    connection.close();
+                    e.printStackTrace();
                 }
 
-            } catch (Exception e) {
 
-                e.printStackTrace();
+                // ==================================================
+                // CLOSE INSERT STATEMENT
+                // ==================================================
 
+                try {
+
+                    if (insertStatement != null) {
+                        insertStatement.close();
+                    }
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+
+
+                // ==================================================
+                // CLOSE CONNECTION
+                // ==================================================
+
+                try {
+
+                    if (connection != null) {
+                        connection.close();
+                    }
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
             }
-
         }
 
 
@@ -657,5 +908,24 @@ public class HelloServlet extends HttpServlet {
 
         out.println("</body>");
         out.println("</html>");
+    }
+
+
+    // ==================================================
+    // HTML ESCAPE
+    // ==================================================
+
+    private static String escapeHtml(String value) {
+
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }
