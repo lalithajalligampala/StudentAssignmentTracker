@@ -49,6 +49,10 @@
         }
 
 
+        /* =========================
+           BACKGROUND DECORATION
+           ========================= */
+
         body::before {
             content: '';
 
@@ -87,11 +91,19 @@
         }
 
 
+        /* =========================
+           MAIN CONTAINER
+           ========================= */
+
         .register-container {
             width: 100%;
-            max-width: 520px;
+            max-width: 650px;
         }
 
+
+        /* =========================
+           REGISTER BOX
+           ========================= */
 
         .register-box {
             background: rgba(255, 255, 255, 0.96);
@@ -126,53 +138,6 @@
             margin-bottom: 38px;
 
             text-transform: uppercase;
-        }
-
-
-        /* =========================
-           MESSAGE BOX
-           ========================= */
-
-        .message-box {
-            display: none;
-
-            width: 100%;
-
-            padding: 16px 18px;
-
-            margin-bottom: 22px;
-
-            border-radius: 8px;
-
-            font-size: 15px;
-
-            line-height: 1.5;
-
-            text-align: center;
-
-            font-weight: 500;
-        }
-
-
-        .message-box.success {
-            display: block;
-
-            background-color: #eaf8ef;
-
-            border: 1px solid #a9dfba;
-
-            color: #216e39;
-        }
-
-
-        .message-box.error {
-            display: block;
-
-            background-color: #fff0f0;
-
-            border: 1px solid #efb0b0;
-
-            color: #a52828;
         }
 
 
@@ -347,6 +312,210 @@
 
 
         /* =========================
+           SUCCESS SCREEN
+           ========================= */
+
+        .success-screen {
+            display: none;
+
+            text-align: center;
+        }
+
+
+        .success-screen.show {
+            display: block;
+        }
+
+
+        /* =========================
+           SUCCESS ICON
+           ========================= */
+
+        .success-icon {
+            width: 90px;
+            height: 90px;
+
+            margin: 0 auto 25px auto;
+
+            border-radius: 50%;
+
+            background-color: #eaf8ef;
+
+            border: 3px solid #4caf72;
+
+            color: #3b9d60;
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            font-size: 48px;
+
+            font-weight: bold;
+        }
+
+
+        /* =========================
+           SUCCESS TITLE
+           ========================= */
+
+        .success-title {
+            color: #3978d8;
+
+            font-size: 34px;
+
+            font-weight: bold;
+
+            margin-bottom: 28px;
+
+            line-height: 1.2;
+        }
+
+
+        /* =========================
+           SUCCESS MESSAGE CARD
+           ========================= */
+
+        .success-message-card {
+            background-color: #eef5ff;
+
+            border: 1px solid #d2e1f5;
+
+            border-radius: 12px;
+
+            padding: 28px 25px;
+
+            margin-bottom: 30px;
+
+            text-align: left;
+        }
+
+
+        .success-message-card p {
+            margin: 0 0 15px 0;
+
+            font-size: 18px;
+
+            line-height: 1.6;
+
+            color: #536579;
+        }
+
+
+        .success-message-card p:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .success-message-card strong {
+            color: #1f2d3d;
+        }
+
+
+        /* =========================
+           SUCCESS BUTTONS
+           ========================= */
+
+        .success-btn {
+            display: block;
+
+            width: 100%;
+
+            min-height: 62px;
+
+            padding: 15px 20px;
+
+            margin-top: 15px;
+
+            border-radius: 7px;
+
+            text-decoration: none;
+
+            text-align: center;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+
+            cursor: pointer;
+
+            transition: all 0.2s ease;
+        }
+
+
+        .success-login-btn {
+            background-color: #3978d8;
+
+            color: white;
+
+            border: 2px solid #3978d8;
+
+            box-shadow:
+                0 5px 14px rgba(57, 120, 216, 0.18);
+        }
+
+
+        .success-login-btn:hover {
+            background-color: #2f69c2;
+
+            border-color: #2f69c2;
+
+            transform: translateY(-1px);
+        }
+
+
+        .success-register-btn {
+            background-color: white;
+
+            color: #3978d8;
+
+            border: 2px solid #3978d8;
+        }
+
+
+        .success-register-btn:hover {
+            background-color: #3978d8;
+
+            color: white;
+        }
+
+
+        /* =========================
+           ERROR MESSAGE
+           ========================= */
+
+        .error-screen {
+            display: none;
+
+            margin-top: 20px;
+
+            padding: 16px 18px;
+
+            background-color: #fff0f0;
+
+            border: 1px solid #efb0b0;
+
+            border-radius: 8px;
+
+            color: #a52828;
+
+            font-size: 15px;
+
+            line-height: 1.5;
+
+            text-align: center;
+        }
+
+
+        .error-screen.show {
+            display: block;
+        }
+
+
+        /* =========================
            MOBILE RESPONSIVE
            ========================= */
 
@@ -402,10 +571,37 @@
             }
 
 
-            .message-box {
-                font-size: 14px;
+            .success-icon {
+                width: 75px;
+                height: 75px;
 
-                padding: 14px;
+                font-size: 38px;
+
+                margin-bottom: 20px;
+            }
+
+
+            .success-title {
+                font-size: 28px;
+
+                margin-bottom: 22px;
+            }
+
+
+            .success-message-card {
+                padding: 22px 18px;
+            }
+
+
+            .success-message-card p {
+                font-size: 16px;
+            }
+
+
+            .success-btn {
+                font-size: 16px;
+
+                min-height: 58px;
             }
 
         }
@@ -421,108 +617,197 @@
 <div class="register-container">
 
 
-    <!-- REGISTER BOX -->
+    <!-- =========================
+         REGISTER BOX
+         ========================= -->
 
     <div class="register-box">
 
 
-        <!-- TITLE -->
+        <!-- =========================
+             REGISTER SECTION
+             ========================= -->
 
-        <div class="title">
-            REGISTER
-        </div>
-
-
-        <!-- MESSAGE BOX -->
-
-        <div id="messageBox"
-             class="message-box">
-        </div>
+        <div id="registerSection">
 
 
-        <!-- REGISTER FORM -->
+            <!-- TITLE -->
 
-        <form id="registerForm">
-
-
-            <!-- NAME -->
-
-            <div class="input-group">
-
-                <div class="input-icon">
-                    👤
-                </div>
-
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Name"
-                    required>
-
-            </div>
-
-
-            <!-- EMAIL -->
-
-            <div class="input-group">
-
-                <div class="input-icon">
-                    ✉️
-                </div>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Email ID"
-                    required>
-
-            </div>
-
-
-            <!-- PASSWORD -->
-
-            <div class="input-group">
-
-                <div class="input-icon">
-                    🔒
-                </div>
-
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Password"
-                    required>
-
-            </div>
-
-
-            <!-- REGISTER BUTTON -->
-
-            <button
-                type="submit"
-                id="registerButton"
-                class="register-btn">
+            <div class="title">
 
                 REGISTER
+
+            </div>
+
+
+            <!-- REGISTER FORM -->
+
+            <form id="registerForm">
+
+
+                <!-- NAME -->
+
+                <div class="input-group">
+
+                    <div class="input-icon">
+                        👤
+                    </div>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Name"
+                        required>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="input-group">
+
+                    <div class="input-icon">
+                        ✉️
+                    </div>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Email ID"
+                        required>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="input-group">
+
+                    <div class="input-icon">
+                        🔒
+                    </div>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Password"
+                        required>
+
+                </div>
+
+
+                <!-- REGISTER BUTTON -->
+
+                <button
+                    type="submit"
+                    id="registerButton"
+                    class="register-btn">
+
+                    REGISTER
+
+                </button>
+
+
+            </form>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <a
+                href="index.html"
+                class="login-btn">
+
+                LOGIN
+
+            </a>
+
+
+            <!-- ERROR MESSAGE -->
+
+            <div
+                id="errorScreen"
+                class="error-screen">
+            </div>
+
+
+        </div>
+
+
+        <!-- =========================
+             SUCCESS SECTION
+             ========================= -->
+
+        <div
+            id="successScreen"
+            class="success-screen">
+
+
+            <!-- SUCCESS ICON -->
+
+            <div class="success-icon">
+
+                ✓
+
+            </div>
+
+
+            <!-- SUCCESS TITLE -->
+
+            <div class="success-title">
+
+                Account Created Successfully!
+
+            </div>
+
+
+            <!-- SUCCESS MESSAGE -->
+
+            <div class="success-message-card">
+
+                <p>
+                    Your account has been created successfully.
+                </p>
+
+                <p>
+                    Your <strong>Name and Password</strong>
+                    have been sent to your email.
+                </p>
+
+                <p>
+                    You can now use your account to log in
+                    to the Student Assignment & Deadline Tracker.
+                </p>
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <a
+                href="index.html"
+                class="success-btn success-login-btn">
+
+                LOGIN
+
+            </a>
+
+
+            <!-- REGISTER ANOTHER ACCOUNT -->
+
+            <button
+                type="button"
+                class="success-btn success-register-btn"
+                onclick="registerAnotherAccount()">
+
+                REGISTER ANOTHER ACCOUNT
 
             </button>
 
 
-        </form>
-
-
-        <!-- LOGIN BUTTON -->
-
-        <a
-            href="index.html"
-            class="login-btn">
-
-            LOGIN
-
-        </a>
+        </div>
 
 
     </div>
@@ -543,40 +828,83 @@
      */
 
     emailjs.init({
+
         publicKey: "lW3GJrPPsL1pvSMwH"
+
     });
 
 
     /*
-     * Show message inside page
+     * Get elements
      */
 
-    function showMessage(message, type) {
+    const registerForm =
+        document.getElementById("registerForm");
 
-        const messageBox =
-            document.getElementById("messageBox");
+    const registerButton =
+        document.getElementById("registerButton");
 
-        messageBox.innerHTML = message;
+    const registerSection =
+        document.getElementById("registerSection");
 
-        messageBox.className =
-            "message-box " + type;
+    const successScreen =
+        document.getElementById("successScreen");
+
+    const errorScreen =
+        document.getElementById("errorScreen");
+
+
+    /*
+     * Show error message
+     */
+
+    function showError(message) {
+
+        errorScreen.innerHTML = "✕ " + message;
+
+        errorScreen.classList.add("show");
 
     }
 
 
     /*
-     * Hide message
+     * Hide error message
      */
 
-    function hideMessage() {
+    function hideError() {
 
-        const messageBox =
-            document.getElementById("messageBox");
+        errorScreen.innerHTML = "";
 
-        messageBox.innerHTML = "";
+        errorScreen.classList.remove("show");
 
-        messageBox.className =
-            "message-box";
+    }
+
+
+    /*
+     * Show success screen
+     */
+
+    function showSuccessScreen() {
+
+        registerSection.style.display = "none";
+
+        successScreen.classList.add("show");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    }
+
+
+    /*
+     * Register another account
+     */
+
+    function registerAnotherAccount() {
+
+        window.location.reload();
 
     }
 
@@ -585,17 +913,18 @@
      * Registration Form
      */
 
-    document.getElementById("registerForm")
-        .addEventListener("submit", async function(event) {
+    registerForm.addEventListener(
+        "submit",
+        async function(event) {
 
             event.preventDefault();
 
 
             /*
-             * Hide previous message
+             * Hide previous error
              */
 
-            hideMessage();
+            hideError();
 
 
             /*
@@ -603,26 +932,33 @@
              */
 
             const name =
-                document.getElementById("name").value.trim();
+                document
+                    .getElementById("name")
+                    .value
+                    .trim();
+
 
             const email =
-                document.getElementById("email").value.trim();
+                document
+                    .getElementById("email")
+                    .value
+                    .trim();
+
 
             const password =
-                document.getElementById("password").value;
-
-
-            const button =
-                document.getElementById("registerButton");
+                document
+                    .getElementById("password")
+                    .value;
 
 
             /*
              * Disable button
              */
 
-            button.disabled = true;
+            registerButton.disabled = true;
 
-            button.innerText = "REGISTERING...";
+            registerButton.innerText =
+                "REGISTERING...";
 
 
             try {
@@ -630,39 +966,54 @@
 
                 /*
                  * Send registration data
-                 * to RegisterServlet.
+                 * to RegisterServlet
                  */
 
-                const response = await fetch("RegisterServlet", {
+                const response =
+                    await fetch(
+                        "RegisterServlet",
+                        {
 
-                    method: "POST",
+                            method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/x-www-form-urlencoded"
-                    },
+                            headers: {
 
-                    body:
-                        "name=" + encodeURIComponent(name) +
-                        "&email=" + encodeURIComponent(email) +
-                        "&password=" + encodeURIComponent(password)
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded"
 
-                });
+                            },
 
+                            body:
+                                "name=" +
+                                encodeURIComponent(name) +
+
+                                "&email=" +
+                                encodeURIComponent(email) +
+
+                                "&password=" +
+                                encodeURIComponent(password)
+
+                        }
+                    );
+
+
+                /*
+                 * Get servlet response
+                 */
 
                 const result =
                     await response.text();
 
 
                 /*
-                 * Check servlet response.
+                 * Check servlet response
                  */
 
                 if (result.trim() === "SUCCESS") {
 
 
                     /*
-                     * Send email through EmailJS.
+                     * Send email through EmailJS
                      */
 
                     await emailjs.send(
@@ -672,42 +1023,26 @@
                         "template_6368n4j",
 
                         {
+
                             name: name,
+
                             email: email,
+
                             password: password
+
                         }
 
                     );
 
 
                     /*
-                     * Show success message.
+                     * Email successfully sent.
+                     *
+                     * Now show the full
+                     * success screen.
                      */
 
-                    showMessage(
-                        "✓ Account created successfully!<br><br>" +
-                        "Your Name and Password have been sent to your email.",
-                        "success"
-                    );
-
-
-                    /*
-                     * Clear form.
-                     */
-
-                    document.getElementById("registerForm").reset();
-
-
-                    /*
-                     * Redirect to login page
-                     * after a short delay.
-                     */
-
-                    setTimeout(function() {
-
-                        window.location.href = "index.html";
-
-                    }, 2500);
+                    showSuccessScreen();
 
 
                 } else {
@@ -717,21 +1052,24 @@
                      * Registration failed.
                      */
 
-                    showMessage(
-                        "✕ " + result,
-                        "error"
-                    );
+                    showError(result);
 
 
-                    button.disabled = false;
+                    registerButton.disabled =
+                        false;
 
-                    button.innerText = "REGISTER";
+                    registerButton.innerText =
+                        "REGISTER";
 
                 }
 
 
             } catch (error) {
 
+
+                /*
+                 * Print error in browser console
+                 */
 
                 console.error(
                     "Registration/EmailJS Error:",
@@ -741,24 +1079,28 @@
 
                 /*
                  * Show error message
-                 * inside the page.
                  */
 
-                showMessage(
-                    "✕ Account registration or email sending failed.<br>" +
-                    "Please try again.",
-                    "error"
+                showError(
+                    "Account registration or email sending failed. " +
+                    "Please try again."
                 );
 
 
-                button.disabled = false;
+                /*
+                 * Enable button again
+                 */
 
-                button.innerText = "REGISTER";
+                registerButton.disabled =
+                    false;
+
+                registerButton.innerText =
+                    "REGISTER";
 
             }
 
-        });
-
+        }
+    );
 
 </script>
 
