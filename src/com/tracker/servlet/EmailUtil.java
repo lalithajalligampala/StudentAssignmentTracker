@@ -1,146 +1,442 @@
 package com.tracker.servlet;
 
-import java.util.Properties;
-
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class EmailUtil {
 
-    /*
-     * ============================================================
-     * GMAIL SMTP CONFIGURATION
-     * ============================================================
-     *
-     * IMPORTANT:
-     * Gmail username and App Password are read from
-     * environment variables.
-     *
-     * DO NOT put the Gmail App Password directly in this file.
-     */
+    // ============================================================
+    // EmailJS Configuration
+    // ============================================================
 
-    private static final String SENDER_EMAIL =
-            System.getenv("GMAIL_USERNAME");
+    private static final String EMAILJS_SERVICE_ID =
+            getEnv("EMAILJS_SERVICE_ID");
 
-    private static final String SENDER_PASSWORD =
-            System.getenv("GMAIL_APP_PASSWORD");
+    private static final String EMAILJS_TEMPLATE_ID =
+            getEnv("EMAILJS_TEMPLATE_ID");
+
+    private static final String EMAILJS_PUBLIC_KEY =
+            getEnv("EMAILJS_PUBLIC_KEY");
+
+    private static final String EMAILJS_PRIVATE_KEY =
+            getEnv("EMAILJS_PRIVATE_KEY");
+
+    private static final String EMAILJS_URL =
+            "https://api.emailjs.com/api/v1.0/email/send";
 
 
-    /*
-     * ============================================================
-     * SEND EMAIL
-     * ============================================================
-     */
+    // ============================================================
+    // Read and trim environment variables
+    // ============================================================
 
-    public static void sendEmail(
+    private static String getEnv(String name) {
+
+        String value = System.getenv(name);
+
+        if (value == null) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
+
+    // ============================================================
+    // Send Assignment Reminder Email
+    // ============================================================
+
+    public static void sendReminderEmail(
             String recipientEmail,
-            String subject,
-            String body) throws Exception {
+            String assignmentName,
+            String subjectName,
+            String deadline,
+            String deadlineTime,
+            String reminderType,
+            String message) throws Exception {
 
         // --------------------------------------------------------
-        // Validate environment variables
+        // Validate EmailJS configuration
         // --------------------------------------------------------
 
-        if (SENDER_EMAIL == null ||
-            SENDER_EMAIL.trim().isEmpty()) {
+        if (EMAILJS_SERVICE_ID == null ||
+            EMAILJS_SERVICE_ID.isEmpty()) {
 
             throw new Exception(
-                "GMAIL_USERNAME environment variable is missing."
-            );
-        }
-
-        if (SENDER_PASSWORD == null ||
-            SENDER_PASSWORD.trim().isEmpty()) {
-
-            throw new Exception(
-                "GMAIL_APP_PASSWORD environment variable is missing."
+                    "EMAILJS_SERVICE_ID environment variable is missing."
             );
         }
 
 
+        if (EMAILJS_TEMPLATE_ID == null ||
+            EMAILJS_TEMPLATE_ID.isEmpty()) {
+
+            throw new Exception(
+                    "EMAILJS_TEMPLATE_ID environment variable is missing."
+            );
+        }
+
+
+        if (EMAILJS_PUBLIC_KEY == null ||
+            EMAILJS_PUBLIC_KEY.isEmpty()) {
+
+            throw new Exception(
+                    "EMAILJS_PUBLIC_KEY environment variable is missing."
+            );
+        }
+
+
+        if (EMAILJS_PRIVATE_KEY == null ||
+            EMAILJS_PRIVATE_KEY.isEmpty()) {
+
+            throw new Exception(
+                    "EMAILJS_PRIVATE_KEY environment variable is missing."
+            );
+        }
+
+
+        if (recipientEmail == null ||
+            recipientEmail.trim().isEmpty()) {
+
+            throw new Exception(
+                    "Recipient email address is missing."
+            );
+        }
+
+
         // --------------------------------------------------------
-        // Gmail SMTP properties
+        // Clean input values
         // --------------------------------------------------------
 
-        Properties properties = new Properties();
+        recipientEmail = recipientEmail.trim();
 
-        properties.put(
-            "mail.smtp.host",
-            "smtp.gmail.com"
-        );
+        if (assignmentName == null) {
+            assignmentName = "";
+        }
 
-        properties.put(
-            "mail.smtp.port",
-            "587"
-        );
+        if (subjectName == null) {
+            subjectName = "";
+        }
 
-        properties.put(
-            "mail.smtp.auth",
-            "true"
-        );
+        if (deadline == null) {
+            deadline = "";
+        }
 
-        properties.put(
-            "mail.smtp.starttls.enable",
-            "true"
-        );
+        if (deadlineTime == null) {
+            deadlineTime = "";
+        }
+
+        if (reminderType == null) {
+            reminderType = "";
+        }
+
+        if (message == null) {
+            message = "";
+        }
 
 
         // --------------------------------------------------------
-        // Create Gmail SMTP session
+        // Email subject
         // --------------------------------------------------------
 
-        Session session = Session.getInstance(
-            properties,
-            new Authenticator() {
+        String emailSubject =
+                "Assignment Reminder - " + assignmentName;
 
-                @Override
-                protected PasswordAuthentication
-                getPasswordAuthentication() {
 
-                    return new PasswordAuthentication(
-                        SENDER_EMAIL,
-                        SENDER_PASSWORD
-                    );
+        // --------------------------------------------------------
+        // Create JSON request
+        // --------------------------------------------------------
+
+        String jsonBody =
+                "{"
+                + "\"service_id\":\""
+                + escapeJson(EMAILJS_SERVICE_ID)
+                + "\","
+
+                + "\"template_id\":\""
+                + escapeJson(EMAILJS_TEMPLATE_ID)
+                + "\","
+
+                + "\"user_id\":\""
+                + escapeJson(EMAILJS_PUBLIC_KEY)
+                + "\","
+
+                + "\"accessToken\":\""
+                + escapeJson(EMAILJS_PRIVATE_KEY)
+                + "\","
+
+                + "\"template_params\":{"
+
+                + "\"email\":\""
+                + escapeJson(recipientEmail)
+                + "\","
+
+                + "\"assignment_name\":\""
+                + escapeJson(assignmentName)
+                + "\","
+
+                + "\"subject\":\""
+                + escapeJson(subjectName)
+                + "\","
+
+                + "\"deadline\":\""
+                + escapeJson(deadline)
+                + "\","
+
+                + "\"deadline_time\":\""
+                + escapeJson(deadlineTime)
+                + "\","
+
+                + "\"reminder_type\":\""
+                + escapeJson(reminderType)
+                + "\","
+
+                + "\"message\":\""
+                + escapeJson(message)
+                + "\""
+
+                + "}"
+                + "}";
+
+
+        // --------------------------------------------------------
+        // Send HTTP request to EmailJS
+        // --------------------------------------------------------
+
+        HttpURLConnection connection = null;
+
+        try {
+
+            System.out.println("--------------------------------------");
+            System.out.println("Sending reminder through EmailJS...");
+            System.out.println("Recipient: " + recipientEmail);
+            System.out.println("Assignment: " + assignmentName);
+            System.out.println("Reminder Type: " + reminderType);
+            System.out.println("--------------------------------------");
+
+
+            // ----------------------------------------------------
+            // Connect to EmailJS
+            // ----------------------------------------------------
+
+            URL url = new URL(EMAILJS_URL);
+
+            connection =
+                    (HttpURLConnection) url.openConnection();
+
+            connection.setRequestMethod("POST");
+
+
+            // ----------------------------------------------------
+            // HTTP Headers
+            // ----------------------------------------------------
+
+            connection.setRequestProperty(
+                    "Content-Type",
+                    "application/json"
+            );
+
+            connection.setRequestProperty(
+                    "Accept",
+                    "application/json"
+            );
+
+            connection.setRequestProperty(
+                    "User-Agent",
+                    "StudentAssignmentTracker/1.0"
+            );
+
+
+            connection.setDoOutput(true);
+
+            connection.setConnectTimeout(15000);
+
+            connection.setReadTimeout(15000);
+
+
+            // ----------------------------------------------------
+            // Send request
+            // ----------------------------------------------------
+
+            try (OutputStream outputStream =
+                         connection.getOutputStream()) {
+
+                byte[] input =
+                        jsonBody.getBytes(StandardCharsets.UTF_8);
+
+                outputStream.write(input);
+
+                outputStream.flush();
+            }
+
+
+            // ----------------------------------------------------
+            // Get response
+            // ----------------------------------------------------
+
+            int responseCode =
+                    connection.getResponseCode();
+
+            InputStream responseStream;
+
+            if (responseCode >= 200 &&
+                responseCode < 300) {
+
+                responseStream =
+                        connection.getInputStream();
+
+            } else {
+
+                responseStream =
+                        connection.getErrorStream();
+            }
+
+
+            // ----------------------------------------------------
+            // Read response
+            // ----------------------------------------------------
+
+            StringBuilder response =
+                    new StringBuilder();
+
+            if (responseStream != null) {
+
+                try (BufferedReader reader =
+                             new BufferedReader(
+                                 new InputStreamReader(
+                                     responseStream,
+                                     StandardCharsets.UTF_8))) {
+
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+
+                        response.append(line);
+                    }
                 }
             }
-        );
 
 
-        // --------------------------------------------------------
-        // Create email
-        // --------------------------------------------------------
+            // ----------------------------------------------------
+            // EmailJS success
+            // ----------------------------------------------------
 
-        Message message = new MimeMessage(session);
+            if (responseCode >= 200 &&
+                responseCode < 300) {
 
-        message.setFrom(
-            new InternetAddress(SENDER_EMAIL)
-        );
+                System.out.println(
+                        "======================================"
+                );
 
-        message.setRecipients(
-            Message.RecipientType.TO,
-            InternetAddress.parse(recipientEmail)
-        );
+                System.out.println(
+                        "EmailJS reminder sent successfully"
+                );
 
-        message.setSubject(subject);
+                System.out.println(
+                        "Recipient: " + recipientEmail
+                );
 
-        message.setText(body);
+                System.out.println(
+                        "Assignment: " + assignmentName
+                );
+
+                System.out.println(
+                        "Reminder: " + reminderType
+                );
+
+                System.out.println(
+                        "Email Subject: " + emailSubject
+                );
+
+                System.out.println(
+                        "EmailJS Response: " + response
+                );
+
+                System.out.println(
+                        "======================================"
+                );
 
 
-        // --------------------------------------------------------
-        // Send email
-        // --------------------------------------------------------
+            } else {
 
-        Transport.send(message);
+                // ------------------------------------------------
+                // EmailJS failure
+                // ------------------------------------------------
+
+                System.err.println(
+                        "======================================"
+                );
+
+                System.err.println(
+                        "EmailJS reminder failed"
+                );
+
+                System.err.println(
+                        "HTTP Status: " + responseCode
+                );
+
+                System.err.println(
+                        "Recipient: " + recipientEmail
+                );
+
+                System.err.println(
+                        "Assignment: " + assignmentName
+                );
+
+                System.err.println(
+                        "Reminder: " + reminderType
+                );
+
+                System.err.println(
+                        "EmailJS Response: " + response
+                );
+
+                System.err.println(
+                        "======================================"
+                );
 
 
-        System.out.println(
-            "Email sent successfully to: "
-            + recipientEmail
-        );
+                throw new Exception(
+                        "EmailJS failed with HTTP status "
+                        + responseCode
+                        + ": "
+                        + response
+                );
+            }
+
+
+        } finally {
+
+            if (connection != null) {
+
+                connection.disconnect();
+            }
+        }
+    }
+
+
+    // ============================================================
+    // Escape special characters for JSON
+    // ============================================================
+
+    private static String escapeJson(String value) {
+
+        if (value == null) {
+
+            return "";
+        }
+
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
